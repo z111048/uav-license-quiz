@@ -77,6 +77,13 @@
           閱讀模式
         </button>
       </div>
+
+      <!-- 白名單按鈕 -->
+      <div class="mt-4 text-center">
+        <button onclick="openWhitelist()" class="text-indigo-600 hover:text-indigo-800 underline text-sm">
+          查看「無腦背答案」白名單清單
+        </button>
+      </div>
     </div>
 
     <!-- 2. 作答頁面 (Quiz View) -->
@@ -152,6 +159,28 @@
       </div>
     </div>
 
+    <!-- 5. 白名單頁面 (Whitelist View) -->
+    <div id="whitelist-view" class="hidden bg-white rounded-xl shadow-lg p-6 md:p-8">
+      <div class="flex justify-between items-center mb-6 border-b pb-4">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-800">答案白名單</h2>
+          <p class="text-sm text-gray-500 mt-1">看到這些選項內容，直接選它就對了 (唯一解)</p>
+        </div>
+        <button onclick="closeWhitelist()" class="text-gray-500 hover:text-gray-700 font-medium">
+          ✕ 關閉
+        </button>
+      </div>
+
+      <div class="mb-4">
+        <input type="text" id="whitelist-search" oninput="filterWhitelist()" placeholder="搜尋白名單關鍵字..."
+          class="w-full p-2 border rounded bg-gray-50">
+      </div>
+
+      <div id="whitelist-content" class="h-96 overflow-y-auto space-y-2 pr-2 border rounded p-2 bg-gray-50">
+        <!-- JS 動態生成 -->
+      </div>
+    </div>
+
     <!-- 3. 結果統計頁面 (Result View) -->
     <div id="result-view" class="hidden bg-white rounded-xl shadow-lg p-6 md:p-8">
       <h2 class="text-2xl font-bold text-center mb-6">練習結果報告</h2>
@@ -205,6 +234,7 @@
     // 1. 資料結構 (User 可自行擴充)
     // ==========================================
     let questions = [];
+    let whitelist = []; // 新增：答案白名單
 
     // ==========================================
     // 2. 狀態變數管理
@@ -228,10 +258,16 @@
 
     // 頁面載入後執行
     window.onload = function () {
-      fetch("question_bank.json")
+      fetch("process_question_bank.json")
         .then(response => response.json())
         .then(data => {
-          questions = data;
+          // 支援新舊格式相容
+          if (Array.isArray(data)) {
+            questions = data;
+          } else {
+            questions = data.questions;
+            whitelist = data.answer_option_whitelist || [];
+          }
           initChapters();
         })
         .catch(error => console.error("Error loading questions:", error));
@@ -629,11 +665,19 @@
           }
           optionsHtml += '</div>';
 
+          // 判斷是否可無腦背
+          const memorizeBadge = q.can_memorize_directly
+            ? `<span class="inline-block bg-indigo-100 text-indigo-700 text-xs px-2 py-1 rounded-full font-bold ml-2">⚡ 可無腦背</span>`
+            : '';
+
           qItem.innerHTML = `
             <div class="flex gap-2">
               <span class="font-bold text-gray-500 text-sm min-w-[2rem] pt-1">#${q.id}</span>
               <div class="flex-1">
-                <p class="font-bold text-gray-800 text-lg mb-2">${q.question}</p>
+                <div class="flex items-start justify-between">
+                    <p class="font-bold text-gray-800 text-lg mb-2">${q.question}</p>
+                    ${memorizeBadge}
+                </div>
                 ${optionsHtml}
                 <div class="mt-2 text-sm text-gray-500">
                   正確答案：<span class="font-bold text-green-600 text-lg">${q.answer}</span>
@@ -658,6 +702,45 @@
       document.getElementById('reading-view').classList.add('hidden');
       document.getElementById('setup-view').classList.remove('hidden');
       window.scrollTo(0, 0);
+    }
+
+    // ==========================================
+    // 7. 白名單視圖相關 (Whitelist)
+    // ==========================================
+
+    function openWhitelist() {
+      document.getElementById('setup-view').classList.add('hidden');
+      document.getElementById('whitelist-view').classList.remove('hidden');
+
+      renderWhitelist(whitelist);
+    }
+
+    function closeWhitelist() {
+      document.getElementById('whitelist-view').classList.add('hidden');
+      document.getElementById('setup-view').classList.remove('hidden');
+    }
+
+    function renderWhitelist(list) {
+      const container = document.getElementById('whitelist-content');
+      container.innerHTML = '';
+
+      if (!list || list.length === 0) {
+        container.innerHTML = '<div class="text-gray-500 text-center py-4">目前沒有資料</div>';
+        return;
+      }
+
+      list.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = "p-2 bg-white border rounded text-gray-700 text-sm hover:bg-indigo-50 transition";
+        div.innerText = item;
+        container.appendChild(div);
+      });
+    }
+
+    function filterWhitelist() {
+      const keyword = document.getElementById('whitelist-search').value.toLowerCase();
+      const filtered = whitelist.filter(item => item.toLowerCase().includes(keyword));
+      renderWhitelist(filtered);
     }
 
   </script>
