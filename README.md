@@ -104,6 +104,7 @@ uav-license-quiz/
 │       ├── ReadingView.tsx    # 閱讀模式
 │       ├── WhitelistView.tsx  # 白名單查詢
 │       ├── AllAboveView.tsx   # 「以上皆是」策略分析
+│       ├── StudyView.tsx      # AI 學習模式
 │       └── ResultView.tsx     # 成績報告
 ├── public/data/               # 題庫 JSON（納入版控）
 ├── update_question_bank.py    # 自動更新題庫腳本

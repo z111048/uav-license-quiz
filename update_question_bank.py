@@ -207,16 +207,20 @@ def parse_pdf_to_questions(pdf_path: str) -> list[dict]:
         clean_seg_text = re.sub(r"(?m)^\s*\d+\s*$\n?", "", clean_seg_text)
         matches = q_pattern.findall(clean_seg_text)
 
+        def _clean_text(s: str) -> str:
+            """移除頁碼殘留：中文句末標點後緊接的數字（pdfplumber 頁尾擷取產物）。"""
+            return re.sub(r"(?<=[。？！])\d+$", "", s.strip().replace("\n", ""))
+
         for match in matches:
             q_id, q_content, opt_a, opt_b, opt_c, opt_d = match
             q_item = {
                 "id": int(q_id),
-                "question": q_content.strip().replace("\n", ""),
+                "question": _clean_text(q_content),
                 "options": {
-                    "A": opt_a.strip().replace("\n", ""),
-                    "B": opt_b.strip().replace("\n", ""),
-                    "C": opt_c.strip().replace("\n", ""),
-                    "D": opt_d.strip().replace("\n", ""),
+                    "A": _clean_text(opt_a),
+                    "B": _clean_text(opt_b),
+                    "C": _clean_text(opt_c),
+                    "D": _clean_text(opt_d),
                 },
                 "answer": None,
                 "chapter": chap_title,
