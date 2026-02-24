@@ -38,8 +38,8 @@ export interface UserRecord {
 export type ViewType = 'setup' | 'quiz' | 'reading' | 'whitelist' | 'result'
 
 export const BANK_CONFIGS: BankConfig[] = [
-  { id: 'general', label: '普通操作證', file: '/data/general.json' },
-  { id: 'professional', label: '專業操作證', file: '/data/professional.json' },
-  { id: 'renewal', label: '屆期換證', file: '/data/renewal.json' },
-  { id: 'renewal_basic', label: '屆期換證（簡易）', file: '/data/renewal_basic.json' },
+  { id: 'general', label: '普通操作證', file: `${import.meta.env.BASE_URL}data/general.json` },
+  { id: 'professional', label: '專業操作證', file: `${import.meta.env.BASE_URL}data/professional.json` },
+  { id: 'renewal', label: '屆期換證', file: `${import.meta.env.BASE_URL}data/renewal.json` },
+  { id: 'renewal_basic', label: '屆期換證（簡易）', file: `${import.meta.env.BASE_URL}data/renewal_basic.json` },
 ]
