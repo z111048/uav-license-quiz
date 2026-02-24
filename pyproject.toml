@@ -6,4 +6,6 @@ dependencies = [
     "pdfplumber",
     "requests",
     "beautifulsoup4",
+    "anthropic",
+    "tqdm",
 ]

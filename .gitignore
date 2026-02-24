@@ -7,3 +7,6 @@ dist/
 
 # uv
 .venv/
+
+# 環境變數（含 API 金鑰，絕不入版控）
+.env

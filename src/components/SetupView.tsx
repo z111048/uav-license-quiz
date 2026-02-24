@@ -4,13 +4,15 @@ import { Question, QuizSettings } from '../types'
 interface Props {
   questions: Question[]
   whitelist: string[]
+  currentBankId: string
   onStart: (settings: QuizSettings) => void
   onReadingMode: (chapters: string[]) => void
   onWhitelist: () => void
   onAllAbove: () => void
+  onStudyMode: () => void
 }
 
-export default function SetupView({ questions, onStart, onReadingMode, onWhitelist, onAllAbove }: Props) {
+export default function SetupView({ questions, onStart, onReadingMode, onWhitelist, onAllAbove, onStudyMode, currentBankId }: Props) {
   const chapters = [...new Set(questions.map((q) => q.chapter))]
   const [selectedChapters, setSelectedChapters] = useState<string[]>([])
   const [count, setCount] = useState<number | 'all'>(50)
@@ -132,6 +134,16 @@ export default function SetupView({ questions, onStart, onReadingMode, onWhiteli
             查看「以上皆是」答題策略分析
           </button>
         </div>
+        {currentBankId === 'professional' && (
+          <div>
+            <button
+              onClick={onStudyMode}
+              className="text-purple-600 hover:text-purple-800 underline text-sm"
+            >
+              AI 學習模式（諧音 + 解析）
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )

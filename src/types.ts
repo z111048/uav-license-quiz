@@ -35,7 +35,16 @@ export interface UserRecord {
   timeSpent: number
 }
 
-export type ViewType = 'setup' | 'quiz' | 'reading' | 'whitelist' | 'allabove' | 'result'
+export type ViewType = 'setup' | 'quiz' | 'reading' | 'whitelist' | 'allabove' | 'result' | 'study'
+
+export interface StudyAid {
+  keywords: string
+  mnemonic: string
+  explanation: string
+  wrong_options: Partial<Record<'A' | 'B' | 'C' | 'D', string>>
+}
+
+export type StudyAids = Record<string, StudyAid>
 
 export const BANK_CONFIGS: BankConfig[] = [
   { id: 'general', label: '普通操作證', file: `${import.meta.env.BASE_URL}data/general.json` },

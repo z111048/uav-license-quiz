@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { BankData, BankConfig, Question, QuizSettings, UserRecord, ViewType, BANK_CONFIGS } from './types'
+import { BankData, BankConfig, Question, QuizSettings, UserRecord, ViewType, StudyAids, BANK_CONFIGS } from './types'
 import BankSelector from './components/BankSelector'
 import SetupView from './components/SetupView'
 import QuizView from './components/QuizView'
@@ -7,6 +7,7 @@ import ReadingView from './components/ReadingView'
 import WhitelistView from './components/WhitelistView'
 import AllAboveView from './components/AllAboveView'
 import ResultView from './components/ResultView'
+import StudyView from './components/StudyView'
 
 function shuffleArray<T>(array: T[]): T[] {
   const arr = [...array]
@@ -23,6 +24,9 @@ export default function App() {
   const [currentBankId, setCurrentBankId] = useState<string>(BANK_CONFIGS[0].id)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [studyAids, setStudyAids] = useState<StudyAids | null>(null)
+  const [studyAidsLoading, setStudyAidsLoading] = useState(false)
+  const [studyAidsError, setStudyAidsError] = useState<string | null>(null)
 
   // Quiz state
   const [quizQueue, setQuizQueue] = useState<Question[]>([])
@@ -66,6 +70,10 @@ export default function App() {
   const handleBankChange = useCallback((id: string) => {
     setCurrentBankId(id)
     setView('setup')
+    if (id !== 'professional') {
+      setStudyAids(null)
+      setStudyAidsError(null)
+    }
   }, [])
 
   function handleStart(settings: QuizSettings) {
@@ -101,6 +109,33 @@ export default function App() {
     setView('setup')
   }
 
+  function handleStudyMode() {
+    setView('study')
+    if (currentBankId !== 'professional') return
+    if (studyAids !== null || studyAidsLoading) return
+
+    setStudyAidsLoading(true)
+    setStudyAidsError(null)
+    const BASE_URL = import.meta.env.BASE_URL as string
+    fetch(BASE_URL + 'data/professional_study_aids.json')
+      .then((res) => {
+        if (res.status === 404) {
+          setStudyAids(null)
+          return null
+        }
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        return res.json()
+      })
+      .then((data: StudyAids | null) => {
+        if (data !== null) setStudyAids(data)
+        setStudyAidsLoading(false)
+      })
+      .catch((err: Error) => {
+        setStudyAidsError(`載入失敗：${err.message}`)
+        setStudyAidsLoading(false)
+      })
+  }
+
   return (
     <div className="bg-gray-100 text-gray-800 min-h-screen font-sans">
       <div className="max-w-3xl mx-auto p-4 md:p-6">
@@ -111,7 +146,7 @@ export default function App() {
         </header>
 
         {/* Bank Selector — always visible on setup view */}
-        {(view === 'setup' || view === 'reading' || view === 'whitelist' || view === 'allabove') && (
+        {(view === 'setup' || view === 'reading' || view === 'whitelist' || view === 'allabove' || view === 'study') && (
           <BankSelector
             banks={BANK_CONFIGS}
             currentId={currentBankId}
@@ -143,10 +178,12 @@ export default function App() {
               <SetupView
                 questions={bankData.questions}
                 whitelist={bankData.answer_option_whitelist}
+                currentBankId={currentBankId}
                 onStart={handleStart}
                 onReadingMode={handleReadingMode}
                 onWhitelist={() => setView('whitelist')}
                 onAllAbove={() => setView('allabove')}
+                onStudyMode={handleStudyMode}
               />
             )}
 
@@ -185,6 +222,16 @@ export default function App() {
                 records={quizRecords}
                 queue={quizQueue}
                 onRestart={handleRestart}
+              />
+            )}
+
+            {view === 'study' && (
+              <StudyView
+                questions={bankData.questions}
+                studyAids={studyAids}
+                studyAidsLoading={studyAidsLoading}
+                studyAidsError={studyAidsError}
+                onClose={() => setView('setup')}
               />
             )}
           </>
