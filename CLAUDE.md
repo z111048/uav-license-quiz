@@ -42,6 +42,12 @@ CAA website PDF  →  update_question_bank.py  →  public/data/*.json  →  Vit
 - `renewal` uses `N text` format (no dot after number); `renewal_basic` uses `N. text`
 - Some questions in `renewal` have a page break between the number and question text (`175\n題目...`), normalized before parsing
 
+**PDF page number artifact (known issue):**
+- pdfplumber extracts page footer numbers as plain text lines; these can end up captured inside option D or question text (e.g. `'800 呎。5'` where `5` is a page number)
+- The parser strips standalone digit-only lines (`re.sub(r"(?m)^\s*\d+\s*$\n?", "", ...)`) before regex matching to prevent this
+- `professional.json` was the only affected bank; 97 tail-embedded and 4 mid-text occurrences were manually corrected in February 2026
+- After any PDF re-parse, check for trailing digits after `。` / `？` in question and option texts
+
 ### Project structure
 ```
 uav-license-quiz/

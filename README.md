@@ -41,7 +41,7 @@ uv run update_question_bank.py
 執行後會：
 1. 爬取 [CAA 題庫頁面](https://www.caa.gov.tw/Article.aspx?a=3833&lang=1) 取得最新 PDF 連結
 2. 下載四個版本的 PDF 至 `ref/`（已存在且大小相符則跳過）
-3. 解析 PDF 題目與答案，計算白名單
+3. 解析 PDF 題目與答案，自動過濾頁碼等排版雜訊，計算白名單
 4. 輸出至 `public/data/*.json`
 
 ### 建置
