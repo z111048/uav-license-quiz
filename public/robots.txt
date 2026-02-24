@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://z111048.github.io/uav-license-quiz/sitemap.xml

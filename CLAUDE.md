@@ -79,12 +79,16 @@ uav-license-quiz/
 │       ├── StudyView.tsx      # AI study mode (keywords, mnemonic, explanation per question)
 │       └── ResultView.tsx     # Score summary + wrong question review
 ├── public/
+│   ├── robots.txt         # SEO: allow all crawlers, declare sitemap location
+│   ├── sitemap.xml        # SEO: canonical URL for Google/Bing indexing
+│   ├── site.webmanifest   # PWA manifest (name, short_name, theme_color)
 │   └── data/              # JSON files served to the app (committed)
 │       ├── general.json
 │       ├── professional.json
 │       ├── renewal.json
 │       ├── renewal_basic.json
 │       └── professional_study_aids.json  # AI study aids (optional, generate separately)
+├── index.html             # SPA entry point; contains all SEO meta tags + JSON-LD
 ├── ref/                   # Reference files (PDFs are gitignored)
 ├── pyproject.toml         # uv Python environment
 ├── update_question_bank.py    # Auto-download and process all banks
@@ -135,6 +139,24 @@ Keys are **0-based array indices** into `professional.json`'s `questions` array 
 ### QuizView scroll behaviour
 - On every question advance, `window.scrollTo({ top: 0, behavior: 'instant' })` is called (inside the `index`-dependent `useEffect`) to reset scroll position before the new question renders. Without this, the user's scroll position from the previous question carries over.
 - The countdown timer uses `<span className="inline-block w-8 text-right">` with a fixed width. This prevents a layout shift when the display transitions from two characters ("10") to one character ("9"). On mobile browsers (especially iOS Safari), layout shifts during an active scroll gesture can interrupt momentum scrolling, creating the illusion that the page is snapping back upward.
+
+### SEO configuration
+
+All SEO assets target `https://z111048.github.io/uav-license-quiz/` (GitHub Pages).
+
+**`index.html`** contains:
+- `<title>` and `<meta name="description/keywords">` — primary on-page signals
+- `<link rel="canonical">` — prevents duplicate-content issues under different paths
+- Open Graph (`og:`) and Twitter Card tags — correct preview when shared on Line / Facebook / Twitter
+- `<meta name="theme-color">` and `<link rel="manifest">` — PWA integration
+- JSON-LD structured data (`@type: WebApplication`) — enables Google rich results; lists feature set and marks the app as free
+- The manifest href uses `%BASE_URL%site.webmanifest`; Vite substitutes `%BASE_URL%` at build time so the path resolves correctly under any deploy prefix (e.g. `/uav-license-quiz/`)
+
+**`public/robots.txt`** — `Allow: /` + `Sitemap:` directive pointing to the full sitemap URL.
+
+**`public/sitemap.xml`** — single `<url>` entry for the root. Update `<lastmod>` whenever the question bank data is refreshed.
+
+**`public/site.webmanifest`** — minimal PWA manifest (name, short_name, description, theme/background color). No icons currently; add `icons` array if a favicon is introduced.
 
 ### generate_study_aids.py notes
 - Uses **tool use** (`tool_choice: {type: "tool"}`) for structured output — no JSON parsing failures

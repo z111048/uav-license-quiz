@@ -66,6 +66,19 @@ uv run generate_study_aids.py
 npm run build
 ```
 
+### SEO
+
+靜態 SEO 資產已預先設定，部署後即生效：
+
+| 檔案 | 用途 |
+|------|------|
+| `index.html` | 標題、description、keywords、Open Graph、Twitter Card、JSON-LD 結構化資料 |
+| `public/robots.txt` | 允許所有爬蟲索引，宣告 sitemap 位置 |
+| `public/sitemap.xml` | 告知 Google / Bing 正式 URL 與更新頻率 |
+| `public/site.webmanifest` | PWA 宣告，改善「加入主畫面」與社群分享體驗 |
+
+更新題庫後建議同步更新 `public/sitemap.xml` 中的 `<lastmod>` 日期，並至 [Google Search Console](https://search.google.com/search-console) 重新提交 sitemap。
+
 ## 技術架構
 
 ```
@@ -89,12 +102,13 @@ Vite + React + TypeScript  (Tailwind CSS v4)
 
 **前端**：Vite + React + TypeScript + Tailwind CSS v4
 **Python 工具**：uv 管理依賴（`pdfplumber`、`requests`、`beautifulsoup4`、`anthropic`、`tqdm`）
-**部署**：GitHub Actions → GitHub Pages
+**部署**：GitHub Actions → GitHub Pages（`https://z111048.github.io/uav-license-quiz/`）
 
 ## 專案結構
 
 ```
 uav-license-quiz/
+├── index.html                 # SPA 入口；包含完整 SEO meta 標籤與 JSON-LD 結構化資料
 ├── src/
 │   ├── App.tsx                # 主狀態管理、view 切換
 │   ├── types.ts               # TypeScript 型別定義
@@ -107,7 +121,11 @@ uav-license-quiz/
 │       ├── AllAboveView.tsx   # 「以上皆是」策略分析
 │       ├── StudyView.tsx      # AI 學習模式
 │       └── ResultView.tsx     # 成績報告
-├── public/data/               # 題庫 JSON（納入版控）
+├── public/
+│   ├── robots.txt             # 允許爬蟲索引，宣告 sitemap 位置
+│   ├── sitemap.xml            # 網站地圖（供 Google / Bing 索引）
+│   ├── site.webmanifest       # PWA 宣告（名稱、主題色）
+│   └── data/                  # 題庫 JSON（納入版控）
 ├── update_question_bank.py    # 自動更新題庫腳本
 ├── generate_study_aids.py     # AI 學習輔助生成腳本（需 ANTHROPIC_API_KEY）
 ├── pyproject.toml             # uv Python 環境

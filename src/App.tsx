@@ -141,8 +141,8 @@ export default function App() {
       <div className="max-w-3xl mx-auto p-4 md:p-6">
         {/* Header */}
         <header className="text-center mb-6">
-          <h1 className="text-3xl font-bold text-blue-600 mb-2">線上題庫練習系統</h1>
-          <p className="text-gray-500 text-sm">支援倒數計時、章節篩選與錯題回顧</p>
+          <h1 className="text-3xl font-bold text-blue-600 mb-2">無人機操作證考照練習題庫</h1>
+          <p className="text-gray-500 text-sm">民航局最新題庫｜普通／專業操作證、屆期換證｜倒數計時、章節篩選、錯題回顧</p>
         </header>
 
         {/* Bank Selector — always visible on setup view */}
