@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+/* 自定義樣式 */
+.option-btn {
+  transition: all 0.2s;
+}
+
+.option-btn:active {
+  transform: scale(0.98);
+}
+
+.no-select {
+  user-select: none;
+  -webkit-user-select: none;
+}

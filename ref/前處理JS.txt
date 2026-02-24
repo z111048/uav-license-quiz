@@ -1,0 +1,186 @@
+import pdfplumber
+import re
+import json
+import os
+
+def parse_pdf_to_json(pdf_path, output_json_path):
+    """
+    解析 PDF 題庫並輸出為 JSON 格式 (包含章節辨識)
+    """
+    if not os.path.exists(pdf_path):
+        print(f"錯誤: 找不到檔案 {pdf_path}")
+        return
+
+    print(f"開始讀取 PDF: {pdf_path} ...")
+    
+    full_text = ""
+    
+    # 1. 使用 pdfplumber 提取所有文字
+    with pdfplumber.open(pdf_path) as pdf:
+        for page in pdf.pages:
+            # x_tolerance=2 能較好地處理文字間距，避免字元黏在一起
+            text = page.extract_text(x_tolerance=2)
+            if text:
+                full_text += text + "\n"
+
+    # 2. 切分「題目區」與「答案區」
+    # 策略：尋找文件中第一次出現的「第X章...答案」作為分界點
+    # 這樣可以確保所有答案頁都在 answers_text 中
+    
+    split_match = re.search(r'(第[一二三四五六七八九十]+章\s*.*答案)', full_text)
+    
+    if split_match:
+        split_index = split_match.start()
+        print(f"偵測到答案區起始點：{split_match.group(1)}")
+    else:
+        # 備用方案：找單純的 "答案" 關鍵字，並從後方往前找比較保險(如果結構是題目-答案)
+        # 但為了避免誤判題目中的字，這裡嘗試找最後一段的大標題
+        print("警告: 無法自動偵測明確的答案區標題，嘗試尋找最後的 '答案' 關鍵字區塊...")
+        split_index = full_text.rfind("答案")
+        if split_index == -1:
+            split_index = len(full_text) # 沒找到則假設全是題目
+
+    questions_text = full_text[:split_index]
+    answers_text = full_text[split_index:]
+
+    print("文字提取完成，正在依章節結構化數據...")
+
+    questions_data = []
+
+    # 3. 依章節解析題目
+    # 步驟 A: 找出所有章節標題及其位置
+    # 模式：以 "第一章"、"第二章" 開頭的行
+    chapter_pattern = re.compile(r'(第[一二三四五六七八九十]+章\s+[^\n]+)')
+    
+    chapter_matches = list(chapter_pattern.finditer(questions_text))
+    
+    # 如果沒找到章節，就當作只有一個未知章節
+    if not chapter_matches:
+        chapter_segments = [("未知章節", questions_text)]
+    else:
+        chapter_segments = []
+        for i, match in enumerate(chapter_matches):
+            chapter_title = match.group(1).strip()
+            start_idx = match.end()
+            
+            # 決定結束位置：下一個章節的開始，或是文本結束
+            if i + 1 < len(chapter_matches):
+                end_idx = chapter_matches[i+1].start()
+            else:
+                end_idx = len(questions_text)
+            
+            segment_text = questions_text[start_idx:end_idx]
+            chapter_segments.append((chapter_title, segment_text))
+            
+    print(f"共識別出 {len(chapter_segments)} 個章節段落。")
+
+    # 步驟 B: 在每個章節段落中解析題目
+    for chap_title, seg_text in chapter_segments:
+        # 預處理：確保題號前有明顯換行，方便 Regex 抓取
+        # 將 "1." 替換為 "\n\n1."
+        clean_seg_text = re.sub(r'\n(\d+\.)', r'\n\n\1', seg_text)
+        
+        # 題目 Regex
+        # 說明: 抓取 題號 -> 題目 -> (A) -> (B) -> (C) -> (D)
+        # 結尾判斷: 遇到下一個 "\n\n數字." 或者 字串結束
+        q_pattern = re.compile(
+            r'(\d+)\.\s*(.*?)\s*\(A\)(.*?)\s*\(B\)(.*?)\s*\(C\)(.*?)\s*\(D\)(.*?)(?=\n\n\d+\.|\Z)', 
+            re.DOTALL
+        )
+        
+        matches = q_pattern.findall(clean_seg_text)
+        
+        for match in matches:
+            q_id, q_content, opt_a, opt_b, opt_c, opt_d = match
+            
+            q_item = {
+                "id": int(q_id),
+                "question": q_content.strip().replace('\n', ''),
+                "options": {
+                    "A": opt_a.strip().replace('\n', ''),
+                    "B": opt_b.strip().replace('\n', ''),
+                    "C": opt_c.strip().replace('\n', ''),
+                    "D": opt_d.strip().replace('\n', '')
+                },
+                "answer": None,
+                "chapter": chap_title  # 寫入當前迴圈的章節標題
+            }
+            questions_data.append(q_item)
+
+    print(f"已解析 {len(questions_data)} 道題目。")
+
+    # 4. 解析答案 (Answers)
+    answer_map = {}
+    
+    # 清理答案區文字，移除可能導致誤判的換行，但保留結構
+    # 有些 PDF 提取出來會有引號或逗號，例如 "1.", "A"
+    clean_a_text = answers_text.replace('\n', ' ')
+    
+    # 支援格式: "1. A", "1 A", "1.A", "1. A", "1","A"
+    # 使用較寬鬆的 Regex: 數字 + (點/空格/引號/逗號)* + [A-D]
+    ans_matches = re.findall(r'(\d+)[\.\s,"\'\\]+([A-D])', clean_a_text)
+
+    # 為了處理可能的題號重複問題 (例如Ch1有1-50, Ch2也有1-50)
+    # 我們先建立一個列表，稍後按順序分配
+    all_answers_list = [x[1] for x in ans_matches]
+    
+    print(f"已解析 {len(all_answers_list)} 個答案。")
+
+    # 5. 合併答案到題目
+    # 策略：因為題庫可能每個章節題號都從 1 開始，或者是連續題號
+    # 最安全的做法是：順序匹配。
+    # 假設答案區的答案順序與題目區的題目出現順序完全一致。
+    
+    if len(all_answers_list) == 0:
+        print("警告: 未解析到任何答案。")
+    
+    # 檢查題目數量與答案數量是否接近
+    if abs(len(questions_data) - len(all_answers_list)) > 20:
+        print("注意: 題目數量與答案數量差異較大，可能會有錯位風險。")
+        print(f"題目數: {len(questions_data)}, 答案數: {len(all_answers_list)}")
+        
+        # 備案：如果是連續題號 (1~388)，嘗試用 ID 映射 (更準確)
+        # 檢查題號是否連續增加
+        ids = [q['id'] for q in questions_data]
+        # 檢查是否單調遞增 (允許少量缺失)
+        is_continuous = all(ids[i] <= ids[i+1] for i in range(len(ids)-1))
+        
+        if is_continuous and len(ans_matches) > 0:
+            print("偵測到題號可能為連續 ID，嘗試使用 ID 對應模式...")
+            # 建立 ID -> Answer map
+            temp_map = {}
+            for q_num, q_ans in ans_matches:
+                temp_map[int(q_num)] = q_ans
+            
+            for q in questions_data:
+                if q['id'] in temp_map:
+                    q['answer'] = temp_map[q['id']]
+                else:
+                    q['answer'] = "未找到"
+            
+            # 寫入檔案並返回
+            with open(output_json_path, 'w', encoding='utf-8') as f:
+                json.dump(questions_data, f, ensure_ascii=False, indent=4)
+            print(f"\n解析完成！結果已儲存至: {output_json_path}")
+            return
+
+    # 預設模式：順序填入
+    for i, q in enumerate(questions_data):
+        if i < len(all_answers_list):
+            q['answer'] = all_answers_list[i]
+        else:
+            q['answer'] = "未找到"
+
+    # 6. 輸出 JSON
+    with open(output_json_path, 'w', encoding='utf-8') as f:
+        json.dump(questions_data, f, ensure_ascii=False, indent=4)
+    
+    print(f"\n解析完成！結果已儲存至: {output_json_path}")
+    if len(questions_data) > 0:
+        print(f"範例資料 (前 1 筆): {json.dumps(questions_data[0], ensure_ascii=False)}")
+
+if __name__ == "__main__":
+    source_pdf = "普通操作證學科測驗題庫_3833_090920.pdf"
+    output_json = "question_bank.json"
+    
+    parse_pdf_to_json(source_pdf, output_json)

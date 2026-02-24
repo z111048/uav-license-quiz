@@ -1,0 +1,9 @@
+# PDF 原始檔（由 update_question_bank.py 自動下載）
+ref/*.pdf
+
+# Node.js
+node_modules/
+dist/
+
+# uv
+.venv/
