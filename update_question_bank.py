@@ -7,6 +7,7 @@ update_question_bank.py
 import json
 import os
 import re
+from urllib.parse import urljoin
 
 import pdfplumber
 import requests
@@ -75,7 +76,12 @@ def scrape_pdf_links(url: str) -> dict[str, str]:
 
     for config in BANK_CONFIGS:
         for anchor in anchors:
-            link_text = anchor.get_text(strip=True)
+            # 優先用 title 屬性（含完整檔名），否則退回 get_text()
+            link_text = anchor.get("title", "") or anchor.get_text(strip=True)
+
+            # 只處理 PDF 檔案
+            if not link_text.lower().endswith(".pdf"):
+                continue
 
             # 必須包含 match 關鍵字
             if config["match"] not in link_text:
@@ -90,10 +96,7 @@ def scrape_pdf_links(url: str) -> dict[str, str]:
                 continue
 
             href = anchor["href"]
-            if href.startswith("http"):
-                full_url = href
-            else:
-                full_url = CAA_BASE + href
+            full_url = urljoin(url, href)
 
             result[config["id"]] = full_url
             print(f"  [{config['label']}] 找到連結：{link_text}")
@@ -193,6 +196,12 @@ def parse_pdf_to_questions(pdf_path: str) -> list[dict]:
     )
 
     for chap_title, seg_text in chapter_segments:
+        # 若題號格式為 "1 題目" 而非 "1. 題目"，先正規化為帶點格式
+        if not re.search(r"(?m)^\d+\.\s", seg_text):
+            # 修正頁面換行將題號與題目分隔的情況：e.g. "175\n題目文字" → "175 題目文字"
+            seg_text = re.sub(r"(?m)^(\d+)\n(?=[^\n])", r"\1 ", seg_text)
+            # 正規化行首題號：e.g. "1 題目" → "1. 題目"
+            seg_text = re.sub(r"(?m)^(\d+) ", r"\1. ", seg_text)
         clean_seg_text = re.sub(r"\n(\d+\.)", r"\n\n\1", seg_text)
         matches = q_pattern.findall(clean_seg_text)
 

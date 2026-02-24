@@ -31,6 +31,17 @@ CAA website PDF  →  update_question_bank.py  →  public/data/*.json  →  Vit
 
 `update_question_bank.py` scrapes the latest PDFs from `https://www.caa.gov.tw/Article.aspx?a=3833&lang=1`, parses them with pdfplumber, and computes the **memorization whitelist** (answer options that appear *only* as correct answers, never as distractors). Questions whose correct answer is in this whitelist get `can_memorize_directly: true`.
 
+**Scraping notes (CAA website quirks):**
+- PDF filenames are in the anchor's `title` attribute, not the visible link text — `get_text()` returns download metadata (size/date), not the filename
+- Anchor `href` values are relative (`../FileAtt.ashx?...`), resolved with `urllib.parse.urljoin`
+- DOCX/ODT files appear before PDF on the page; filtered by checking `title.lower().endswith(".pdf")`
+
+**PDF format differences:**
+- `general` / `professional`: chapter-based structure (`第X章 ...`), question numbers restart at 1 per chapter, answer section detected by `第X章 ...答案` header
+- `renewal` / `renewal_basic`: no chapter headings, sequential numbering 1–N, answer section detected by last occurrence of `答案`
+- `renewal` uses `N text` format (no dot after number); `renewal_basic` uses `N. text`
+- Some questions in `renewal` have a page break between the number and question text (`175\n題目...`), normalized before parsing
+
 ### Project structure
 ```
 uav-license-quiz/
