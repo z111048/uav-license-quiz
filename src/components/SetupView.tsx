@@ -7,9 +7,10 @@ interface Props {
   onStart: (settings: QuizSettings) => void
   onReadingMode: (chapters: string[]) => void
   onWhitelist: () => void
+  onAllAbove: () => void
 }
 
-export default function SetupView({ questions, onStart, onReadingMode, onWhitelist }: Props) {
+export default function SetupView({ questions, onStart, onReadingMode, onWhitelist, onAllAbove }: Props) {
   const chapters = [...new Set(questions.map((q) => q.chapter))]
   const [selectedChapters, setSelectedChapters] = useState<string[]>([])
   const [count, setCount] = useState<number | 'all'>(50)
@@ -114,13 +115,23 @@ export default function SetupView({ questions, onStart, onReadingMode, onWhiteli
         </button>
       </div>
 
-      <div className="mt-4 text-center">
-        <button
-          onClick={onWhitelist}
-          className="text-indigo-600 hover:text-indigo-800 underline text-sm"
-        >
-          查看「無腦背答案」白名單清單
-        </button>
+      <div className="mt-4 text-center space-y-2">
+        <div>
+          <button
+            onClick={onWhitelist}
+            className="text-indigo-600 hover:text-indigo-800 underline text-sm"
+          >
+            查看「無腦背答案」白名單清單
+          </button>
+        </div>
+        <div>
+          <button
+            onClick={onAllAbove}
+            className="text-amber-600 hover:text-amber-800 underline text-sm"
+          >
+            查看「以上皆是」答題策略分析
+          </button>
+        </div>
       </div>
     </div>
   )

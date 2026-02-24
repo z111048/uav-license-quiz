@@ -5,6 +5,7 @@ import SetupView from './components/SetupView'
 import QuizView from './components/QuizView'
 import ReadingView from './components/ReadingView'
 import WhitelistView from './components/WhitelistView'
+import AllAboveView from './components/AllAboveView'
 import ResultView from './components/ResultView'
 
 function shuffleArray<T>(array: T[]): T[] {
@@ -110,7 +111,7 @@ export default function App() {
         </header>
 
         {/* Bank Selector — always visible on setup view */}
-        {(view === 'setup' || view === 'reading' || view === 'whitelist') && (
+        {(view === 'setup' || view === 'reading' || view === 'whitelist' || view === 'allabove') && (
           <BankSelector
             banks={BANK_CONFIGS}
             currentId={currentBankId}
@@ -145,6 +146,7 @@ export default function App() {
                 onStart={handleStart}
                 onReadingMode={handleReadingMode}
                 onWhitelist={() => setView('whitelist')}
+                onAllAbove={() => setView('allabove')}
               />
             )}
 
@@ -167,6 +169,13 @@ export default function App() {
             {view === 'whitelist' && (
               <WhitelistView
                 whitelist={bankData.answer_option_whitelist}
+                onClose={() => setView('setup')}
+              />
+            )}
+
+            {view === 'allabove' && (
+              <AllAboveView
+                questions={bankData.questions}
                 onClose={() => setView('setup')}
               />
             )}

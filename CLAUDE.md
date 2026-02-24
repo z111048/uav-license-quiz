@@ -62,6 +62,7 @@ uav-license-quiz/
 │       ├── QuizView.tsx       # Timed quiz (10s per question)
 │       ├── ReadingView.tsx    # Browse all questions with answers
 │       ├── WhitelistView.tsx  # Searchable whitelist
+│       ├── AllAboveView.tsx   # "以上皆是" strategy analysis (runtime-computed, no JSON changes needed)
 │       └── ResultView.tsx     # Score summary + wrong question review
 ├── public/
 │   └── data/              # JSON files served to the app (committed)
@@ -83,14 +84,15 @@ uav-license-quiz/
 - **Tailwind CSS v4** — styling via `@tailwindcss/vite` plugin
 
 ### View management
-`App.tsx` manages a `view: ViewType` state and conditionally renders one of five components:
+`App.tsx` manages a `view: ViewType` state and conditionally renders one of six components:
 - `SetupView` — chapter selection, settings, entry points
 - `QuizView` — timed question answering (10s per question)
 - `ReadingView` — browse all questions with answers shown
 - `WhitelistView` — searchable list of memorizable answer options
+- `AllAboveView` — "以上皆是" strategy analysis (questions classified at runtime into "can memorize" vs "trap")
 - `ResultView` — score summary and wrong-question review
 
-`BankSelector` appears above the setup/reading/whitelist views for switching between the 4 bank versions. Switching resets to setup view and triggers a new fetch.
+`BankSelector` appears above the setup/reading/whitelist/allabove views for switching between the 4 bank versions. Switching resets to setup view and triggers a new fetch.
 
 ### Data formats
 

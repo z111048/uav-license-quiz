@@ -35,7 +35,7 @@ export interface UserRecord {
   timeSpent: number
 }
 
-export type ViewType = 'setup' | 'quiz' | 'reading' | 'whitelist' | 'result'
+export type ViewType = 'setup' | 'quiz' | 'reading' | 'whitelist' | 'allabove' | 'result'
 
 export const BANK_CONFIGS: BankConfig[] = [
   { id: 'general', label: '普通操作證', file: `${import.meta.env.BASE_URL}data/general.json` },
