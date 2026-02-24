@@ -42,6 +42,7 @@ export default function QuizView({ queue, settings, onFinish }: Props) {
 
   // Reset state on question change
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' })
     setTimeLeft(TIME_LIMIT)
     setAnswered(false)
     setSelectedKey(null)
@@ -160,7 +161,7 @@ export default function QuizView({ queue, settings, onFinish }: Props) {
                 d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
               />
             </svg>
-            {timeLeft}s
+            <span className="inline-block w-8 text-right">{timeLeft}</span>s
           </div>
         </div>
       </div>
