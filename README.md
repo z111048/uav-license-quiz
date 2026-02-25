@@ -72,11 +72,15 @@ npm run build
 
 | 檔案 | 用途 |
 |------|------|
-| `index.html` | 標題、description、keywords、Open Graph（含 og:image）、Twitter Card（大圖預覽）、JSON-LD 結構化資料（WebApplication + FAQPage）、noscript 備援內容 |
+| `index.html` | 標題、description、keywords、favicon link、Open Graph（含 og:image 尺寸）、Twitter Card（大圖預覽 + image:alt）、JSON-LD 結構化資料（WebApplication + FAQPage）、noscript 備援內容 |
+| `public/favicon.svg` | 瀏覽器 tab / 書籤圖示（SVG，俯視四旋翼造型，藍底白圖） |
+| `public/apple-touch-icon.png` | iOS「加入主畫面」圖示（180×180px） |
+| `public/icon-192.png` | PWA manifest 標準圖示（192×192px） |
+| `public/icon-512.png` | PWA 高解析度圖示（512×512px） |
 | `public/og-image.png` | 社群分享封面圖（1200×630px），用於 Line / Facebook / Twitter 分享預覽 |
 | `public/robots.txt` | 允許所有爬蟲索引，宣告 sitemap 位置 |
 | `public/sitemap.xml` | 告知 Google / Bing 正式 URL 與更新頻率 |
-| `public/site.webmanifest` | PWA 宣告，改善「加入主畫面」與社群分享體驗 |
+| `public/site.webmanifest` | PWA 宣告，含 icons 陣列（192 + 512）與 scope，改善「加入主畫面」體驗 |
 
 **AEO（Answer Engine Optimization）**：`index.html` 內含 `FAQPage` JSON-LD，提供 6 組問答，使 Google SGE、ChatGPT Search、Perplexity 等 AI 搜尋引擎可直接引用本站內容作為答案來源。
 
@@ -127,9 +131,14 @@ uav-license-quiz/
 │       ├── StudyView.tsx      # AI 學習模式
 │       └── ResultView.tsx     # 成績報告
 ├── public/
+│   ├── favicon.svg            # 瀏覽器圖示（SVG，俯視四旋翼）
+│   ├── apple-touch-icon.png   # iOS 主畫面圖示（180×180）
+│   ├── icon-192.png           # PWA 圖示（192×192）
+│   ├── icon-512.png           # PWA 圖示（512×512）
+│   ├── og-image.png           # 社群分享封面圖（1200×630）
 │   ├── robots.txt             # 允許爬蟲索引，宣告 sitemap 位置
 │   ├── sitemap.xml            # 網站地圖（供 Google / Bing 索引）
-│   ├── site.webmanifest       # PWA 宣告（名稱、主題色）
+│   ├── site.webmanifest       # PWA 宣告（名稱、主題色、icons）
 │   └── data/                  # 題庫 JSON（納入版控）
 ├── update_question_bank.py    # 自動更新題庫腳本
 ├── generate_study_aids.py     # AI 學習輔助生成腳本（需 ANTHROPIC_API_KEY）

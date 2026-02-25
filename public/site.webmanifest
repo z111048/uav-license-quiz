@@ -3,9 +3,13 @@
   "short_name": "無人機題庫",
   "description": "民航局無人機操作證考照線上練習系統，涵蓋普通、專業、屆期換證四套題庫",
   "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#f3f4f6",
   "theme_color": "#2563eb",
   "lang": "zh-TW",
-  "icons": []
+  "icons": [
+    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
 }
