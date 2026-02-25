@@ -115,6 +115,9 @@ uav-license-quiz/
 
 `BankSelector` appears above the setup/reading/whitelist/allabove/study views for switching between the 4 bank versions. Switching resets to setup view and triggers a new fetch.
 
+### BankSelector layout
+Uses `grid grid-cols-2 sm:grid-cols-4 gap-2` so the four bank buttons form a **2×2 grid on mobile** and a single row on desktop (≥ 640px). Each button has `w-full` to fill its grid cell. The 2×2 pairing is semantically natural: 普通操作證 / 專業操作證 on row 1, and the two 屆期換證 variants on row 2. The previous `flex flex-wrap` layout caused the widest button (屆期換證（簡易）) to wrap onto its own line on 375px screens, appearing isolated.
+
 ### Data formats
 
 `public/data/*.json` (app reads these):
