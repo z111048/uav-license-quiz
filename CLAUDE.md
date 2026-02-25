@@ -151,6 +151,7 @@ Three problems occur on mobile when the "Next question" button appears condition
 - `touch-action: manipulation` (Tailwind `touch-manipulation`) on both option divs and the next button — eliminates the 300ms click delay
 - `scrollIntoView({ behavior: 'smooth', block: 'nearest' })` called with an 80 ms `setTimeout` in an `answered`-dependent `useEffect` — the delay lets React finish inserting the button into the DOM before the scroll fires; `block: 'nearest'` avoids unnecessary scrolling when the button is already visible
 - `border-t border-gray-200 pt-5` separator above the next button — provides visual and spatial distance from option D to reduce mis-taps
+- `pointer-events-none` on the next button itself for the first 350 ms after it appears (`nextReady` state, set to `true` via `setTimeout(..., 350)`) — ghost-click prevention in mobile browsers suppresses clicks within ~300 ms at the same screen coordinates as the preceding touch. When the page fits in the viewport and `scrollIntoView` does not move the button, the button would appear at the exact spot where the finger lifted; the 350 ms lock ensures the ghost-click window has passed before the button accepts input.
 
 ### SEO configuration
 

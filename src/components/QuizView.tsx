@@ -15,6 +15,7 @@ export default function QuizView({ queue, settings, onFinish }: Props) {
   const [index, setIndex] = useState(0)
   const [timeLeft, setTimeLeft] = useState(TIME_LIMIT)
   const [answered, setAnswered] = useState(false)
+  const [nextReady, setNextReady] = useState(false)
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
   const [showHint, setShowHint] = useState(false)
   const [timedOut, setTimedOut] = useState(false)
@@ -46,6 +47,7 @@ export default function QuizView({ queue, settings, onFinish }: Props) {
     window.scrollTo({ top: 0, behavior: 'instant' })
     setTimeLeft(TIME_LIMIT)
     setAnswered(false)
+    setNextReady(false)
     setSelectedKey(null)
     setShowHint(false)
     setTimedOut(false)
@@ -69,10 +71,15 @@ export default function QuizView({ queue, settings, onFinish }: Props) {
   useEffect(() => {
     if (answered && settings.instantFeedback) {
       // Delay slightly to let the DOM insert the button before scrolling
-      const id = setTimeout(() => {
+      const scrollId = setTimeout(() => {
         nextButtonRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
       }, 80)
-      return () => clearTimeout(id)
+      // Wait for ghost-click prevention window (~300ms) before accepting taps on the button
+      const readyId = setTimeout(() => setNextReady(true), 350)
+      return () => {
+        clearTimeout(scrollId)
+        clearTimeout(readyId)
+      }
     }
   }, [answered, settings.instantFeedback])
 
@@ -231,7 +238,7 @@ export default function QuizView({ queue, settings, onFinish }: Props) {
           <button
             ref={nextButtonRef}
             onClick={advance}
-            className="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-4 rounded-lg transition touch-manipulation"
+            className={`w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-4 rounded-lg transition touch-manipulation ${!nextReady ? 'pointer-events-none' : ''}`}
           >
             下一題
           </button>
