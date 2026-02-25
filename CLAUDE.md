@@ -156,16 +156,19 @@ Three problems occur on mobile when the "Next question" button appears condition
 - `border-t border-gray-200 pt-5` separator above the next button — provides visual and spatial distance from option D to reduce mis-taps
 - `pointer-events-none` on the next button itself for the first 350 ms after it appears (`nextReady` state, set to `true` via `setTimeout(..., 350)`) — ghost-click prevention in mobile browsers suppresses clicks within ~300 ms at the same screen coordinates as the preceding touch. When the page fits in the viewport and `scrollIntoView` does not move the button, the button would appear at the exact spot where the finger lifted; the 350 ms lock ensures the ghost-click window has passed before the button accepts input.
 
-### SEO configuration
+### SEO / AEO configuration
 
 All SEO assets target `https://z111048.github.io/uav-license-quiz/` (GitHub Pages).
 
 **`index.html`** contains:
 - `<title>` and `<meta name="description/keywords">` — primary on-page signals
 - `<link rel="canonical">` — prevents duplicate-content issues under different paths
+- `<meta name="google-site-verification">` — Google Search Console ownership proof
 - Open Graph (`og:`) and Twitter Card tags — correct preview when shared on Line / Facebook / Twitter
 - `<meta name="theme-color">` and `<link rel="manifest">` — PWA integration
-- JSON-LD structured data (`@type: WebApplication`) — enables Google rich results; lists feature set and marks the app as free
+- JSON-LD `@type: WebApplication` — enables Google rich results; lists feature set and marks the app as free
+- JSON-LD `@type: FAQPage` — **AEO**: 6 Q&As in structured form so Google SGE / ChatGPT Search / Perplexity can cite answers directly from this site
+- `<noscript>` block — fallback text content (h1, h2, ul) visible to crawlers that don't execute JavaScript (Bing, Baidu, etc.), ensuring the page is not seen as blank by non-JS bots
 - The manifest href uses `%BASE_URL%site.webmanifest`; Vite substitutes `%BASE_URL%` at build time so the path resolves correctly under any deploy prefix (e.g. `/uav-license-quiz/`)
 
 **`public/robots.txt`** — `Allow: /` + `Sitemap:` directive pointing to the full sitemap URL.
@@ -173,6 +176,11 @@ All SEO assets target `https://z111048.github.io/uav-license-quiz/` (GitHub Page
 **`public/sitemap.xml`** — single `<url>` entry for the root. Update `<lastmod>` whenever the question bank data is refreshed.
 
 **`public/site.webmanifest`** — minimal PWA manifest (name, short_name, description, theme/background color). No icons currently; add `icons` array if a favicon is introduced.
+
+**AEO strategy summary:**
+- FAQPage JSON-LD is the primary AEO signal — AI engines extract Q&A pairs directly from schema
+- noscript text reinforces content for non-JS bots, improving confidence in page content
+- og:image (not yet added) would further improve social sharing CTR — create a 1200×630px image, place at `public/og-image.png`, and add `og:image` + `twitter:image` + `twitter:card: summary_large_image` meta tags
 
 ### generate_study_aids.py notes
 - Uses **tool use** (`tool_choice: {type: "tool"}`) for structured output — no JSON parsing failures

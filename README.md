@@ -66,18 +66,22 @@ uv run generate_study_aids.py
 npm run build
 ```
 
-### SEO
+### SEO / AEO
 
 靜態 SEO 資產已預先設定，部署後即生效：
 
 | 檔案 | 用途 |
 |------|------|
-| `index.html` | 標題、description、keywords、Open Graph、Twitter Card、JSON-LD 結構化資料 |
+| `index.html` | 標題、description、keywords、Open Graph、Twitter Card、JSON-LD 結構化資料（WebApplication + FAQPage）、noscript 備援內容 |
 | `public/robots.txt` | 允許所有爬蟲索引，宣告 sitemap 位置 |
 | `public/sitemap.xml` | 告知 Google / Bing 正式 URL 與更新頻率 |
 | `public/site.webmanifest` | PWA 宣告，改善「加入主畫面」與社群分享體驗 |
 
-更新題庫後建議同步更新 `public/sitemap.xml` 中的 `<lastmod>` 日期，並至 [Google Search Console](https://search.google.com/search-console) 重新提交 sitemap。
+**AEO（Answer Engine Optimization）**：`index.html` 內含 `FAQPage` JSON-LD，提供 6 組問答，使 Google SGE、ChatGPT Search、Perplexity 等 AI 搜尋引擎可直接引用本站內容作為答案來源。
+
+**Google Search Console**：已設定 `google-site-verification` meta tag。首次部署後需至 [Google Search Console](https://search.google.com/search-console) 完成驗證並提交 sitemap。
+
+更新題庫後建議同步更新 `public/sitemap.xml` 中的 `<lastmod>` 日期，並至 Google Search Console 重新提交 sitemap。
 
 ## 技術架構
 
