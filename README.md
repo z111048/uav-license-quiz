@@ -72,7 +72,8 @@ npm run build
 
 | 檔案 | 用途 |
 |------|------|
-| `index.html` | 標題、description、keywords、Open Graph、Twitter Card、JSON-LD 結構化資料（WebApplication + FAQPage）、noscript 備援內容 |
+| `index.html` | 標題、description、keywords、Open Graph（含 og:image）、Twitter Card（大圖預覽）、JSON-LD 結構化資料（WebApplication + FAQPage）、noscript 備援內容 |
+| `public/og-image.png` | 社群分享封面圖（1200×630px），用於 Line / Facebook / Twitter 分享預覽 |
 | `public/robots.txt` | 允許所有爬蟲索引，宣告 sitemap 位置 |
 | `public/sitemap.xml` | 告知 Google / Bing 正式 URL 與更新頻率 |
 | `public/site.webmanifest` | PWA 宣告，改善「加入主畫面」與社群分享體驗 |

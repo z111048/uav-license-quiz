@@ -164,7 +164,7 @@ All SEO assets target `https://z111048.github.io/uav-license-quiz/` (GitHub Page
 - `<title>` and `<meta name="description/keywords">` — primary on-page signals
 - `<link rel="canonical">` — prevents duplicate-content issues under different paths
 - `<meta name="google-site-verification">` — Google Search Console ownership proof
-- Open Graph (`og:`) and Twitter Card tags — correct preview when shared on Line / Facebook / Twitter
+- Open Graph (`og:`) and Twitter Card tags — correct preview when shared on Line / Facebook / Twitter; `og:image` and `twitter:image` point to `public/og-image.png` (1200×630px); `twitter:card` is `summary_large_image` for full-width image on Twitter/X
 - `<meta name="theme-color">` and `<link rel="manifest">` — PWA integration
 - JSON-LD `@type: WebApplication` — enables Google rich results; lists feature set and marks the app as free
 - JSON-LD `@type: FAQPage` — **AEO**: 6 Q&As in structured form so Google SGE / ChatGPT Search / Perplexity can cite answers directly from this site
@@ -180,7 +180,7 @@ All SEO assets target `https://z111048.github.io/uav-license-quiz/` (GitHub Page
 **AEO strategy summary:**
 - FAQPage JSON-LD is the primary AEO signal — AI engines extract Q&A pairs directly from schema
 - noscript text reinforces content for non-JS bots, improving confidence in page content
-- og:image (not yet added) would further improve social sharing CTR — create a 1200×630px image, place at `public/og-image.png`, and add `og:image` + `twitter:image` + `twitter:card: summary_large_image` meta tags
+- `public/og-image.png` (1200×630px) is set as `og:image` and `twitter:image` — improves social sharing CTR on Line / Facebook / Twitter/X
 
 ### generate_study_aids.py notes
 - Uses **tool use** (`tool_choice: {type: "tool"}`) for structured output — no JSON parsing failures
