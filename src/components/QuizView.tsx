@@ -22,6 +22,7 @@ export default function QuizView({ queue, settings, onFinish }: Props) {
   const records = useRef<UserRecord[]>([])
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const timeSpentRef = useRef(0)
+  const nextButtonRef = useRef<HTMLButtonElement>(null)
 
   const currentQ = queue[index]
 
@@ -63,6 +64,17 @@ export default function QuizView({ queue, settings, onFinish }: Props) {
 
     return () => clearTimer()
   }, [index, clearTimer])
+
+  // Scroll next button into view after answering so it's never hidden below fold
+  useEffect(() => {
+    if (answered && settings.instantFeedback) {
+      // Delay slightly to let the DOM insert the button before scrolling
+      const id = setTimeout(() => {
+        nextButtonRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+      }, 80)
+      return () => clearTimeout(id)
+    }
+  }, [answered, settings.instantFeedback])
 
   // Handle timeout
   useEffect(() => {
@@ -190,7 +202,7 @@ export default function QuizView({ queue, settings, onFinish }: Props) {
       )}
 
       {/* 選項 */}
-      <div className="space-y-3 no-select">
+      <div className={`space-y-3 no-select ${answered ? 'pointer-events-none' : ''}`}>
         {timedOut && (
           <div className="text-center text-red-500 font-bold mb-2">時間到！</div>
         )}
@@ -200,7 +212,7 @@ export default function QuizView({ queue, settings, onFinish }: Props) {
             <div
               key={key}
               onClick={() => handleAnswer(key)}
-              className={`option-btn w-full p-4 rounded-lg border-2 flex items-center transition ${optionStateClasses[state]}`}
+              className={`option-btn w-full p-4 rounded-lg border-2 flex items-center transition touch-manipulation ${optionStateClasses[state]}`}
             >
               <span
                 className={`font-bold w-8 h-8 flex items-center justify-center rounded-full mr-4 ${badgeStateClasses[state]}`}
@@ -215,10 +227,11 @@ export default function QuizView({ queue, settings, onFinish }: Props) {
 
       {/* 下一題按鈕 */}
       {answered && settings.instantFeedback && (
-        <div className="mt-6">
+        <div className="mt-6 pt-5 border-t border-gray-200">
           <button
+            ref={nextButtonRef}
             onClick={advance}
-            className="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-3 rounded-lg transition"
+            className="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-4 rounded-lg transition touch-manipulation"
           >
             下一題
           </button>
