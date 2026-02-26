@@ -72,13 +72,13 @@ npm run build
 
 | 檔案 | 用途 |
 |------|------|
-| `index.html` | 標題、description、keywords、favicon link、Open Graph（含 og:image 尺寸）、Twitter Card（大圖預覽 + image:alt）、JSON-LD 結構化資料（WebApplication + FAQPage）、noscript 備援內容 |
+| `index.html` | 標題、description、keywords、favicon link、Open Graph（含 og:image 尺寸）、Twitter Card（大圖預覽 + image:alt）、JSON-LD 結構化資料（WebApplication + FAQPage）、noscript 備援內容。**註：資源路徑使用 `/` 開頭，由 Vite 自動處理 base 路徑。** |
 | `public/favicon.svg` | 瀏覽器 tab / 書籤圖示（SVG，俯視四旋翼造型，藍底白圖） |
 | `public/apple-touch-icon.png` | iOS「加入主畫面」圖示（180×180px） |
 | `public/icon-192.png` | PWA manifest 標準圖示（192×192px） |
 | `public/icon-512.png` | PWA 高解析度圖示（512×512px） |
 | `public/og-image.png` | 社群分享封面圖（1200×630px），用於 Line / Facebook / Twitter 分享預覽 |
-| `public/robots.txt` | 允許所有爬蟲索引，宣告 sitemap 位置 |
+| `public/robots.txt` | 允許爬蟲索引 `/uav-license-quiz/` 路徑，宣告 sitemap 位置 |
 | `public/sitemap.xml` | 告知 Google / Bing 正式 URL 與更新頻率 |
 | `public/site.webmanifest` | PWA 宣告，含 icons 陣列（192 + 512）與 scope，改善「加入主畫面」體驗 |
 
