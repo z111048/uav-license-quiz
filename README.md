@@ -74,7 +74,7 @@ export FIREBASE_BUCKET=your-project-id.firebasestorage.app
 # ① 分析題目（只需執行一次，結果已納入版控）
 uv run scripts/images/analyze_questions_gemini.py
 
-# ② 生成圖片（371 張，費用約 NT$60，支援斷點續傳）
+# ② 生成圖片（371 張，費用約 NT$800；腳本預設預算 NT$300 約可生成 140 張，支援斷點續傳）
 uv run scripts/images/generate_images_v2.py
 
 # ③ 轉換 WebP + 上傳 Firebase

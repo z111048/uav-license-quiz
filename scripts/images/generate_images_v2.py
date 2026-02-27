@@ -23,7 +23,7 @@ MODEL_ID = "gemini-3.1-flash-image-preview"
 CONCURRENCY = 3
 
 # 費用追蹤
-COST_PER_IMAGE_USD = 0.005   # 每張估計費用（USD）
+COST_PER_IMAGE_USD = 0.067   # 每張估計費用（USD）— gemini-3.1-flash-image-preview 1K (1024px)
 TWD_PER_USD = 32.0           # 匯率：1 USD ≈ 32 TWD
 BUDGET_TWD = 300             # 預算上限（TWD）
 BUDGET_USD = BUDGET_TWD / TWD_PER_USD  # ≈ 9.375 USD
