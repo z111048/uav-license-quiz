@@ -108,7 +108,7 @@ uav-license-quiz/
 │       ├── WhitelistView.tsx  # Searchable whitelist
 │       ├── AllAboveView.tsx   # "以上皆是" strategy analysis (runtime-computed, no JSON changes needed)
 │       ├── StudyView.tsx      # AI study mode (keywords, mnemonic, explanation per question)
-│       └── ResultView.tsx     # Score summary + wrong question review
+│       └── ResultView.tsx     # Score summary + wrong question review + retry wrong button
 ├── public/
 │   ├── favicon.svg            # Browser tab / bookmark icon (SVG, top-down quadcopter)
 │   ├── apple-touch-icon.png   # iOS home screen icon (180×180)
@@ -155,7 +155,7 @@ uav-license-quiz/
 - `WhitelistView` — searchable list of memorizable answer options
 - `AllAboveView` — "以上皆是" strategy analysis (questions classified at runtime into "can memorize" vs "trap")
 - `StudyView` — AI study mode: chapter stats, per-question expandable cards with keywords/mnemonic/explanation/wrong-option notes. AI aid section is **expanded by default** (`useState(true)`); four sections rendered as distinct colored blocks (🔑 blue / 🎵 green / 💡 amber / ❌ red), laid out in a 2-column grid on desktop (keywords + mnemonic side-by-side; explanation + wrong-options full-width via `sm:col-span-2`)
-- `ResultView` — score summary and wrong-question review
+- `ResultView` — score summary and wrong-question review; shows an amber "再練一次錯題（N 題）" button when there are wrong answers (hidden when all correct); clicking calls `onRetryWrong` which rebuilds `quizQueue` from the current `quizRecords` (timed-out questions included as wrong) and navigates back to `QuizView`
 
 `BankSelector` appears above the setup/reading/whitelist/allabove/study views for switching between the 4 bank versions. Switching resets to setup view and triggers a new fetch.
 

@@ -4,9 +4,10 @@ interface Props {
   records: UserRecord[]
   queue: Question[]
   onRestart: () => void
+  onRetryWrong: () => void
 }
 
-export default function ResultView({ records, queue, onRestart }: Props) {
+export default function ResultView({ records, queue, onRestart, onRetryWrong }: Props) {
   const total = records.length
   const correctCount = records.filter((r) => r.isCorrect).length
   const wrongCount = total - correctCount
@@ -99,12 +100,22 @@ export default function ResultView({ records, queue, onRestart }: Props) {
         )}
       </div>
 
-      <button
-        onClick={onRestart}
-        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow"
-      >
-        重新開始練習
-      </button>
+      <div className="space-y-3">
+        {wrongRecords.length > 0 && (
+          <button
+            onClick={onRetryWrong}
+            className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 rounded-lg shadow"
+          >
+            再練一次錯題（{wrongRecords.length} 題）
+          </button>
+        )}
+        <button
+          onClick={onRestart}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow"
+        >
+          回到章節選擇
+        </button>
+      </div>
     </div>
   )
 }

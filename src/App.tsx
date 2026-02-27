@@ -137,6 +137,17 @@ export default function App() {
     setView('setup')
   }
 
+  function handleRetryWrong() {
+    if (!bankData) return
+    const wrongQuestions = quizRecords
+      .filter((r) => !r.isCorrect)
+      .map((r) => bankData.questions.find((q) => q.id === r.questionId && q.chapter === r.chapter))
+      .filter((q): q is Question => q !== undefined)
+    if (wrongQuestions.length === 0) return
+    setQuizQueue(wrongQuestions)
+    setView('quiz')
+  }
+
   function handleStudyMode() {
     setView('study')
     if (currentBankId !== 'professional') return
@@ -253,6 +264,7 @@ export default function App() {
                 records={quizRecords}
                 queue={quizQueue}
                 onRestart={handleRestart}
+                onRetryWrong={handleRetryWrong}
               />
             )}
 
