@@ -46,9 +46,10 @@ function QuestionCard({
           <img
             src={imageUrl}
             alt="題目示意圖"
-            className="max-w-[240px] rounded-lg border border-gray-200 object-contain bg-gray-50"
+            className="w-full rounded-lg border border-gray-200 object-contain bg-gray-50"
             loading="lazy"
           />
+          <p className="text-xs text-gray-400 mt-1">圖片由 AI 產製，僅供參考，可能與實際情況有所差異</p>
         </div>
       )}
 

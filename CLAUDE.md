@@ -232,6 +232,21 @@ All SEO assets target `https://z111048.github.io/uav-license-quiz/` (GitHub Page
 - PNG icons are generated programmatically via Pillow using the same proportions as the SVG; re-generate after any design change
 - `dateModified` in WebApplication JSON-LD should be updated whenever content is significantly refreshed
 
+### Image display in frontend
+
+`public/data/professional_images.json` is fetched once when the professional bank is selected (`imageMap` state in `App.tsx`). The map is passed as an optional prop to `QuizView`, `ReadingView`, and `StudyView`; other banks receive `null` and render no images.
+
+**Image sizing:** All three views use `w-full` so images fill the same width as the question text.
+
+**Disclaimer:** Every image renders a caption beneath it: `圖片由 AI 產製，僅供參考，可能與實際情況有所差異` (`text-xs text-gray-400`).
+
+**Per-view specifics:**
+- `QuizView` — `aspect-square w-full` container prevents layout shift that would interrupt `scrollIntoView` after answering
+- `ReadingView` — thumbnail with `cursor-zoom-in`; clicking opens a `fixed inset-0` lightbox (`lightboxSrc` state); lightbox closes on backdrop click or ✕ button
+- `StudyView` — image is always visible inside `QuestionCard` (not inside the AI aid expand/collapse toggle)
+
+**Global index lookup:** All three views compute `questions.indexOf(currentQ)` (0-based) to key into `imageMap`. This matches the key scheme in `professional_images.json` and `professional_study_aids.json`.
+
 ### generate_study_aids.py notes
 - Uses **tool use** (`tool_choice: {type: "tool"}`) for structured output — no JSON parsing failures
 - `CONCURRENCY = 3` to stay under the 10,000 output tokens/minute rate limit

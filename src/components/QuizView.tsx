@@ -196,13 +196,16 @@ export default function QuizView({ queue, allQuestions, settings, imageMap, onFi
           const globalIdx = allQuestions ? allQuestions.indexOf(currentQ) : -1
           const imgUrl = globalIdx >= 0 ? imageMap?.[String(globalIdx)] : undefined
           return imgUrl ? (
-            <div className="mt-4 aspect-square max-w-xs mx-auto rounded-lg overflow-hidden bg-gray-100">
-              <img
-                src={imgUrl}
-                alt="題目示意圖"
-                className="w-full h-full object-contain"
-                loading="lazy"
-              />
+            <div className="mt-4">
+              <div className="aspect-square w-full rounded-lg overflow-hidden bg-gray-100">
+                <img
+                  src={imgUrl}
+                  alt="題目示意圖"
+                  className="w-full h-full object-contain"
+                  loading="lazy"
+                />
+              </div>
+              <p className="text-xs text-gray-400 text-center mt-1">圖片由 AI 產製，僅供參考，可能與實際情況有所差異</p>
             </div>
           ) : null
         })()}
