@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
-import { Question, QuizSettings, UserRecord, ImageMap } from '../types'
+import { Question, QuizSettings, UserRecord, ImageMap, OptionKey } from '../types'
 
 const TIME_LIMIT = 10
 
@@ -18,7 +18,7 @@ export default function QuizView({ queue, allQuestions, settings, imageMap, onFi
   const [timeLeft, setTimeLeft] = useState(TIME_LIMIT)
   const [answered, setAnswered] = useState(false)
   const [nextReady, setNextReady] = useState(false)
-  const [selectedKey, setSelectedKey] = useState<string | null>(null)
+  const [selectedKey, setSelectedKey] = useState<OptionKey | null>(null)
   const [showHint, setShowHint] = useState(false)
   const [timedOut, setTimedOut] = useState(false)
 
@@ -104,7 +104,7 @@ export default function QuizView({ queue, allQuestions, settings, imageMap, onFi
     }
   }, [timeLeft, answered, currentQ, clearTimer])
 
-  function handleAnswer(key: string) {
+  function handleAnswer(key: OptionKey) {
     if (answered) return
     clearTimer()
     const isCorrect = key === currentQ.answer
@@ -128,7 +128,7 @@ export default function QuizView({ queue, allQuestions, settings, imageMap, onFi
     }
   }
 
-  function getOptionState(key: string): OptionState {
+  function getOptionState(key: OptionKey): OptionState {
     if (!answered) return 'default'
     if (key === currentQ.answer) return 'correct'
     if (key === selectedKey) return 'wrong'
@@ -164,6 +164,8 @@ export default function QuizView({ queue, allQuestions, settings, imageMap, onFi
             {currentQ.chapter}
           </div>
           <div
+            aria-label={`剩餘時間 ${timeLeft} 秒`}
+            aria-live="off"
             className={`flex items-center font-mono font-bold text-xl ${
               timeLeft <= 5 ? 'text-red-500 animate-pulse' : 'text-red-500'
             }`}
@@ -223,7 +225,7 @@ export default function QuizView({ queue, allQuestions, settings, imageMap, onFi
       {showHint && (
         <div className="mb-4 p-3 bg-yellow-50 text-yellow-800 rounded border border-yellow-200 text-sm">
           提示：正確答案是{' '}
-          <span className="font-bold">{currentQ.options[currentQ.answer as 'A' | 'B' | 'C' | 'D']}</span>
+          <span className="font-bold">{currentQ.options[currentQ.answer]}</span>
         </div>
       )}
 
@@ -232,10 +234,11 @@ export default function QuizView({ queue, allQuestions, settings, imageMap, onFi
         {timedOut && (
           <div className="text-center text-red-500 font-bold mb-2">時間到！</div>
         )}
-        {(Object.entries(currentQ.options) as [string, string][]).map(([key, value]) => {
+        {(Object.entries(currentQ.options) as [OptionKey, string][]).map(([key, value]) => {
           const state = getOptionState(key)
           return (
-            <div
+            <button
+              type="button"
               key={key}
               onClick={() => handleAnswer(key)}
               className={`option-btn w-full p-4 rounded-lg border-2 flex items-center transition touch-manipulation ${optionStateClasses[state]}`}
@@ -246,7 +249,7 @@ export default function QuizView({ queue, allQuestions, settings, imageMap, onFi
                 {key}
               </span>
               <span className="text-lg text-gray-800">{value}</span>
-            </div>
+            </button>
           )
         })}
       </div>

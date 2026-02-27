@@ -22,6 +22,9 @@ export default function ReadingView({ questions, selectedChapters, imageMap, onC
       {/* Lightbox overlay */}
       {lightboxSrc && (
         <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="題目示意圖放大檢視"
           className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
           onClick={() => setLightboxSrc(null)}
         >

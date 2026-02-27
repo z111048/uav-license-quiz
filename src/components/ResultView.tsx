@@ -1,4 +1,4 @@
-import { Question, UserRecord } from '../types'
+import { Question, UserRecord, OptionKey } from '../types'
 
 interface Props {
   records: UserRecord[]
@@ -19,10 +19,10 @@ export default function ResultView({ records, queue, onRestart, onRetryWrong }: 
 
   const wrongRecords = records.filter((r) => !r.isCorrect)
 
-  function getOptionText(record: UserRecord, key: string | null): string {
+  function getOptionText(record: UserRecord, key: OptionKey | null): string {
     if (!key) return '未作答 (逾時)'
     const q = queue.find((q) => q.id === record.questionId)
-    const text = q?.options[key as 'A' | 'B' | 'C' | 'D'] ?? ''
+    const text = q?.options[key] ?? ''
     return `${key}. ${text}`
   }
 

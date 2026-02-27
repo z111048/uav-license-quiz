@@ -17,8 +17,10 @@ export default function SetupView({ questions, onStart, onReadingMode, onWhiteli
   const [selectedChapters, setSelectedChapters] = useState<string[]>([])
   const [count, setCount] = useState<number | 'all'>(50)
   const [instantFeedback, setInstantFeedback] = useState(true)
+  const [startError, setStartError] = useState<string | null>(null)
 
   function toggleChapter(chapter: string) {
+    setStartError(null)
     setSelectedChapters((prev) =>
       prev.includes(chapter) ? prev.filter((c) => c !== chapter) : [...prev, chapter]
     )
@@ -29,13 +31,14 @@ export default function SetupView({ questions, onStart, onReadingMode, onWhiteli
       return
     }
     const chaptersToUse = selectedChapters.length > 0 ? selectedChapters : chapters
-    let filtered = questions.filter((q) => chaptersToUse.includes(q.chapter))
+    const filtered = questions.filter((q) => chaptersToUse.includes(q.chapter))
 
     if (filtered.length === 0) {
-      alert('所選章節沒有題目，請重新選擇！')
+      setStartError('所選章節沒有題目，請重新選擇！')
       return
     }
 
+    setStartError(null)
     onStart({ chapters: chaptersToUse, count, instantFeedback })
   }
 
@@ -49,8 +52,8 @@ export default function SetupView({ questions, onStart, onReadingMode, onWhiteli
       <h2 className="text-xl font-semibold mb-4 border-b pb-2">練習設定</h2>
 
       {/* 章節選擇 */}
-      <div className="mb-6">
-        <label className="block text-gray-700 font-bold mb-2">選擇章節 (可多選，不選則全選)</label>
+      <fieldset className="mb-6">
+        <legend className="block text-gray-700 font-bold mb-2">選擇章節 (可多選，不選則全選)</legend>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           {chapters.map((chapter) => (
             <div key={chapter} className="flex items-center space-x-2">
@@ -70,12 +73,13 @@ export default function SetupView({ questions, onStart, onReadingMode, onWhiteli
             </div>
           ))}
         </div>
-      </div>
+      </fieldset>
 
       {/* 題數設定 */}
       <div className="mb-6">
-        <label className="block text-gray-700 font-bold mb-2">練習題數</label>
+        <label htmlFor="question-count" className="block text-gray-700 font-bold mb-2">練習題數</label>
         <select
+          id="question-count"
           value={count === 'all' ? 'all' : String(count)}
           onChange={(e) => setCount(e.target.value === 'all' ? 'all' : parseInt(e.target.value))}
           className="w-full p-2 border rounded bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -101,6 +105,12 @@ export default function SetupView({ questions, onStart, onReadingMode, onWhiteli
           作答後立即顯示正解 (若取消則直接跳下一題)
         </label>
       </div>
+
+      {startError && (
+        <div role="alert" className="mb-4 px-4 py-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg">
+          {startError}
+        </div>
+      )}
 
       <div className="flex gap-4">
         <button

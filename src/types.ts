@@ -1,8 +1,10 @@
+export type OptionKey = 'A' | 'B' | 'C' | 'D'
+
 export interface Question {
   id: number
   question: string
-  options: Record<'A' | 'B' | 'C' | 'D', string>
-  answer: string
+  options: Record<OptionKey, string>
+  answer: OptionKey
   chapter: string
   can_memorize_directly?: boolean
 }
@@ -29,8 +31,8 @@ export interface UserRecord {
   question: string
   chapter: string
   options: Question['options']
-  correctAnswer: string
-  userAnswer: string | null
+  correctAnswer: OptionKey
+  userAnswer: OptionKey | null
   isCorrect: boolean
   timeSpent: number
 }
@@ -41,7 +43,7 @@ export interface StudyAid {
   keywords: string
   mnemonic: string
   explanation: string
-  wrong_options: Partial<Record<'A' | 'B' | 'C' | 'D', string>>
+  wrong_options: Partial<Record<OptionKey, string>>
 }
 
 export type StudyAids = Record<string, StudyAid>

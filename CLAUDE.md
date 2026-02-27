@@ -9,6 +9,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 npm install        # 安裝依賴（首次或 package.json 變更後）
 npm run dev        # 啟動開發伺服器（http://localhost:5173）
 npm run build      # 建置靜態檔案到 dist/
+npm test           # 執行測試（Vitest，單次）
+npm run test:watch # 執行測試（watch 模式）
 ```
 
 **Update question bank data** (auto-download latest PDFs from CAA and regenerate all 4 JSON files):
@@ -98,17 +100,22 @@ uav-license-quiz/
 ├── src/
 │   ├── main.tsx           # React entry point
 │   ├── App.tsx            # Main state management, view routing
-│   ├── types.ts           # TypeScript type definitions + BANK_CONFIGS
+│   ├── types.ts           # TypeScript type definitions + BANK_CONFIGS (includes OptionKey)
+│   ├── utils.ts           # Shared utilities: shuffleArray, normalizeBankData
 │   ├── index.css          # Tailwind v4 import + custom styles
-│   └── components/
-│       ├── BankSelector.tsx   # Bank version tabs
-│       ├── SetupView.tsx      # Chapter selection, settings
-│       ├── QuizView.tsx       # Timed quiz (10s per question)
-│       ├── ReadingView.tsx    # Browse all questions with answers
-│       ├── WhitelistView.tsx  # Searchable whitelist
-│       ├── AllAboveView.tsx   # "以上皆是" strategy analysis (runtime-computed, no JSON changes needed)
-│       ├── StudyView.tsx      # AI study mode (keywords, mnemonic, explanation per question)
-│       └── ResultView.tsx     # Score summary + wrong question review + retry wrong button
+│   ├── components/
+│   │   ├── BankSelector.tsx   # Bank version tabs
+│   │   ├── SetupView.tsx      # Chapter selection, settings (fieldset/legend, inline error state)
+│   │   ├── QuizView.tsx       # Timed quiz (10s per question); options are <button> elements
+│   │   ├── ReadingView.tsx    # Browse all questions with answers (lightbox role="dialog")
+│   │   ├── WhitelistView.tsx  # Searchable whitelist
+│   │   ├── AllAboveView.tsx   # "以上皆是" strategy analysis (useMemo for derived lists)
+│   │   ├── StudyView.tsx      # AI study mode; QuestionCard wrapped with memo(), useMemo for filtered/stats
+│   │   └── ResultView.tsx     # Score summary + wrong question review + retry wrong button
+│   └── test/
+│       ├── setup.ts           # Vitest + @testing-library/jest-dom initialisation; scrollIntoView/scrollTo stubs
+│       ├── utils.test.ts      # Unit tests for shuffleArray and normalizeBankData (8 tests)
+│       └── QuizView.test.tsx  # Component tests: render, option buttons, answer recording, onFinish (6 tests)
 ├── public/
 │   ├── favicon.svg            # Browser tab / bookmark icon (SVG, top-down quadcopter)
 │   ├── apple-touch-icon.png   # iOS home screen icon (180×180)
@@ -145,22 +152,35 @@ uav-license-quiz/
 ### Frontend stack
 - **Vite + React + TypeScript** — build tooling
 - **Tailwind CSS v4** — styling via `@tailwindcss/vite` plugin
+- **Vitest + @testing-library/react** — unit and component tests; `defineConfig` imported from `vitest/config` in `vite.config.ts` so the `test` block is typed; jsdom environment; `Element.prototype.scrollIntoView` and `window.scrollTo` stubbed in `src/test/setup.ts`
 - **Main container**: `max-w-5xl mx-auto` in `App.tsx` — constrains content width to 1024px on desktop
 
 ### View management
 `App.tsx` manages a `view: ViewType` state and conditionally renders one of seven components:
-- `SetupView` — chapter selection, settings, entry points
-- `QuizView` — timed question answering (10s per question)
-- `ReadingView` — browse all questions with answers shown
+- `SetupView` — chapter selection, settings, entry points. Chapter checkboxes wrapped in `<fieldset>`/`<legend>`; question-count `<select>` linked to its `<label>` via `id`/`htmlFor`. Validation is done locally with `startError` state — invalid starts show an inline `role="alert"` error block instead of `alert()`
+- `QuizView` — timed question answering (10s per question). Answer options rendered as native `<button type="button">` elements (keyboard-accessible). Timer `<div>` has `aria-label="剩餘時間 N 秒" aria-live="off"`
+- `ReadingView` — browse all questions with answers shown. Lightbox overlay has `role="dialog" aria-modal="true" aria-label="..."`
 - `WhitelistView` — searchable list of memorizable answer options
-- `AllAboveView` — "以上皆是" strategy analysis (questions classified at runtime into "can memorize" vs "trap")
-- `StudyView` — AI study mode: chapter stats, per-question expandable cards with keywords/mnemonic/explanation/wrong-option notes. AI aid section is **expanded by default** (`useState(true)`); four sections rendered as distinct colored blocks (🔑 blue / 🎵 green / 💡 amber / ❌ red), laid out in a 2-column grid on desktop (keywords + mnemonic side-by-side; explanation + wrong-options full-width via `sm:col-span-2`)
+- `AllAboveView` — "以上皆是" strategy analysis (questions classified at runtime into "can memorize" vs "trap"); derived lists computed with `useMemo`
+- `StudyView` — AI study mode: chapter stats, per-question expandable cards with keywords/mnemonic/explanation/wrong-option notes. AI aid section is **expanded by default** (`useState(true)`); four sections rendered as distinct colored blocks (🔑 blue / 🎵 green / 💡 amber / ❌ red), laid out in a 2-column grid on desktop (keywords + mnemonic side-by-side; explanation + wrong-options full-width via `sm:col-span-2`). `chapters`, `chapterStats`, `filtered` all use `useMemo`; `QuestionCard` wrapped with `memo()`
 - `ResultView` — score summary and wrong-question review; shows an amber "再練一次錯題（N 題）" button when there are wrong answers (hidden when all correct); clicking calls `onRetryWrong` which rebuilds `quizQueue` from the current `quizRecords` (timed-out questions included as wrong) and navigates back to `QuizView`
 
 `BankSelector` appears above the setup/reading/whitelist/allabove/study views for switching between the 4 bank versions. Switching resets to setup view and triggers a new fetch.
 
 ### BankSelector layout
 Uses `grid grid-cols-2 sm:grid-cols-4 gap-2` so the four bank buttons form a **2×2 grid on mobile** and a single row on desktop (≥ 640px). Each button has `w-full` to fill its grid cell. The 2×2 pairing is semantically natural: 普通操作證 / 專業操作證 on row 1, and the two 屆期換證 variants on row 2. The previous `flex flex-wrap` layout caused the widest button (屆期換證（簡易）) to wrap onto its own line on 375px screens, appearing isolated.
+
+### Types
+
+`src/types.ts` exports:
+- `OptionKey = 'A' | 'B' | 'C' | 'D'` — used for `Question.answer`, `UserRecord.correctAnswer`/`userAnswer`, `StudyAid.wrong_options`. Eliminates `as 'A'|'B'|'C'|'D'` casts throughout the codebase.
+- `Question`, `BankData`, `UserRecord`, `StudyAid`, `StudyAids`, `ImageMap`, `ViewType`, `QuizSettings`, `BankConfig`, `BANK_CONFIGS`
+
+### Utilities
+
+`src/utils.ts` exports:
+- `shuffleArray<T>(array: T[]): T[]` — Fisher-Yates in-place shuffle on a copy; used in `App.tsx` to randomise quiz queue
+- `normalizeBankData(raw: BankData | Question[]): BankData` — wraps legacy `Question[]` format with empty whitelist; used in the fetch handler in `App.tsx`
 
 ### Data formats
 
@@ -172,7 +192,7 @@ Uses `grid grid-cols-2 sm:grid-cols-4 gap-2` so the four bank buttons form a **2
 }
 ```
 
-The app also supports the legacy array format for backwards compatibility.
+The app also supports the legacy array format for backwards compatibility (`normalizeBankData` in `src/utils.ts` handles the conversion).
 
 `public/data/professional_study_aids.json` (generated by `generate_study_aids.py`):
 ```json
@@ -194,8 +214,9 @@ Three problems occur on mobile when the "Next question" button appears condition
 3. Long questions push the button below the fold, requiring the user to scroll before tapping
 
 **Fixes applied:**
+- Options rendered as `<button type="button">` — native keyboard focus/activation (Enter/Space) without extra `onKeyDown` handlers; also satisfies ARIA best practices
 - `pointer-events-none` on the options container when `answered === true` — prevents any residual touch event on option D from propagating after the answer is registered
-- `touch-action: manipulation` (Tailwind `touch-manipulation`) on both option divs and the next button — eliminates the 300ms click delay
+- `touch-action: manipulation` (Tailwind `touch-manipulation`) on both option buttons and the next button — eliminates the 300ms click delay
 - `scrollIntoView({ behavior: 'smooth', block: 'nearest' })` called with an 80 ms `setTimeout` in an `answered`-dependent `useEffect` — the delay lets React finish inserting the button into the DOM before the scroll fires; `block: 'nearest'` avoids unnecessary scrolling when the button is already visible
 - `border-t border-gray-200 pt-5` separator above the next button — provides visual and spatial distance from option D to reduce mis-taps
 - `pointer-events-none` on the next button itself for the first 350 ms after it appears (`nextReady` state, set to `true` via `setTimeout(..., 350)`) — ghost-click prevention in mobile browsers suppresses clicks within ~300 ms at the same screen coordinates as the preceding touch. When the page fits in the viewport and `scrollIntoView` does not move the button, the button would appear at the exact spot where the finger lifted; the 350 ms lock ensures the ghost-click window has passed before the button accepts input.

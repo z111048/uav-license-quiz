@@ -87,6 +87,17 @@ uv run scripts/images/generate_image_manifest.py
 - 圖片原檔（PNG / WebP）與 `webp_urls.json` 均已加入 `.gitignore`，不納入版控
 - 只有 `public/data/professional_images.json`（CDN URL 對應表）需要 commit
 
+### 測試
+
+```bash
+npm test              # 執行全部測試（單次）
+npm run test:watch    # 開發時 watch 模式
+```
+
+使用 **Vitest + @testing-library/react**，測試放在 `src/test/`：
+- `utils.test.ts` — `shuffleArray` / `normalizeBankData` 單元測試
+- `QuizView.test.tsx` — 渲染、選項點擊、作答記錄、`onFinish` callback 驗證
+
 ### 建置
 
 ```bash
@@ -147,16 +158,21 @@ uav-license-quiz/
 ├── index.html                 # SPA 入口；包含完整 SEO meta 標籤與 JSON-LD 結構化資料
 ├── src/
 │   ├── App.tsx                # 主狀態管理、view 切換
-│   ├── types.ts               # TypeScript 型別定義
-│   └── components/
-│       ├── BankSelector.tsx   # 版本切換 UI
-│       ├── SetupView.tsx      # 設定頁
-│       ├── QuizView.tsx       # 計時作答
-│       ├── ReadingView.tsx    # 閱讀模式
-│       ├── WhitelistView.tsx  # 白名單查詢
-│       ├── AllAboveView.tsx   # 「以上皆是」策略分析
-│       ├── StudyView.tsx      # AI 學習模式
-│       └── ResultView.tsx     # 成績報告
+│   ├── types.ts               # TypeScript 型別定義（含 OptionKey）
+│   ├── utils.ts               # 共用工具：shuffleArray、normalizeBankData
+│   ├── components/
+│   │   ├── BankSelector.tsx   # 版本切換 UI
+│   │   ├── SetupView.tsx      # 設定頁（fieldset/legend 無障礙、inline 錯誤提示）
+│   │   ├── QuizView.tsx       # 計時作答（選項為 <button>，計時器 aria-label）
+│   │   ├── ReadingView.tsx    # 閱讀模式（燈箱 role="dialog"）
+│   │   ├── WhitelistView.tsx  # 白名單查詢
+│   │   ├── AllAboveView.tsx   # 「以上皆是」策略分析（useMemo）
+│   │   ├── StudyView.tsx      # AI 學習模式（QuestionCard memo，useMemo）
+│   │   └── ResultView.tsx     # 成績報告
+│   └── test/
+│       ├── setup.ts           # Vitest + jest-dom 初始化
+│       ├── utils.test.ts      # shuffleArray / normalizeBankData 單元測試
+│       └── QuizView.test.tsx  # 元件測試
 ├── public/
 │   ├── favicon.svg            # 瀏覽器圖示（SVG，俯視四旋翼）
 │   ├── apple-touch-icon.png   # iOS 主畫面圖示（180×180）

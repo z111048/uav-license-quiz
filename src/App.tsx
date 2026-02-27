@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { BankData, BankConfig, Question, QuizSettings, UserRecord, ViewType, StudyAids, ImageMap, BANK_CONFIGS } from './types'
+import { shuffleArray, normalizeBankData } from './utils'
 import BankSelector from './components/BankSelector'
 import SetupView from './components/SetupView'
 import QuizView from './components/QuizView'
@@ -8,15 +9,6 @@ import WhitelistView from './components/WhitelistView'
 import AllAboveView from './components/AllAboveView'
 import ResultView from './components/ResultView'
 import StudyView from './components/StudyView'
-
-function shuffleArray<T>(array: T[]): T[] {
-  const arr = [...array]
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[arr[i], arr[j]] = [arr[j], arr[i]]
-  }
-  return arr
-}
 
 export default function App() {
   const [view, setView] = useState<ViewType>('setup')
@@ -56,11 +48,7 @@ export default function App() {
         return res.json()
       })
       .then((data: BankData | Question[]) => {
-        if (Array.isArray(data)) {
-          setBankData({ questions: data, answer_option_whitelist: [] })
-        } else {
-          setBankData(data)
-        }
+        setBankData(normalizeBankData(data))
         setLoading(false)
       })
       .catch((err: Error) => {
@@ -110,10 +98,7 @@ export default function App() {
     const { chapters, count } = settings
     let filtered = bankData.questions.filter((q) => chapters.includes(q.chapter))
 
-    if (filtered.length === 0) {
-      alert('所選章節沒有題目，請重新選擇！')
-      return
-    }
+    if (filtered.length === 0) return  // SetupView 已把關，這裡僅防禦
 
     const shuffled = shuffleArray(filtered)
     const queue = count === 'all' ? shuffled : shuffled.slice(0, count)

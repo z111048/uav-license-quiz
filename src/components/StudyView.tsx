@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo, memo } from 'react'
 import { Question, StudyAid, StudyAids, ImageMap } from '../types'
 
 interface Props {
@@ -10,7 +10,7 @@ interface Props {
   onClose: () => void
 }
 
-function QuestionCard({
+const QuestionCard = memo(function QuestionCard({
   question,
   aid,
   imageUrl,
@@ -20,7 +20,7 @@ function QuestionCard({
   imageUrl?: string | null
 }) {
   const [expanded, setExpanded] = useState(true)
-  const hasAid = aid && Object.keys(aid).length > 0
+  const hasAid = useMemo(() => aid != null && Object.keys(aid).length > 0, [aid])
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4">
@@ -88,29 +88,29 @@ function QuestionCard({
             <p className="text-xs text-gray-400 italic">尚未產生 AI 學習輔助</p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {aid.keywords && (
+              {aid!.keywords && (
                 <div className="bg-blue-50 border border-blue-100 rounded-lg p-3">
                   <div className="text-xs font-bold text-blue-600 mb-1">🔑 關鍵字</div>
-                  <p className="text-xs text-blue-900 leading-relaxed">{aid.keywords}</p>
+                  <p className="text-xs text-blue-900 leading-relaxed">{aid!.keywords}</p>
                 </div>
               )}
-              {aid.mnemonic && (
+              {aid!.mnemonic && (
                 <div className="bg-green-50 border border-green-100 rounded-lg p-3">
                   <div className="text-xs font-bold text-green-600 mb-1">🎵 諧音口訣</div>
-                  <p className="text-xs text-green-900 leading-relaxed">{aid.mnemonic}</p>
+                  <p className="text-xs text-green-900 leading-relaxed">{aid!.mnemonic}</p>
                 </div>
               )}
-              {aid.explanation && (
+              {aid!.explanation && (
                 <div className="bg-amber-50 border border-amber-100 rounded-lg p-3 sm:col-span-2">
                   <div className="text-xs font-bold text-amber-600 mb-1">💡 概念解析</div>
-                  <p className="text-xs text-amber-900 leading-relaxed">{aid.explanation}</p>
+                  <p className="text-xs text-amber-900 leading-relaxed">{aid!.explanation}</p>
                 </div>
               )}
-              {aid.wrong_options && Object.keys(aid.wrong_options).length > 0 && (
+              {aid!.wrong_options && Object.keys(aid!.wrong_options).length > 0 && (
                 <div className="bg-red-50 border border-red-100 rounded-lg p-3 sm:col-span-2">
                   <div className="text-xs font-bold text-red-600 mb-1">❌ 錯誤選項</div>
                   <div className="space-y-1">
-                    {(Object.entries(aid.wrong_options) as [string, string][]).map(([k, v]) => (
+                    {(Object.entries(aid!.wrong_options) as [string, string][]).map(([k, v]) => (
                       <div key={k} className="text-xs text-red-900">
                         <span className="font-medium">{k}：</span>{v}
                       </div>
@@ -124,27 +124,33 @@ function QuestionCard({
       </div>
     </div>
   )
-}
+})
 
 export default function StudyView({ questions, studyAids, studyAidsLoading, studyAidsError, imageMap, onClose }: Props) {
   const [selectedChapter, setSelectedChapter] = useState<string>('全部')
   const [search, setSearch] = useState('')
 
-  const chapters = [...new Set(questions.map((q) => q.chapter))]
+  const chapters = useMemo(() => [...new Set(questions.map((q) => q.chapter))], [questions])
 
   // Chapter stats
-  const chapterStats = chapters.map((ch) => {
-    const qs = questions.filter((q) => q.chapter === ch)
-    const memorizable = qs.filter((q) => q.can_memorize_directly).length
-    return { chapter: ch, total: qs.length, memorizable }
-  })
+  const chapterStats = useMemo(() =>
+    chapters.map((ch) => {
+      const qs = questions.filter((q) => q.chapter === ch)
+      const memorizable = qs.filter((q) => q.can_memorize_directly).length
+      return { chapter: ch, total: qs.length, memorizable }
+    }),
+    [chapters, questions]
+  )
 
   // Filter questions
-  const filtered = questions.filter((q) => {
-    if (selectedChapter !== '全部' && q.chapter !== selectedChapter) return false
-    if (search && !q.question.includes(search) && !Object.values(q.options).some((o) => o.includes(search))) return false
-    return true
-  })
+  const filtered = useMemo(() =>
+    questions.filter((q) => {
+      if (selectedChapter !== '全部' && q.chapter !== selectedChapter) return false
+      if (search && !q.question.includes(search) && !Object.values(q.options).some((o) => o.includes(search))) return false
+      return true
+    }),
+    [questions, selectedChapter, search]
+  )
 
   return (
     <div className="space-y-4">

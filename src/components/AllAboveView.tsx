@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { Question } from '../types'
 
 interface Props {
@@ -8,14 +9,17 @@ interface Props {
 const isAllAboveText = (text: string) => text.includes('以上皆是')
 
 export default function AllAboveView({ questions, onClose }: Props) {
-  const allAboveQuestions = questions.filter((q) =>
-    Object.values(q.options).some(isAllAboveText)
+  const allAboveQuestions = useMemo(() =>
+    questions.filter((q) => Object.values(q.options).some(isAllAboveText)),
+    [questions]
   )
-  const canMemorize = allAboveQuestions.filter((q) =>
-    isAllAboveText(q.options[q.answer as 'A' | 'B' | 'C' | 'D'])
+  const canMemorize = useMemo(() =>
+    allAboveQuestions.filter((q) => isAllAboveText(q.options[q.answer])),
+    [allAboveQuestions]
   )
-  const isTrap = allAboveQuestions.filter(
-    (q) => !isAllAboveText(q.options[q.answer as 'A' | 'B' | 'C' | 'D'])
+  const isTrap = useMemo(() =>
+    allAboveQuestions.filter((q) => !isAllAboveText(q.options[q.answer])),
+    [allAboveQuestions]
   )
 
   return (
