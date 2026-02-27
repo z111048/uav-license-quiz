@@ -202,6 +202,7 @@ export default function App() {
               <SetupView
                 questions={bankData.questions}
                 whitelist={bankData.answer_option_whitelist}
+                chapterNote={bankData.chapter_note}
                 currentBankId={currentBankId}
                 onStart={handleStart}
                 onReadingMode={handleReadingMode}

@@ -5,6 +5,7 @@ interface Props {
   questions: Question[]
   whitelist: string[]
   currentBankId: string
+  chapterNote?: string
   onStart: (settings: QuizSettings) => void
   onReadingMode: (chapters: string[]) => void
   onWhitelist: () => void
@@ -12,7 +13,7 @@ interface Props {
   onStudyMode: () => void
 }
 
-export default function SetupView({ questions, onStart, onReadingMode, onWhitelist, onAllAbove, onStudyMode, currentBankId }: Props) {
+export default function SetupView({ questions, onStart, onReadingMode, onWhitelist, onAllAbove, onStudyMode, currentBankId, chapterNote }: Props) {
   const chapters = [...new Set(questions.map((q) => q.chapter))]
   const [selectedChapters, setSelectedChapters] = useState<string[]>([])
   const [count, setCount] = useState<number | 'all'>(50)
@@ -74,6 +75,12 @@ export default function SetupView({ questions, onStart, onReadingMode, onWhiteli
           ))}
         </div>
       </fieldset>
+
+      {chapterNote && (
+        <div className="mb-6 px-4 py-3 bg-amber-50 border border-amber-200 text-amber-800 text-sm rounded-lg">
+          ⚠️ {chapterNote}
+        </div>
+      )}
 
       {/* 題數設定 */}
       <div className="mb-6">

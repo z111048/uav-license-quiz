@@ -138,8 +138,8 @@ update_question_bank.py   (uv Python：pdfplumber + requests + beautifulsoup4)
 public/data/
 ├── general.json                    普通操作證
 ├── professional.json               專業操作證
-├── renewal.json                    屆期換證
-├── renewal_basic.json              屆期換證（簡易）
+├── renewal.json                    屆期換證（章節由 AI 協助分類）
+├── renewal_basic.json              屆期換證（簡易）（章節由 AI 協助分類）
 ├── professional_study_aids.json    AI 學習輔助（選用）  ← generate_study_aids.py（Claude Haiku）
 └── professional_images.json        圖片 CDN URL 對應表  ← scripts/images/ 流程（Gemini + Firebase）
     │

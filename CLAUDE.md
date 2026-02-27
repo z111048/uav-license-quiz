@@ -83,7 +83,7 @@ CAA website PDF  →  update_question_bank.py  →  public/data/*.json       →
 
 **PDF format differences:**
 - `general` / `professional`: chapter-based structure (`第X章 ...`), question numbers restart at 1 per chapter, answer section detected by `第X章 ...答案` header
-- `renewal` / `renewal_basic`: no chapter headings, sequential numbering 1–N, answer section detected by last occurrence of `答案`
+- `renewal` / `renewal_basic`: no chapter headings, sequential numbering 1–N, answer section detected by last occurrence of `答案`; chapters were classified by AI (Claude) and stored as `chapter` field — a `chapter_note` top-level field in the JSON warns users of this
 - `renewal` uses `N text` format (no dot after number); `renewal_basic` uses `N. text`
 - Some questions in `renewal` have a page break between the number and question text (`175\n題目...`), normalized before parsing
 
@@ -175,6 +175,7 @@ Uses `grid grid-cols-2 sm:grid-cols-4 gap-2` so the four bank buttons form a **2
 `src/types.ts` exports:
 - `OptionKey = 'A' | 'B' | 'C' | 'D'` — used for `Question.answer`, `UserRecord.correctAnswer`/`userAnswer`, `StudyAid.wrong_options`. Eliminates `as 'A'|'B'|'C'|'D'` casts throughout the codebase.
 - `Question`, `BankData`, `UserRecord`, `StudyAid`, `StudyAids`, `ImageMap`, `ViewType`, `QuizSettings`, `BankConfig`, `BANK_CONFIGS`
+- `BankData.chapter_note?: string` — optional top-level field; when present, `SetupView` displays it as an amber warning below the chapter selector (used by `renewal` / `renewal_basic` to note AI-assisted classification)
 
 ### Utilities
 
@@ -188,7 +189,8 @@ Uses `grid grid-cols-2 sm:grid-cols-4 gap-2` so the four bank buttons form a **2
 ```json
 {
   "questions": [{ "id": 1, "question": "...", "options": {"A": "...", "B": "..."}, "answer": "A", "chapter": "...", "can_memorize_directly": true }],
-  "answer_option_whitelist": ["唯一正確選項文字", ...]
+  "answer_option_whitelist": ["唯一正確選項文字", ...],
+  "chapter_note": "(optional) shown to user in SetupView as amber warning"
 }
 ```
 

@@ -12,6 +12,7 @@ export interface Question {
 export interface BankData {
   questions: Question[]
   answer_option_whitelist: string[]
+  chapter_note?: string
 }
 
 export interface BankConfig {
