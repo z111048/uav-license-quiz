@@ -19,7 +19,7 @@ function QuestionCard({
   aid: StudyAid | null | undefined
   imageUrl?: string | null
 }) {
-  const [expanded, setExpanded] = useState(false)
+  const [expanded, setExpanded] = useState(true)
   const hasAid = aid && Object.keys(aid).length > 0
 
   return (
@@ -72,53 +72,56 @@ function QuestionCard({
       </div>
 
       {/* AI Aid toggle */}
-      <button
-        onClick={() => setExpanded((v) => !v)}
-        className="text-xs text-purple-600 hover:text-purple-800 underline"
-      >
-        {expanded ? '▲ 收起 AI 輔助' : '▼ 展開 AI 輔助'}
-      </button>
+      <div className="mt-3 border-t pt-3">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs font-bold text-purple-600">✨ AI 學習輔助</span>
+          <button
+            onClick={() => setExpanded((v) => !v)}
+            className="text-xs text-gray-400 hover:text-gray-600"
+          >
+            {expanded ? '▲ 收起' : '▼ 展開'}
+          </button>
+        </div>
 
-      {expanded && (
-        <div className="mt-3 border-t pt-3 space-y-2">
-          {!hasAid ? (
+        {expanded && (
+          !hasAid ? (
             <p className="text-xs text-gray-400 italic">尚未產生 AI 學習輔助</p>
           ) : (
-            <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {aid.keywords && (
-                <div>
-                  <span className="text-xs font-bold text-gray-500">🔑 關鍵字：</span>
-                  <span className="text-xs text-gray-700">{aid.keywords}</span>
+                <div className="bg-blue-50 border border-blue-100 rounded-lg p-3">
+                  <div className="text-xs font-bold text-blue-600 mb-1">🔑 關鍵字</div>
+                  <p className="text-xs text-blue-900 leading-relaxed">{aid.keywords}</p>
                 </div>
               )}
               {aid.mnemonic && (
-                <div>
-                  <span className="text-xs font-bold text-gray-500">🎵 諧音口訣：</span>
-                  <span className="text-xs text-gray-700">{aid.mnemonic}</span>
+                <div className="bg-green-50 border border-green-100 rounded-lg p-3">
+                  <div className="text-xs font-bold text-green-600 mb-1">🎵 諧音口訣</div>
+                  <p className="text-xs text-green-900 leading-relaxed">{aid.mnemonic}</p>
                 </div>
               )}
               {aid.explanation && (
-                <div>
-                  <span className="text-xs font-bold text-gray-500">💡 概念解析：</span>
-                  <span className="text-xs text-gray-700">{aid.explanation}</span>
+                <div className="bg-amber-50 border border-amber-100 rounded-lg p-3 sm:col-span-2">
+                  <div className="text-xs font-bold text-amber-600 mb-1">💡 概念解析</div>
+                  <p className="text-xs text-amber-900 leading-relaxed">{aid.explanation}</p>
                 </div>
               )}
               {aid.wrong_options && Object.keys(aid.wrong_options).length > 0 && (
-                <div>
-                  <span className="text-xs font-bold text-gray-500">❌ 錯誤選項：</span>
-                  <div className="mt-1 space-y-1">
+                <div className="bg-red-50 border border-red-100 rounded-lg p-3 sm:col-span-2">
+                  <div className="text-xs font-bold text-red-600 mb-1">❌ 錯誤選項</div>
+                  <div className="space-y-1">
                     {(Object.entries(aid.wrong_options) as [string, string][]).map(([k, v]) => (
-                      <div key={k} className="text-xs text-gray-600 pl-2">
+                      <div key={k} className="text-xs text-red-900">
                         <span className="font-medium">{k}：</span>{v}
                       </div>
                     ))}
                   </div>
                 </div>
               )}
-            </>
-          )}
-        </div>
-      )}
+            </div>
+          )
+        )}
+      </div>
     </div>
   )
 }

@@ -145,6 +145,7 @@ uav-license-quiz/
 ### Frontend stack
 - **Vite + React + TypeScript** — build tooling
 - **Tailwind CSS v4** — styling via `@tailwindcss/vite` plugin
+- **Main container**: `max-w-5xl mx-auto` in `App.tsx` — constrains content width to 1024px on desktop
 
 ### View management
 `App.tsx` manages a `view: ViewType` state and conditionally renders one of seven components:
@@ -153,7 +154,7 @@ uav-license-quiz/
 - `ReadingView` — browse all questions with answers shown
 - `WhitelistView` — searchable list of memorizable answer options
 - `AllAboveView` — "以上皆是" strategy analysis (questions classified at runtime into "can memorize" vs "trap")
-- `StudyView` — AI study mode: chapter stats, per-question expandable cards with keywords/mnemonic/explanation/wrong-option notes
+- `StudyView` — AI study mode: chapter stats, per-question expandable cards with keywords/mnemonic/explanation/wrong-option notes. AI aid section is **expanded by default** (`useState(true)`); four sections rendered as distinct colored blocks (🔑 blue / 🎵 green / 💡 amber / ❌ red), laid out in a 2-column grid on desktop (keywords + mnemonic side-by-side; explanation + wrong-options full-width via `sm:col-span-2`)
 - `ResultView` — score summary and wrong-question review
 
 `BankSelector` appears above the setup/reading/whitelist/allabove/study views for switching between the 4 bank versions. Switching resets to setup view and triggers a new fetch.
