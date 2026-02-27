@@ -46,6 +46,8 @@ export interface StudyAid {
 
 export type StudyAids = Record<string, StudyAid>
 
+export type ImageMap = Record<string, string>
+
 export const BANK_CONFIGS: BankConfig[] = [
   { id: 'general', label: '普通操作證', file: `${import.meta.env.BASE_URL}data/general.json` },
   { id: 'professional', label: '專業操作證', file: `${import.meta.env.BASE_URL}data/professional.json` },

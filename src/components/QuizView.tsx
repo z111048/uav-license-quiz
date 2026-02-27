@@ -1,17 +1,19 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
-import { Question, QuizSettings, UserRecord } from '../types'
+import { Question, QuizSettings, UserRecord, ImageMap } from '../types'
 
 const TIME_LIMIT = 10
 
 interface Props {
   queue: Question[]
+  allQuestions?: Question[]
   settings: QuizSettings
+  imageMap?: ImageMap | null
   onFinish: (records: UserRecord[]) => void
 }
 
 type OptionState = 'default' | 'correct' | 'wrong' | 'faded'
 
-export default function QuizView({ queue, settings, onFinish }: Props) {
+export default function QuizView({ queue, allQuestions, settings, imageMap, onFinish }: Props) {
   const [index, setIndex] = useState(0)
   const [timeLeft, setTimeLeft] = useState(TIME_LIMIT)
   const [answered, setAnswered] = useState(false)
@@ -190,6 +192,20 @@ export default function QuizView({ queue, settings, onFinish }: Props) {
         <h3 className="text-xl md:text-2xl font-bold text-gray-800 leading-relaxed">
           {currentQ.question}
         </h3>
+        {(() => {
+          const globalIdx = allQuestions ? allQuestions.indexOf(currentQ) : -1
+          const imgUrl = globalIdx >= 0 ? imageMap?.[String(globalIdx)] : undefined
+          return imgUrl ? (
+            <div className="mt-4 aspect-square max-w-xs mx-auto rounded-lg overflow-hidden bg-gray-100">
+              <img
+                src={imgUrl}
+                alt="題目示意圖"
+                className="w-full h-full object-contain"
+                loading="lazy"
+              />
+            </div>
+          ) : null
+        })()}
       </div>
 
       {/* 答案提示 */}

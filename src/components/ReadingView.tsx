@@ -1,12 +1,15 @@
-import { Question } from '../types'
+import { useState } from 'react'
+import { Question, ImageMap } from '../types'
 
 interface Props {
   questions: Question[]
   selectedChapters: string[]
+  imageMap?: ImageMap | null
   onClose: () => void
 }
 
-export default function ReadingView({ questions, selectedChapters, onClose }: Props) {
+export default function ReadingView({ questions, selectedChapters, imageMap, onClose }: Props) {
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null)
   const filtered = questions.filter((q) => selectedChapters.includes(q.chapter))
 
   const grouped = selectedChapters.reduce<Record<string, Question[]>>((acc, ch) => {
@@ -16,6 +19,27 @@ export default function ReadingView({ questions, selectedChapters, onClose }: Pr
 
   return (
     <div className="bg-white rounded-xl shadow-lg p-6 md:p-8">
+      {/* Lightbox overlay */}
+      {lightboxSrc && (
+        <div
+          className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
+          onClick={() => setLightboxSrc(null)}
+        >
+          <img
+            src={lightboxSrc}
+            alt="題目示意圖（放大）"
+            className="max-w-full max-h-full rounded-lg object-contain"
+            onClick={(e) => e.stopPropagation()}
+          />
+          <button
+            className="absolute top-4 right-4 text-white text-3xl font-light leading-none"
+            onClick={() => setLightboxSrc(null)}
+            aria-label="關閉"
+          >
+            ✕
+          </button>
+        </div>
+      )}
       <div className="flex justify-between items-center mb-6 border-b pb-4">
         <h2 className="text-2xl font-bold text-gray-800">題庫閱讀模式</h2>
         <button onClick={onClose} className="text-gray-500 hover:text-gray-700 font-medium">
@@ -35,7 +59,10 @@ export default function ReadingView({ questions, selectedChapters, onClose }: Pr
               </h3>
 
               <div className="space-y-6">
-                {chapterQuestions.map((q) => (
+                {chapterQuestions.map((q) => {
+                  const globalIdx = questions.indexOf(q)
+                  const imgUrl = globalIdx >= 0 ? imageMap?.[String(globalIdx)] : undefined
+                  return (
                   <div key={q.id} className="border-b border-gray-200 pb-4 last:border-0">
                     <div className="flex gap-2">
                       <span className="font-bold text-gray-500 text-sm min-w-[2rem] pt-1">
@@ -50,6 +77,20 @@ export default function ReadingView({ questions, selectedChapters, onClose }: Pr
                             </span>
                           )}
                         </div>
+
+                        {imgUrl && (
+                          <div
+                            className="mb-3 cursor-zoom-in"
+                            onClick={() => setLightboxSrc(imgUrl)}
+                          >
+                            <img
+                              src={imgUrl}
+                              alt="題目示意圖"
+                              className="max-w-[180px] rounded-lg border border-gray-200 object-contain bg-gray-50"
+                              loading="lazy"
+                            />
+                          </div>
+                        )}
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
                           {(Object.entries(q.options) as [string, string][]).map(([key, val]) => {
@@ -77,7 +118,8 @@ export default function ReadingView({ questions, selectedChapters, onClose }: Pr
                       </div>
                     </div>
                   </div>
-                ))}
+                  )
+                })}
               </div>
             </div>
           )

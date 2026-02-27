@@ -8,4 +8,8 @@ dependencies = [
     "beautifulsoup4",
     "anthropic",
     "tqdm",
+    "google-genai>=1.0.0",
+    "python-dotenv>=1.2.1",
+    "Pillow>=10.0.0",
+    "firebase-admin>=6.0.0",
 ]

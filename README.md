@@ -16,6 +16,7 @@
 - **無腦背白名單**：演算法分析題庫，篩選出「只要看到該選項就一定是正確答案」的唯一解，並在閱讀模式標記 ⚡ 可無腦背
 - **「以上皆是」策略分析**：自動分類含「以上皆是」選項的題目，區分可直接背（答案就是以上皆是）與陷阱題（以上皆是是錯誤選項），並附統計數字
 - **AI 學習模式**（專業操作證）：透過 Claude Haiku API 為每題生成關鍵字提示、諧音口訣、概念解析、錯誤選項說明，支援章節篩選與關鍵字搜尋
+- **題目示意圖**（專業操作證）：Gemini AI 為 371 道需要視覺輔助的題目（tier 1/2）生成 3D 技術示意圖，顯示於測驗、閱讀與 AI 學習模式；圖片托管於 Firebase Storage CDN
 
 ## 開發
 
@@ -60,6 +61,32 @@ uv run generate_study_aids.py
 - 支援中途中斷後 resume（已完成題目自動跳過）
 - 輸出至 `public/data/professional_study_aids.json`
 
+### 生成題目示意圖（專業操作證，選用）
+
+為 371 道題目（tier 1/2）生成 3D 示意圖並托管至 Firebase Storage：
+
+```bash
+# 前置：設定 API 金鑰與 Firebase 憑證
+export GEMINI_API_KEY=AIza...
+export FIREBASE_CREDENTIALS=~/.firebase/serviceAccountKey.json
+export FIREBASE_BUCKET=your-project-id.firebasestorage.app
+
+# ① 分析題目（只需執行一次，結果已納入版控）
+uv run scripts/images/analyze_questions_gemini.py
+
+# ② 生成圖片（371 張，費用約 NT$60，支援斷點續傳）
+uv run scripts/images/generate_images_v2.py
+
+# ③ 轉換 WebP + 上傳 Firebase
+uv run scripts/images/convert_and_upload.py
+
+# ④ 產生前端讀取的 URL manifest（納入版控）
+uv run scripts/images/generate_image_manifest.py
+```
+
+- 圖片原檔（PNG / WebP）與 `webp_urls.json` 均已加入 `.gitignore`，不納入版控
+- 只有 `public/data/professional_images.json`（CDN URL 對應表）需要 commit
+
 ### 建置
 
 ```bash
@@ -102,15 +129,15 @@ public/data/
 ├── professional.json               專業操作證
 ├── renewal.json                    屆期換證
 ├── renewal_basic.json              屆期換證（簡易）
-└── professional_study_aids.json    AI 學習輔助（選用）
-    │                                   ↑
-    │               generate_study_aids.py（Claude Haiku API）
+├── professional_study_aids.json    AI 學習輔助（選用）  ← generate_study_aids.py（Claude Haiku）
+└── professional_images.json        圖片 CDN URL 對應表  ← scripts/images/ 流程（Gemini + Firebase）
+    │
     ▼
 Vite + React + TypeScript  (Tailwind CSS v4)
 ```
 
 **前端**：Vite + React + TypeScript + Tailwind CSS v4
-**Python 工具**：uv 管理依賴（`pdfplumber`、`requests`、`beautifulsoup4`、`anthropic`、`tqdm`）
+**Python 工具**：uv 管理依賴（`pdfplumber`、`requests`、`beautifulsoup4`、`anthropic`、`google-genai`、`firebase-admin`、`Pillow`、`tqdm`）
 **部署**：GitHub Actions → GitHub Pages（`https://z111048.github.io/uav-license-quiz/`）
 
 ## 專案結構
@@ -142,6 +169,13 @@ uav-license-quiz/
 │   └── data/                  # 題庫 JSON（納入版控）
 ├── update_question_bank.py    # 自動更新題庫腳本
 ├── generate_study_aids.py     # AI 學習輔助生成腳本（需 ANTHROPIC_API_KEY）
+├── scripts/
+│   └── images/                # 題目示意圖生成流程（依序執行 ①→④）
+│       ├── analyze_questions_gemini.py   # ① 題目分析，決定生圖優先級
+│       ├── generate_images_v2.py         # ② Gemini 生圖（PNG，斷點續傳，預算保護）
+│       ├── convert_and_upload.py         # ③ PNG→WebP + Firebase Storage 上傳
+│       ├── generate_image_manifest.py    # ④ 產生 professional_images.json
+│       └── preview_images.py             # 預覽工具（開發用）
 ├── pyproject.toml             # uv Python 環境
 └── .github/workflows/
     └── deploy.yml             # GitHub Pages 自動部署

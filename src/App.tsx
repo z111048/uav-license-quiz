@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { BankData, BankConfig, Question, QuizSettings, UserRecord, ViewType, StudyAids, BANK_CONFIGS } from './types'
+import { BankData, BankConfig, Question, QuizSettings, UserRecord, ViewType, StudyAids, ImageMap, BANK_CONFIGS } from './types'
 import BankSelector from './components/BankSelector'
 import SetupView from './components/SetupView'
 import QuizView from './components/QuizView'
@@ -27,6 +27,8 @@ export default function App() {
   const [studyAids, setStudyAids] = useState<StudyAids | null>(null)
   const [studyAidsLoading, setStudyAidsLoading] = useState(false)
   const [studyAidsError, setStudyAidsError] = useState<string | null>(null)
+  const [imageMap, setImageMap] = useState<ImageMap | null>(null)
+  const [imageMapLoading, setImageMapLoading] = useState(false)
 
   // Quiz state
   const [quizQueue, setQuizQueue] = useState<Question[]>([])
@@ -67,12 +69,38 @@ export default function App() {
       })
   }, [currentBank.file])
 
+  // Fetch image map when professional bank is selected
+  useEffect(() => {
+    if (currentBankId !== 'professional') {
+      setImageMap(null)
+      return
+    }
+    if (imageMap !== null || imageMapLoading) return
+
+    setImageMapLoading(true)
+    const BASE_URL = import.meta.env.BASE_URL as string
+    fetch(BASE_URL + 'data/professional_images.json')
+      .then((res) => {
+        if (res.status === 404) return null
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        return res.json()
+      })
+      .then((data: ImageMap | null) => {
+        if (data !== null) setImageMap(data)
+        setImageMapLoading(false)
+      })
+      .catch(() => {
+        setImageMapLoading(false)
+      })
+  }, [currentBankId, imageMap, imageMapLoading])
+
   const handleBankChange = useCallback((id: string) => {
     setCurrentBankId(id)
     setView('setup')
     if (id !== 'professional') {
       setStudyAids(null)
       setStudyAidsError(null)
+      setImageMap(null)
     }
   }, [])
 
@@ -190,7 +218,9 @@ export default function App() {
             {view === 'quiz' && (
               <QuizView
                 queue={quizQueue}
+                allQuestions={bankData.questions}
                 settings={quizSettings}
+                imageMap={imageMap}
                 onFinish={handleFinish}
               />
             )}
@@ -199,6 +229,7 @@ export default function App() {
               <ReadingView
                 questions={bankData.questions}
                 selectedChapters={readingChapters}
+                imageMap={imageMap}
                 onClose={() => setView('setup')}
               />
             )}
@@ -231,6 +262,7 @@ export default function App() {
                 studyAids={studyAids}
                 studyAidsLoading={studyAidsLoading}
                 studyAidsError={studyAidsError}
+                imageMap={imageMap}
                 onClose={() => setView('setup')}
               />
             )}

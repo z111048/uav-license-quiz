@@ -8,5 +8,12 @@ dist/
 # uv
 .venv/
 
-# 環境變數（含 API 金鑰，絕不入版控）
+# 環境變數與私鑰（絕不入版控）
 .env
+.firebase/
+
+# 生成的圖片原檔（體積大，勿入版控）
+public/data/images/
+
+# Firebase 上傳暫存
+webp_urls.json

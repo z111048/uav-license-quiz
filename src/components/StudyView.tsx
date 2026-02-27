@@ -1,15 +1,24 @@
 import { useState } from 'react'
-import { Question, StudyAid, StudyAids } from '../types'
+import { Question, StudyAid, StudyAids, ImageMap } from '../types'
 
 interface Props {
   questions: Question[]
   studyAids: StudyAids | null
   studyAidsLoading: boolean
   studyAidsError: string | null
+  imageMap?: ImageMap | null
   onClose: () => void
 }
 
-function QuestionCard({ question, aid }: { question: Question; aid: StudyAid | null | undefined }) {
+function QuestionCard({
+  question,
+  aid,
+  imageUrl,
+}: {
+  question: Question
+  aid: StudyAid | null | undefined
+  imageUrl?: string | null
+}) {
   const [expanded, setExpanded] = useState(false)
   const hasAid = aid && Object.keys(aid).length > 0
 
@@ -30,6 +39,18 @@ function QuestionCard({ question, aid }: { question: Question; aid: StudyAid | n
 
       {/* Question text */}
       <p className="text-sm text-gray-800 mb-3 leading-relaxed">{question.question}</p>
+
+      {/* Image */}
+      {imageUrl && (
+        <div className="mb-3">
+          <img
+            src={imageUrl}
+            alt="題目示意圖"
+            className="max-w-[240px] rounded-lg border border-gray-200 object-contain bg-gray-50"
+            loading="lazy"
+          />
+        </div>
+      )}
 
       {/* Options */}
       <div className="space-y-1 mb-3">
@@ -101,7 +122,7 @@ function QuestionCard({ question, aid }: { question: Question; aid: StudyAid | n
   )
 }
 
-export default function StudyView({ questions, studyAids, studyAidsLoading, studyAidsError, onClose }: Props) {
+export default function StudyView({ questions, studyAids, studyAidsLoading, studyAidsError, imageMap, onClose }: Props) {
   const [selectedChapter, setSelectedChapter] = useState<string>('全部')
   const [search, setSearch] = useState('')
 
@@ -203,13 +224,17 @@ export default function StudyView({ questions, studyAids, studyAidsLoading, stud
 
       {/* Question cards */}
       <div className="space-y-3">
-        {filtered.map((q) => (
-          <QuestionCard
-            key={questions.indexOf(q)}
-            question={q}
-            aid={studyAids ? studyAids[String(questions.indexOf(q))] : undefined}
-          />
-        ))}
+        {filtered.map((q) => {
+          const globalIdx = questions.indexOf(q)
+          return (
+            <QuestionCard
+              key={globalIdx}
+              question={q}
+              aid={studyAids ? studyAids[String(globalIdx)] : undefined}
+              imageUrl={imageMap ? imageMap[String(globalIdx)] : null}
+            />
+          )
+        })}
       </div>
 
       {/* Bottom close button */}

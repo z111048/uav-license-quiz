@@ -27,6 +27,25 @@ uv run generate_study_aids.py
 python process_question_bank.py
 ```
 
+**Generate professional question images** (requires `GEMINI_API_KEY` + Firebase setup; scripts in `scripts/images/`):
+```bash
+# ① 分析題目，決定每題要不要生圖（輸出 professional_image_analysis.json）
+uv run scripts/images/analyze_questions_gemini.py
+
+# ② 生成 PNG（tier 1 & 2，斷點續傳，預算保護）
+uv run scripts/images/generate_images_v2.py
+uv run scripts/images/generate_images_v2.py --indices 240 411  # 指定重跑特定題號
+
+# ③ 轉換 WebP + 上傳 Firebase Storage（需設定 FIREBASE_CREDENTIALS / FIREBASE_BUCKET）
+uv run scripts/images/convert_and_upload.py
+
+# ④ 產生前端讀取的 URL manifest
+uv run scripts/images/generate_image_manifest.py
+
+# 預覽生成結果（開發用）
+uv run scripts/images/preview_images.py
+```
+
 ## Architecture
 
 ### Data flow
@@ -39,6 +58,18 @@ CAA website PDF  →  update_question_bank.py  →  public/data/*.json       →
                   generate_study_aids.py   →  public/data/professional_study_aids.json
                   (professional bank only,      (key = 0-based array index as string)
                    ANTHROPIC_API_KEY required)
+
+                     Gemini Flash API
+                          ↓
+          scripts/images/analyze_questions_gemini.py  →  professional_image_analysis.json
+                          ↓
+          scripts/images/generate_images_v2.py        →  public/data/images/professional/{idx}.png  (gitignored)
+                          ↓
+          scripts/images/convert_and_upload.py        →  Firebase Storage (WebP) + webp_urls.json   (gitignored)
+                          ↓
+          scripts/images/generate_image_manifest.py   →  public/data/professional_images.json
+                          ↓                               (committed; key = 0-based index string, value = CDN URL)
+                     Vite React app  (QuizView / ReadingView / StudyView)
 ```
 
 `update_question_bank.py` scrapes the latest PDFs from `https://www.caa.gov.tw/Article.aspx?a=3833&lang=1`, parses them with pdfplumber, and computes the **memorization whitelist** (answer options that appear *only* as correct answers, never as distractors). Questions whose correct answer is in this whitelist get `can_memorize_directly: true`.
@@ -95,9 +126,16 @@ uav-license-quiz/
 │       └── professional_study_aids.json  # AI study aids (optional, generate separately)
 ├── index.html             # SPA entry point; contains all SEO meta tags + JSON-LD
 ├── ref/                   # Reference files (PDFs are gitignored)
-├── pyproject.toml         # uv Python environment
+├── pyproject.toml         # uv Python environment (Pillow, firebase-admin, google-genai, anthropic...)
 ├── update_question_bank.py    # Auto-download and process all banks
 ├── generate_study_aids.py     # Batch-generate AI study aids via Claude Haiku API
+├── scripts/
+│   └── images/                # 圖片生成流程（依序執行 ①→④）
+│       ├── analyze_questions_gemini.py   # ① 題目分析 → professional_image_analysis.json
+│       ├── generate_images_v2.py         # ② Gemini 生圖 → PNG（斷點續傳、預算保護）
+│       ├── convert_and_upload.py         # ③ PNG→WebP + Firebase Storage 上傳
+│       ├── generate_image_manifest.py    # ④ 產生 professional_images.json（CDN URL map）
+│       └── preview_images.py             # 預覽工具（開發用）
 └── # Legacy files (kept for backwards compatibility)
     ├── process_question_bank.py
     ├── question_bank.json
