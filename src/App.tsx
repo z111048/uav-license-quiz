@@ -247,7 +247,6 @@ export default function App() {
             {view === 'result' && (
               <ResultView
                 records={quizRecords}
-                queue={quizQueue}
                 onRestart={handleRestart}
                 onRetryWrong={handleRetryWrong}
               />

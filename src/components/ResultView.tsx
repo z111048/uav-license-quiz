@@ -1,13 +1,12 @@
-import { Question, UserRecord, OptionKey } from '../types'
+import { UserRecord, OptionKey } from '../types'
 
 interface Props {
   records: UserRecord[]
-  queue: Question[]
   onRestart: () => void
   onRetryWrong: () => void
 }
 
-export default function ResultView({ records, queue, onRestart, onRetryWrong }: Props) {
+export default function ResultView({ records, onRestart, onRetryWrong }: Props) {
   const total = records.length
   const correctCount = records.filter((r) => r.isCorrect).length
   const wrongCount = total - correctCount
@@ -21,8 +20,7 @@ export default function ResultView({ records, queue, onRestart, onRetryWrong }: 
 
   function getOptionText(record: UserRecord, key: OptionKey | null): string {
     if (!key) return '未作答 (逾時)'
-    const q = queue.find((q) => q.id === record.questionId)
-    const text = q?.options[key] ?? ''
+    const text = record.options[key] ?? ''
     return `${key}. ${text}`
   }
 
