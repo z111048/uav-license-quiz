@@ -1,5 +1,11 @@
 # 無人機學科線上練習系統 (UAV License Quiz)
 
+近期更新（2026-03-06）
+
+- 已解決合併衝突：src/App.tsx、src/components/SetupView.tsx、src/types.ts。
+- 新增功能：LicenseAdvisorView（預設 advisor 視圖）與 StudyView（AI 學習模式）。
+- 修正：更新 ViewType 型別與 SetupView Props，以同時支援 advisor / allabove / study。
+
 專為準備無人機學科考試設計的互動式練習系統，支援四種題庫版本，並具備「無腦背白名單」邏輯，幫助考生快速識別唯一正確選項。
 
 🌐 **線上使用**：[https://z111048.github.io/uav-license-quiz/](https://z111048.github.io/uav-license-quiz/)

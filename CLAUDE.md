@@ -4,6 +4,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
+**Recent changes (2026-03-06)**
+
+- Resolved merge conflicts in src/App.tsx, src/components/SetupView.tsx, src/types.ts; added LicenseAdvisorView and StudyView; updated ViewType and SetupView props.
+
 **Frontend development:**
 ```bash
 npm install        # 安裝依賴（首次或 package.json 變更後）
