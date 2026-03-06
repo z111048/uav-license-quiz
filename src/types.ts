@@ -38,7 +38,7 @@ export interface UserRecord {
   timeSpent: number
 }
 
-export type ViewType = 'setup' | 'quiz' | 'reading' | 'whitelist' | 'allabove' | 'result' | 'study'
+export type ViewType = 'advisor' | 'setup' | 'quiz' | 'reading' | 'whitelist' | 'allabove' | 'result' | 'study'
 
 export interface StudyAid {
   keywords: string

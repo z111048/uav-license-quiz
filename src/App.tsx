@@ -9,9 +9,10 @@ import WhitelistView from './components/WhitelistView'
 import AllAboveView from './components/AllAboveView'
 import ResultView from './components/ResultView'
 import StudyView from './components/StudyView'
+import LicenseAdvisorView from './components/LicenseAdvisorView'
 
 export default function App() {
-  const [view, setView] = useState<ViewType>('setup')
+  const [view, setView] = useState<ViewType>('advisor')
   const [bankData, setBankData] = useState<BankData | null>(null)
   const [currentBankId, setCurrentBankId] = useState<string>(BANK_CONFIGS[0].id)
   const [loading, setLoading] = useState(true)
@@ -91,6 +92,11 @@ export default function App() {
       setImageMap(null)
     }
   }, [])
+
+  function handleAdvisorSelectBank(bankId: string) {
+    setCurrentBankId(bankId)
+    setView('setup')
+  }
 
   function handleStart(settings: QuizSettings) {
     if (!bankData) return
@@ -178,14 +184,22 @@ export default function App() {
           />
         )}
 
+        {/* Advisor view — shown before bank data loads */}
+        {view === 'advisor' && (
+          <LicenseAdvisorView
+            onSelectBank={handleAdvisorSelectBank}
+            onSkip={() => setView('setup')}
+          />
+        )}
+
         {/* Loading / Error state */}
-        {loading && (
+        {view !== 'advisor' && loading && (
           <div className="bg-white rounded-xl shadow-lg p-8 text-center text-gray-500">
             載入題庫中...
           </div>
         )}
 
-        {error && (
+        {view !== 'advisor' && error && (
           <div className="bg-white rounded-xl shadow-lg p-8 text-center text-red-500">
             {error}
             <br />
@@ -196,7 +210,7 @@ export default function App() {
         )}
 
         {/* Views */}
-        {!loading && !error && bankData && (
+        {view !== 'advisor' && !loading && !error && bankData && (
           <>
             {view === 'setup' && (
               <SetupView
@@ -209,6 +223,7 @@ export default function App() {
                 onWhitelist={() => setView('whitelist')}
                 onAllAbove={() => setView('allabove')}
                 onStudyMode={handleStudyMode}
+                onAdvisor={() => setView('advisor')}
               />
             )}
 

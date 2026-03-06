@@ -11,9 +11,10 @@ interface Props {
   onWhitelist: () => void
   onAllAbove: () => void
   onStudyMode: () => void
+  onAdvisor: () => void
 }
 
-export default function SetupView({ questions, onStart, onReadingMode, onWhitelist, onAllAbove, onStudyMode, currentBankId, chapterNote }: Props) {
+export default function SetupView({ questions, onStart, onReadingMode, onWhitelist, onAllAbove, onStudyMode, onAdvisor, currentBankId, chapterNote }: Props) {
   const chapters = [...new Set(questions.map((q) => q.chapter))]
   const [selectedChapters, setSelectedChapters] = useState<string[]>([])
   const [count, setCount] = useState<number | 'all'>(50)
@@ -161,6 +162,14 @@ export default function SetupView({ questions, onStart, onReadingMode, onWhiteli
             </button>
           </div>
         )}
+        <div>
+          <button
+            onClick={onAdvisor}
+            className="text-gray-400 hover:text-blue-600 underline text-xs"
+          >
+            🪁 不確定要考哪種證？重新診斷
+          </button>
+        </div>
       </div>
     </div>
   )
