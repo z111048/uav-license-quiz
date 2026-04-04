@@ -25,6 +25,7 @@ export interface QuizSettings {
   chapters: string[]
   count: number | 'all'
   instantFeedback: boolean
+  timeLimit: number
 }
 
 export interface UserRecord {
