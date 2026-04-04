@@ -24,6 +24,7 @@ const defaultSettings: QuizSettings = {
   chapters: ['第一章'],
   count: 2,
   instantFeedback: true,
+  timeLimit: 10,
 }
 
 beforeEach(() => {
@@ -130,5 +131,16 @@ describe('QuizView', () => {
       />
     )
     expect(screen.getByText('10')).toBeInTheDocument()
+  })
+
+  it('uses custom timeLimit from settings', () => {
+    render(
+      <QuizView
+        queue={sampleQuestions}
+        settings={{ ...defaultSettings, timeLimit: 30 }}
+        onFinish={() => {}}
+      />
+    )
+    expect(screen.getByText('30')).toBeInTheDocument()
   })
 })
