@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { Question, QuizSettings, UserRecord, ImageMap, OptionKey } from '../types'
 
-const TIME_LIMIT = 10
-
 interface Props {
   queue: Question[]
   allQuestions?: Question[]
@@ -14,8 +12,9 @@ interface Props {
 type OptionState = 'default' | 'correct' | 'wrong' | 'faded'
 
 export default function QuizView({ queue, allQuestions, settings, imageMap, onFinish }: Props) {
+  const timeLimit = settings.timeLimit
   const [index, setIndex] = useState(0)
-  const [timeLeft, setTimeLeft] = useState(TIME_LIMIT)
+  const [timeLeft, setTimeLeft] = useState(timeLimit)
   const [answered, setAnswered] = useState(false)
   const [nextReady, setNextReady] = useState(false)
   const [selectedKey, setSelectedKey] = useState<OptionKey | null>(null)
@@ -47,7 +46,7 @@ export default function QuizView({ queue, allQuestions, settings, imageMap, onFi
   // Reset state on question change
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' })
-    setTimeLeft(TIME_LIMIT)
+    setTimeLeft(timeLimit)
     setAnswered(false)
     setNextReady(false)
     setSelectedKey(null)
@@ -99,7 +98,7 @@ export default function QuizView({ queue, allQuestions, settings, imageMap, onFi
         correctAnswer: currentQ.answer,
         userAnswer: null,
         isCorrect: false,
-        timeSpent: TIME_LIMIT,
+        timeSpent: timeLimit,
       })
     }
   }, [timeLeft, answered, currentQ, clearTimer])
