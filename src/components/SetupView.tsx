@@ -19,6 +19,7 @@ export default function SetupView({ questions, onStart, onReadingMode, onWhiteli
   const [selectedChapters, setSelectedChapters] = useState<string[]>([])
   const [count, setCount] = useState<number | 'all'>(50)
   const [instantFeedback, setInstantFeedback] = useState(true)
+  const [timeLimit, setTimeLimit] = useState(10)
   const [startError, setStartError] = useState<string | null>(null)
 
   function toggleChapter(chapter: string) {
@@ -41,7 +42,7 @@ export default function SetupView({ questions, onStart, onReadingMode, onWhiteli
     }
 
     setStartError(null)
-    onStart({ chapters: chaptersToUse, count, instantFeedback })
+    onStart({ chapters: chaptersToUse, count, instantFeedback, timeLimit })
   }
 
   function handleReadingMode() {
@@ -97,6 +98,24 @@ export default function SetupView({ questions, onStart, onReadingMode, onWhiteli
           <option value="20">20 題</option>
           <option value="50">50 題</option>
           <option value="all">全部題目</option>
+        </select>
+      </div>
+
+      {/* 每題作答時間 */}
+      <div className="mb-6">
+        <label htmlFor="time-limit" className="block text-gray-700 font-bold mb-2">每題作答時間</label>
+        <select
+          id="time-limit"
+          value={String(timeLimit)}
+          onChange={(e) => setTimeLimit(parseInt(e.target.value))}
+          className="w-full p-2 border rounded bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        >
+          <option value="5">5 秒</option>
+          <option value="10">10 秒（預設）</option>
+          <option value="15">15 秒</option>
+          <option value="20">20 秒</option>
+          <option value="30">30 秒</option>
+          <option value="60">60 秒</option>
         </select>
       </div>
 
