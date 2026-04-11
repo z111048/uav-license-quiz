@@ -110,7 +110,7 @@ uav-license-quiz/
 │   ├── components/
 │   │   ├── BankSelector.tsx   # Bank version tabs
 │   │   ├── SetupView.tsx      # Chapter selection, settings (fieldset/legend, inline error state)
-│   │   ├── QuizView.tsx       # Timed quiz (10s per question); options are <button> elements
+│   │   ├── QuizView.tsx       # Timed quiz (time limit configurable in SetupView); options are <button> elements
 │   │   ├── ReadingView.tsx    # Browse all questions with answers (lightbox role="dialog")
 │   │   ├── WhitelistView.tsx  # Searchable whitelist
 │   │   ├── AllAboveView.tsx   # "以上皆是" strategy analysis (useMemo for derived lists)
@@ -160,9 +160,10 @@ uav-license-quiz/
 - **Main container**: `max-w-5xl mx-auto` in `App.tsx` — constrains content width to 1024px on desktop
 
 ### View management
-`App.tsx` manages a `view: ViewType` state and conditionally renders one of seven components:
+`App.tsx` manages a `view: ViewType` state and conditionally renders one of eight views/components:
 - `SetupView` — chapter selection, settings, entry points. Chapter checkboxes wrapped in `<fieldset>`/`<legend>`; question-count `<select>` linked to its `<label>` via `id`/`htmlFor`. Validation is done locally with `startError` state — invalid starts show an inline `role="alert"` error block instead of `alert()`
-- `QuizView` — timed question answering (10s per question). Answer options rendered as native `<button type="button">` elements (keyboard-accessible). Timer `<div>` has `aria-label="剩餘時間 N 秒" aria-live="off"`
+- `LicenseAdvisorView` — pre-setup decision flow that helps users choose the correct question bank based on purpose / age / aircraft weight; can be skipped to the normal setup flow
+- `QuizView` — timed question answering with a configurable per-question time limit selected in `SetupView` (default 10 seconds). Answer options rendered as native `<button type="button">` elements (keyboard-accessible). Timer `<div>` has `aria-label="剩餘時間 N 秒" aria-live="off"`
 - `ReadingView` — browse all questions with answers shown. Lightbox overlay has `role="dialog" aria-modal="true" aria-label="..."`
 - `WhitelistView` — searchable list of memorizable answer options
 - `AllAboveView` — "以上皆是" strategy analysis (questions classified at runtime into "can memorize" vs "trap"); derived lists computed with `useMemo`
@@ -211,7 +212,7 @@ Keys are **0-based array indices** into `professional.json`'s `questions` array 
 
 ### QuizView scroll behaviour
 - On every question advance, `window.scrollTo({ top: 0, behavior: 'instant' })` is called (inside the `index`-dependent `useEffect`) to reset scroll position before the new question renders. Without this, the user's scroll position from the previous question carries over.
-- The countdown timer uses `<span className="inline-block w-8 text-right">` with a fixed width. This prevents a layout shift when the display transitions from two characters ("10") to one character ("9"). On mobile browsers (especially iOS Safari), layout shifts during an active scroll gesture can interrupt momentum scrolling, creating the illusion that the page is snapping back upward.
+- The countdown timer uses `<span className="inline-block w-8 text-right">` with a fixed width. This prevents a layout shift when the display transitions from two characters ("30") to one character ("9"). On mobile browsers (especially iOS Safari), layout shifts during an active scroll gesture can interrupt momentum scrolling, creating the illusion that the page is snapping back upward.
 
 ### QuizView touch interaction design
 Three problems occur on mobile when the "Next question" button appears conditionally after answering:

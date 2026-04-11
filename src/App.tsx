@@ -29,6 +29,7 @@ export default function App() {
     chapters: [],
     count: 50,
     instantFeedback: true,
+    timeLimit: 30,
   })
   const [quizRecords, setQuizRecords] = useState<UserRecord[]>([])
 
