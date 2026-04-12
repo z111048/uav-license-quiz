@@ -780,22 +780,7 @@ droneGroup.traverse(obj => { if (obj.isMesh) obj.castShadow = true })
 const GEAR_H = 0.162
 
 // ── Blob shadow (soft fill shadow on ground, supplements sun shadow) ─────
-// Uses three stacked discs (opaque core → transparent halo) for a soft edge.
-const _blobGrp = new THREE.Group()
-;[
-  { r: 0.22, op: 0.30 },
-  { r: 0.36, op: 0.14 },
-  { r: 0.52, op: 0.05 },
-].forEach(({ r, op }) => {
-  const m = new THREE.MeshBasicMaterial({
-    color: 0x000000, transparent: true, opacity: op, depthWrite: false
-  })
-  const mesh = new THREE.Mesh(new THREE.CircleGeometry(r, 28), m)
-  mesh.userData.baseOpacity = op
-  _blobGrp.add(mesh)
-})
-_blobGrp.rotation.x = -PI / 2
-scene.add(_blobGrp)
+// (blob shadow removed — real Three.js shadowmap is used instead)
 
 // ═══════════════════════════════════════════════════════════════
 //  CAMERAS
@@ -1314,16 +1299,7 @@ function animate() {
     droneRoll  += (-localRight * DEMO_TILT - droneRoll)  * tiltLerp
   }
 
-  // Blob shadow — soft-edge multi-layer disc, fades/scales with altitude
-  const alt = dronePos.y
-  const blobFade = Math.max(0, 1 - alt / 8)
-  _blobGrp.position.set(dronePos.x, 0.005, dronePos.z)
-  _blobGrp.rotation.x = -PI / 2   // keep flat on ground after position set
-  const bsc = 1.0 + alt * 0.16
-  _blobGrp.scale.set(bsc, 1, bsc)
-  _blobGrp.children.forEach(m => {
-    m.material.opacity = m.userData.baseOpacity * blobFade
-  })
+  // Blob shadow removed — real sun shadow now handles this
 
   if (mode === 'demo' && wpIdx < SEQ.length) updateCallout()
 
@@ -1442,7 +1418,10 @@ function toggleMode() {
     motorRpm = 0; motorTarget = 1
     document.getElementById('callout').textContent = '🔴 開機中… 左搖桿 上升/偏航　右搖桿 前進/橫移'
     document.getElementById('callout').classList.remove('hi')
-    // In manual mode: hide steps & HUD, let user decide
+    // Hide inspector (yellow person — demo-only actor)
+    inspMesh.visible = false
+    // In manual mode: hide 📋 steps toggle; 📊 toggle controls steps + HUD together
+    document.getElementById('steps-toggle').style.display = 'none'
     setStepsPanelVisible(false)
     setHudVisible(false)
   } else {
@@ -1456,7 +1435,8 @@ function toggleMode() {
     motorTarget = 0
     jumpToStep(SEQ[wpIdx]?.s || 'A')
     motorTarget = 1   // demo keeps motors running
-    // In demo mode: auto-collapse all panels, show steps for navigation
+    // In demo mode: restore 📋 steps toggle, show steps panel, hide HUD
+    document.getElementById('steps-toggle').style.display = ''
     setHudVisible(false)
     setStepsPanelVisible(true)
   }
@@ -1511,10 +1491,14 @@ function setHudVisible(visible) {
     btn.style.borderColor = 'rgba(255,255,255,.6)'
     // Show/hide keyhint depending on current mode
     document.getElementById('keyhint').style.display = mode === 'manual' ? 'block' : 'none'
+    // In manual mode: 📊 also shows the steps panel (replaces 📋 toggle)
+    if (mode === 'manual') setStepsPanelVisible(true)
   } else {
     rpEl.style.display = 'none'
     btn.textContent = '📊'
     btn.style.borderColor = 'rgba(255,255,255,.3)'
+    // In manual mode: 📊 close also hides steps panel
+    if (mode === 'manual') setStepsPanelVisible(false)
   }
 }
 
