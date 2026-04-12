@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
 <title>術科測驗模擬器 — 無人多旋翼機基本級未達 2 公斤</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.10.1/nipplejs.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{overflow:hidden;background:#0a0a1a;font-family:'Segoe UI',system-ui,sans-serif;color:#fff;touch-action:none}
@@ -90,18 +91,22 @@ body{overflow:hidden;background:#0a0a1a;font-family:'Segoe UI',system-ui,sans-se
 #fpvhud{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
   pointer-events:none;z-index:22;display:none}
 
-/* Virtual joysticks */
-.vstick{position:fixed;bottom:70px;width:90px;height:90px;border-radius:50%;
-  background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.3);
+/* Virtual joystick zones (shown in manual mode) */
+.joy-zone{position:fixed;bottom:60px;width:130px;height:130px;border-radius:50%;
+  background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.25);
   z-index:40;display:none;touch-action:none}
-#stL{left:14px}
-#stR{right:14px}
-.vstick-thumb{position:absolute;width:38px;height:38px;border-radius:50%;
-  background:rgba(255,255,255,.5);top:50%;left:50%;
-  transform:translate(-50%,-50%);pointer-events:none}
+#zoneL{left:16px}
+#zoneR{right:16px}
+
+/* Portrait orientation warning */
+#orient-warn{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);
+  color:#fff;z-index:9999;justify-content:center;align-items:center;
+  text-align:center;font-size:1.15rem;padding:24px;line-height:1.8}
+@media screen and (orientation:portrait){#orient-warn{display:flex}}
 </style>
 </head>
 <body>
+<div id="orient-warn">🔄 請將裝置旋轉為橫向<br>以獲得最佳體驗</div>
 <canvas id="c"></canvas>
 
 <div id="callout">載入中…</div>
@@ -165,9 +170,9 @@ body{overflow:hidden;background:#0a0a1a;font-family:'Segoe UI',system-ui,sans-se
   </svg>
 </div>
 
-<!-- Virtual joysticks (shown in manual mode) -->
-<div class="vstick" id="stL"><div class="vstick-thumb" id="thL"></div></div>
-<div class="vstick" id="stR"><div class="vstick-thumb" id="thR"></div></div>
+<!-- Virtual joystick zones (shown in manual mode, powered by nipplejs) -->
+<div class="joy-zone" id="zoneL"></div>
+<div class="joy-zone" id="zoneR"></div>
 
 <script>
 'use strict'
@@ -365,15 +370,17 @@ function makeOperator() {
   const legMat  = new THREE.MeshStandardMaterial({ color: 0x1565c0 })
   const headMat = new THREE.MeshStandardMaterial({ color: 0xf5cba7 })
   const vest    = new THREE.MeshStandardMaterial({ color: 0xff3300 })
+  const limbGeo = new THREE.CylinderGeometry(0.065, 0.065, 0.55, 8)
+  const torsoGeo = new THREE.CylinderGeometry(0.13, 0.13, 0.38, 10)
 
   // legs
   ;[[-0.1, 0], [0.1, 0]].forEach(([ox]) => {
-    const leg = new THREE.Mesh(new THREE.CapsuleGeometry(0.065, 0.55, 4, 8), legMat)
+    const leg = new THREE.Mesh(limbGeo, legMat)
     leg.position.set(ox, 0.39, 0)
     g.add(leg)
   })
   // torso
-  const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.13, 0.38, 4, 8), vest)
+  const torso = new THREE.Mesh(torsoGeo, vest)
   torso.position.y = 1.0
   g.add(torso)
   // head
@@ -649,41 +656,34 @@ window.addEventListener('keydown', e => {
 window.addEventListener('keyup', e => { keys[e.code] = false })
 
 // ═══════════════════════════════════════════════════════════════
-//  VIRTUAL JOYSTICKS (manual mode touch)
+//  VIRTUAL JOYSTICKS (manual mode touch — powered by nipplejs)
 // ═══════════════════════════════════════════════════════════════
-const sticks = { L: { x:0, y:0, tid:null }, R: { x:0, y:0, tid:null } }
-const stickR = 45   // max displacement radius (px)
+const sticks = { L: { x:0, y:0 }, R: { x:0, y:0 } }
+let joysticksReady = false
 
-function initJoystick(el, thumb, stick) {
-  const center = () => ({ x: el.offsetLeft + el.offsetWidth / 2,
-                           y: el.offsetTop  + el.offsetHeight / 2 })
-  function move(touch) {
-    const c = center()
-    let dx = touch.clientX - c.x
-    let dy = touch.clientY - c.y
-    const dist = Math.sqrt(dx * dx + dy * dy)
-    if (dist > stickR) { dx *= stickR / dist; dy *= stickR / dist }
-    stick.x = dx / stickR
-    stick.y = dy / stickR
-    thumb.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`
-  }
-  function reset() {
-    stick.x = 0; stick.y = 0; stick.tid = null
-    thumb.style.transform = 'translate(-50%,-50%)'
-  }
-  el.addEventListener('touchstart', e => {
-    stick.tid = e.changedTouches[0].identifier
-    move(e.changedTouches[0])
-  }, { passive: true })
-  el.addEventListener('touchmove', e => {
-    for (const t of e.changedTouches) if (t.identifier === stick.tid) move(t)
-  }, { passive: true })
-  el.addEventListener('touchend', e => {
-    for (const t of e.changedTouches) if (t.identifier === stick.tid) reset()
-  }, { passive: true })
+function initJoysticks() {
+  if (joysticksReady) return
+  joysticksReady = true
+  const jL = nipplejs.create({
+    mode: 'static', position: { left: '50%', top: '50%' },
+    size: 110, color: '#2196F3',
+    zone: document.getElementById('zoneL')
+  })
+  jL.on('move', (_, d) => {
+    if (d && d.vector) { sticks.L.x = d.vector.x; sticks.L.y = -d.vector.y }
+  })
+  jL.on('end', () => { sticks.L.x = 0; sticks.L.y = 0 })
+
+  const jR = nipplejs.create({
+    mode: 'static', position: { left: '50%', top: '50%' },
+    size: 110, color: '#FF9800',
+    zone: document.getElementById('zoneR')
+  })
+  jR.on('move', (_, d) => {
+    if (d && d.vector) { sticks.R.x = d.vector.x; sticks.R.y = -d.vector.y }
+  })
+  jR.on('end', () => { sticks.R.x = 0; sticks.R.y = 0 })
 }
-initJoystick(document.getElementById('stL'), document.getElementById('thL'), sticks.L)
-initJoystick(document.getElementById('stR'), document.getElementById('thR'), sticks.R)
 
 // ═══════════════════════════════════════════════════════════════
 //  MATH HELPERS
@@ -960,7 +960,7 @@ function animate() {
 
   // Apply to drone mesh
   droneGroup.position.copy(dronePos)
-  droneGroup.rotation.y = droneYaw
+  droneGroup.rotation.y = -droneYaw
 
   // Spin propellers
   propSpin += dt * 25
@@ -972,7 +972,6 @@ function animate() {
   const fwdVec = new THREE.Vector3(Math.sin(droneYaw), 0, -Math.cos(droneYaw))
   fpvMount.getWorldPosition(fpvCam.position)
   fpvCam.lookAt(fpvCam.position.clone().add(fwdVec))
-  fpvCam.rotation.z = 0
 
   // Operator camera gently tracks drone
   opCam.position.set(0, 1.7, OP_Z)
@@ -1071,8 +1070,9 @@ function toggleMode() {
     document.getElementById('ply').style.display = 'none'
     document.getElementById('sMode').textContent = '手動'
     document.getElementById('keyhint').style.display = 'block'
-    document.getElementById('stL').style.display = 'block'
-    document.getElementById('stR').style.display = 'block'
+    document.getElementById('zoneL').style.display = 'block'
+    document.getElementById('zoneR').style.display = 'block'
+    initJoysticks()
     document.getElementById('callout').textContent = '🕹 手動模式：自由練習飛行'
     document.getElementById('callout').classList.remove('hi')
   } else {
@@ -1081,8 +1081,8 @@ function toggleMode() {
     document.getElementById('ply').style.display = 'flex'
     document.getElementById('sMode').textContent = '示範'
     document.getElementById('keyhint').style.display = 'none'
-    document.getElementById('stL').style.display = 'none'
-    document.getElementById('stR').style.display = 'none'
+    document.getElementById('zoneL').style.display = 'none'
+    document.getElementById('zoneR').style.display = 'none'
     document.getElementById('htimer').style.display = 'none'
     jumpToStep(SEQ[wpIdx]?.s || 'A')
   }

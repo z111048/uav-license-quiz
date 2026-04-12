@@ -66,9 +66,9 @@ describe('exam-simulator-mr.html — HTML structure', () => {
   })
 
   it('has virtual joystick elements for touch control', () => {
-    expect(HTML).toContain('id="stL"')
-    expect(HTML).toContain('id="stR"')
-    expect(HTML).toContain('vstick')
+    expect(HTML).toContain('id="zoneL"')
+    expect(HTML).toContain('id="zoneR"')
+    expect(HTML).toContain('joy-zone')
   })
 })
 
