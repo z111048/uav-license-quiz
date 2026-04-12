@@ -14,7 +14,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Mobile UI overhaul for `public/exam-simulator-mr.html`:
   - Default boot mode is now **demo** (auto-plays immediately, play bar visible on open).
   - 📋 top-left toggle: always-visible button to show/hide the 術科流程 steps panel; auto-expands in demo mode, auto-collapses in manual mode.
-  - 📊 top-right toggle: always-visible button to show/hide HUD panels (`#keyhint`, `#opcamctl`, `#stat`); hidden by default in both modes.
+  - 📊 top-right toggle (demo mode): show/hide HUD panels (`#keyhint`, `#opcamctl`, `#stat`); hidden by default.
+  - In **manual mode**: 📊 button moves to left side (`left:8px top:50px`), stacking below 📋; each button independently controls its own panel. Returns to `right:8px top:8px` on demo re-entry.
   - `#right-panels` repositioned to `right:8px; top:50px` (was left-anchored relative to steps panel).
   - Steps panel now highlights the current demo step in real time (fixed: `updateStepPanel()` now called from `updateCallout()` on every animation frame).
   - Removed centre-screen hover timer (`#htimer`, P1 XX s / 5 s block) and associated `PRACTICE_WPS`/`hoverAcc` logic.
@@ -22,6 +23,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - Fixed touch-drag text selection on joystick zones: added `user-select:none; -webkit-user-select:none` to `body`.
   - Camera buttons use `flex-wrap:wrap` + `max-width:92vw` to prevent overflow on small screens.
   - Manual mode joystick sensitivity reduced significantly: `moveSpd 4→1.8`, `yawSpd PI×0.9→PI×0.45`, `throttle 2.5→1.2`.
+- Drone model completely redesigned (DJI Phantom-style) in `exam-simulator-mr.html`:
+  - Octagonal body with glass dome, FPV camera, gimbal pod, tapered arms, motor stator/bell caps, 3-segment propeller blades, nav LEDs (red front-left, green front-right, white rear), dual-rail landing gear.
+  - `GEAR_H = 0.162`: droneGroup Y offset so skids sit on ground at `dronePos.y = 0`.
+  - `droneGroup.rotation.order = 'YXZ'`: yaw first, then pitch/roll for correct heading-relative tilt.
+  - Propeller rotation direction fixed to DJI standard: SW(i=0)+NE(i=2) = CW (`-1`), NW(i=1)+SE(i=3) = CCW (`+1`). Formula: `(i%2===0 ? -1:1)`.
+  - All child meshes set `castShadow=true` via `droneGroup.traverse()` for Three.js shadowmap.
+  - Blob shadow (`_blobGrp`) removed — real Three.js sun shadow is sufficient.
+- Motor spin-up/down animation: `motorRpm` lerps toward `motorTarget`; manual mode entry shows "🔴 開機中…" callout until `motorRpm >= 0.98`.
+- Physics-based manual mode: stick → target pitch/roll angle (`MAN.maxTilt = 0.32 rad`) → horizontal acceleration via `acc = tilt × gravity` → velocity with `MAN.drag = 2.6` air resistance → position. Vertical has inertia (`manVelY`).
+- Joystick lazy-init fix: `initJoysticks()` no longer called at boot (zones are `display:none`); called inside `toggleMode()` after zones are shown, ensuring nipplejs gets correct bounding box.
+- Inspector (`inspMesh`, yellow person) set `visible = false` when entering manual mode.
 
 **Frontend development:**
 ```bash
