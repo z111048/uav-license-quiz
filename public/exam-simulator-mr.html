@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>術科測驗模擬器 — 無人多旋翼機基本級未達 2 公斤</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{overflow:hidden;background:#0a0a1a;font-family:'Segoe UI',system-ui,sans-serif;color:#fff;touch-action:none}
+#c{position:absolute;top:0;left:0;display:block}
+
+/* Callout */
+#callout{position:absolute;top:14px;left:50%;transform:translateX(-50%);
+  background:rgba(0,0,0,.88);border:2px solid #4caf50;padding:9px 22px;
+  border-radius:9px;white-space:pre-line;font-size:1.05rem;font-weight:600;
+  max-width:55vw;text-align:center;z-index:30;pointer-events:none;
+  transition:border-color .25s,color .25s}
+#callout.hi{border-color:#ffc107;color:#ffd54f}
+
+/* Step list */
+#steps{position:absolute;left:8px;top:8px;width:190px;background:rgba(0,0,0,.82);
+  border-radius:10px;overflow:hidden;z-index:20}
+#shdr{background:#1565c0;padding:9px 14px;font-weight:700;font-size:.85rem}
+.si{display:flex;align-items:center;gap:8px;padding:6px 11px;cursor:pointer;
+  font-size:.74rem;border-bottom:1px solid rgba(255,255,255,.07);transition:background .15s}
+.si:hover{background:rgba(255,255,255,.1)}
+.si.on{background:rgba(76,175,80,.22);color:#a5d6a7}
+.sid{width:22px;height:22px;border-radius:50%;flex-shrink:0;
+  background:rgba(255,255,255,.13);display:flex;align-items:center;
+  justify-content:center;font-size:.62rem;font-weight:700}
+.si.on .sid{background:#4caf50;color:#fff}
+
+/* Mode button */
+#modebtn{position:absolute;right:8px;top:8px;padding:7px 14px;
+  background:rgba(0,0,0,.78);border:1px solid rgba(255,255,255,.3);
+  border-radius:8px;cursor:pointer;font-size:.82rem;z-index:20}
+#modebtn.manual{background:rgba(255,140,0,.25);border-color:#ff8c00;color:#ffc04a}
+
+/* Playback bar */
+#ply{position:absolute;bottom:52px;left:50%;transform:translateX(-50%);
+  display:flex;gap:8px;z-index:20}
+.pb{padding:5px 13px;background:rgba(0,0,0,.72);border:1px solid rgba(255,255,255,.22);
+  border-radius:7px;cursor:pointer;font-size:.8rem;color:#fff}
+.pb:hover{background:rgba(255,255,255,.18)}
+.pb.pri{background:rgba(21,101,192,.85);border-color:#42a5f5}
+
+/* Camera buttons */
+#cams{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);
+  display:flex;gap:7px;z-index:20}
+.cb{padding:5px 13px;background:rgba(0,0,0,.72);border:1px solid rgba(255,255,255,.28);
+  border-radius:18px;cursor:pointer;font-size:.76rem;color:#bbb;
+  transition:all .2s;white-space:nowrap}
+.cb.on{background:#1565c0;color:#fff;border-color:#42a5f5}
+.cb:hover:not(.on){background:rgba(255,255,255,.14);color:#fff}
+
+/* Status HUD */
+#stat{position:absolute;right:8px;bottom:116px;background:rgba(0,0,0,.72);
+  padding:7px 11px;border-radius:8px;font-size:.7rem;z-index:20;
+  pointer-events:none;line-height:1.95}
+#stat b{color:#4fc3f7}
+
+/* Hover timer */
+#htimer{position:absolute;bottom:160px;left:50%;transform:translateX(-50%);
+  background:rgba(0,0,0,.82);border:1px solid rgba(255,255,255,.3);
+  padding:7px 18px;border-radius:8px;font-size:.8rem;z-index:30;
+  pointer-events:none;display:none;text-align:center}
+#htimer .wpn{color:#4fc3f7;font-weight:700}
+#htimer .hpg{color:#a5d6a7}
+
+/* Keyboard hint (manual mode) */
+#keyhint{position:absolute;left:206px;top:8px;background:rgba(0,0,0,.72);
+  padding:7px 12px;border-radius:8px;font-size:.67rem;color:#aaa;
+  z-index:20;pointer-events:none;line-height:2;display:none}
+#keyhint b{color:#fff}
+
+/* PiP frames */
+.pf{position:absolute;border:1.5px solid rgba(255,255,255,.35);border-radius:4px;
+  z-index:19;pointer-events:none}
+.pl{position:absolute;font-size:.62rem;color:rgba(255,255,255,.9);
+  background:rgba(0,0,0,.65);padding:2px 6px;border-radius:3px;
+  z-index:21;pointer-events:none}
+
+/* Split-view labels */
+.slbl{position:absolute;font-size:.64rem;color:rgba(255,255,255,.75);
+  background:rgba(0,0,0,.55);padding:3px 7px;border-radius:3px;
+  z-index:22;pointer-events:none;display:none}
+
+/* FPV crosshair */
+#fpvhud{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  pointer-events:none;z-index:22;display:none}
+
+/* Virtual joysticks */
+.vstick{position:fixed;bottom:70px;width:90px;height:90px;border-radius:50%;
+  background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.3);
+  z-index:40;display:none;touch-action:none}
+#stL{left:14px}
+#stR{right:14px}
+.vstick-thumb{position:absolute;width:38px;height:38px;border-radius:50%;
+  background:rgba(255,255,255,.5);top:50%;left:50%;
+  transform:translate(-50%,-50%);pointer-events:none}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div id="callout">載入中…</div>
+
+<div id="steps">
+  <div id="shdr">📋 術科測驗流程</div>
+</div>
+
+<button id="modebtn" onclick="toggleMode()">🎬 示範模式</button>
+
+<div id="ply">
+  <button class="pb" onclick="stepNav(-1)">◀ 上一步</button>
+  <button class="pb pri" id="bPlay" onclick="togglePlay()">⏸ 暫停</button>
+  <button class="pb" onclick="stepNav(1)">下一步 ▶</button>
+</div>
+
+<div id="cams">
+  <button class="cb on"  id="cam-op"  onclick="setMainCam('op')">👁 操作者視角</button>
+  <button class="cb"     id="cam-fpv" onclick="setMainCam('fpv')">🎥 無人機視角</button>
+  <button class="cb"     id="cam-top" onclick="setMainCam('top')">🗺 上視圖</button>
+  <button class="cb"     id="cam-all" onclick="setMainCam('all')">⊞ 三視圖</button>
+</div>
+
+<div id="stat">
+  高度：<b id="sAlt">0.0</b> m<br>
+  速度：<b id="sSpd">0.0</b> m/s<br>
+  航向：<b id="sHdg">180</b>°<br>
+  模式：<b id="sMode">示範</b>
+</div>
+
+<div id="htimer">
+  <div class="wpn" id="htWP">—</div>
+  <div class="hpg" id="htProg">0.0 s / 5.0 s</div>
+</div>
+
+<div id="keyhint">
+  <b>W/S</b> 前進／後退 &nbsp; <b>A/D</b> 左右平移<br>
+  <b>Q/E</b> 偏航旋轉 &nbsp; <b>Space</b> 上升<br>
+  <b>Shift</b> 下降
+</div>
+
+<!-- PiP outlines -->
+<div class="pf" id="pf1"></div>
+<div class="pf" id="pf2"></div>
+<div class="pl" id="pl1"></div>
+<div class="pl" id="pl2"></div>
+
+<!-- Split-view labels -->
+<div class="slbl" id="sl-op">👁 操作者視角</div>
+<div class="slbl" id="sl-top">🗺 上視圖</div>
+<div class="slbl" id="sl-fpv">🎥 無人機視角</div>
+
+<!-- FPV HUD crosshair -->
+<div id="fpvhud">
+  <svg width="58" height="58" viewBox="0 0 58 58">
+    <line x1="29" y1="3"  x2="29" y2="19" stroke="rgba(255,255,255,.55)" stroke-width="1.5"/>
+    <line x1="29" y1="39" x2="29" y2="55" stroke="rgba(255,255,255,.55)" stroke-width="1.5"/>
+    <line x1="3"  y1="29" x2="19" y2="29" stroke="rgba(255,255,255,.55)" stroke-width="1.5"/>
+    <line x1="39" y1="29" x2="55" y2="29" stroke="rgba(255,255,255,.55)" stroke-width="1.5"/>
+    <circle cx="29" cy="29" r="4.5" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="1.5"/>
+  </svg>
+</div>
+
+<!-- Virtual joysticks (shown in manual mode) -->
+<div class="vstick" id="stL"><div class="vstick-thumb" id="thL"></div></div>
+<div class="vstick" id="stR"><div class="vstick-thumb" id="thR"></div></div>
+
+<script>
+'use strict'
+
+// ═══════════════════════════════════════════════════════════════
+//  CONSTANTS
+// ═══════════════════════════════════════════════════════════════
+const FLY_ALT = 1.5   // exam flight altitude 1–2 m; use midpoint
+const OP_Z    = 7     // operator's Z position (south of H)
+const REC_W   = 12    // rectangle width per spec
+const REC_D   = 5     // rectangle depth per spec
+const HW      = REC_W / 2   // = 6
+const PI      = Math.PI
+
+// ═══════════════════════════════════════════════════════════════
+//  THREE.JS SETUP
+// ═══════════════════════════════════════════════════════════════
+const canvas   = document.getElementById('c')
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true })
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2))
+renderer.setSize(innerWidth, innerHeight)
+renderer.shadowMap.enabled = true
+renderer.shadowMap.type    = THREE.PCFSoftShadowMap
+renderer.autoClear         = false
+
+const scene = new THREE.Scene()
+scene.background = new THREE.Color(0x87ceeb)
+scene.fog        = new THREE.Fog(0x87ceeb, 70, 220)
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.5))
+const sun = new THREE.DirectionalLight(0xffffff, 0.95)
+sun.position.set(18, 40, 12)
+sun.castShadow = true
+Object.assign(sun.shadow.camera, { near:0.5, far:150, left:-28, right:28, top:22, bottom:-22 })
+sun.shadow.mapSize.set(1024, 1024)
+scene.add(sun)
+
+const clock = new THREE.Clock()
+
+// ═══════════════════════════════════════════════════════════════
+//  ENVIRONMENT
+// ═══════════════════════════════════════════════════════════════
+
+// Ground (grass)
+const ground = new THREE.Mesh(
+  new THREE.PlaneGeometry(300, 300),
+  new THREE.MeshStandardMaterial({ color: 0x4d7c32, roughness: 1 })
+)
+ground.rotation.x = -PI / 2
+ground.receiveShadow = true
+scene.add(ground)
+
+// Exam mat (concrete, large gray rectangle)
+const mat = new THREE.Mesh(
+  new THREE.PlaneGeometry(28, 22),
+  new THREE.MeshStandardMaterial({ color: 0x8a8a8a, roughness: 0.85 })
+)
+mat.rotation.x = -PI / 2
+mat.position.set(0, 0.005, -3)
+mat.receiveShadow = true
+scene.add(mat)
+
+// Helper: thin flat ring / circle outline on ground
+function groundRing(rx, rz, color, y = 0.01) {
+  const segs = 64
+  const pts = []
+  for (let i = 0; i <= segs; i++) {
+    const a = (i / segs) * PI * 2
+    pts.push(new THREE.Vector3(Math.sin(a) * rx, 0, Math.cos(a) * rz))
+  }
+  const geom = new THREE.BufferGeometry().setFromPoints(pts)
+  const line = new THREE.Line(geom, new THREE.LineBasicMaterial({ color }))
+  line.position.y = y
+  scene.add(line)
+  return line
+}
+
+// Outer safety ellipse (approx 13m × 8m) – white
+groundRing(13, 8, 0xffffff, 0.012)
+// Inner guide oval
+groundRing(8.5, 5.5, 0xaaaaaa, 0.011)
+
+// Helper: draw a rectangle outline on ground
+function groundRect(cx, cz, w, d, color, y = 0.013) {
+  const hw = w / 2, hd = d / 2
+  const pts = [
+    new THREE.Vector3(cx - hw, 0, cz - hd),
+    new THREE.Vector3(cx + hw, 0, cz - hd),
+    new THREE.Vector3(cx + hw, 0, cz + hd),
+    new THREE.Vector3(cx - hw, 0, cz + hd),
+    new THREE.Vector3(cx - hw, 0, cz - hd),
+  ]
+  const geom = new THREE.BufferGeometry().setFromPoints(pts)
+  const line = new THREE.Line(geom, new THREE.LineBasicMaterial({ color }))
+  line.position.y = y
+  scene.add(line)
+}
+
+// Flight rectangle (12m × 5m), centered at (0, 0, -2.5)
+groundRect(0, -REC_D / 2, REC_W, REC_D, 0xffffff, 0.014)
+
+// H pad – white filled disc
+const hPad = new THREE.Mesh(
+  new THREE.CircleGeometry(0.75, 48),
+  new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.6 })
+)
+hPad.rotation.x = -PI / 2
+hPad.position.set(0, 0.015, 0)
+scene.add(hPad)
+
+// H pad inner ring
+groundRing(0.75, 0.75, 0x333333, 0.017)
+
+// Dashed center line from H toward north (−Z) through rectangle
+function dashedLine(x, z0, z1, color, y = 0.012) {
+  const segs = 20
+  const step = (z1 - z0) / segs
+  for (let i = 0; i < segs; i += 2) {
+    const pts = [
+      new THREE.Vector3(x, 0, z0 + i * step),
+      new THREE.Vector3(x, 0, z0 + (i + 1) * step),
+    ]
+    const geom = new THREE.BufferGeometry().setFromPoints(pts)
+    scene.add(new THREE.Line(geom, new THREE.LineBasicMaterial({ color })))
+  }
+}
+dashedLine(0, 0, -REC_D, 0xcccccc, 0.014)
+
+// Helper: small circle marker at corner
+function cornerMarker(x, z, color = 0xffffff) {
+  const m = new THREE.Mesh(
+    new THREE.CircleGeometry(0.28, 24),
+    new THREE.MeshStandardMaterial({ color, roughness: 0.5 })
+  )
+  m.rotation.x = -PI / 2
+  m.position.set(x, 0.016, z)
+  scene.add(m)
+}
+
+// P1–P4 corner markers (white)
+cornerMarker(-HW,  0)        // P1 front-left
+cornerMarker(-HW, -REC_D)    // P2 back-left
+cornerMarker( HW, -REC_D)    // P3 back-right
+cornerMarker( HW,  0)        // P4 front-right
+
+// Safety cone helper
+function cone(x, z) {
+  const g = new THREE.Group()
+  const body = new THREE.Mesh(
+    new THREE.ConeGeometry(0.12, 0.45, 8),
+    new THREE.MeshStandardMaterial({ color: 0xff6600 })
+  )
+  body.position.y = 0.225
+  const base = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.16, 0.16, 0.04, 8),
+    new THREE.MeshStandardMaterial({ color: 0x222222 })
+  )
+  base.position.y = 0.02
+  g.add(body, base)
+  g.position.set(x, 0, z)
+  scene.add(g)
+}
+
+// Cones at exam mat corners
+cone(-14, -11); cone(14, -11); cone(-14, 8); cone(14, 8)
+// Extra cones near rectangle corners
+cone(-7, 1); cone(7, 1); cone(-7, -6); cone(7, -6)
+
+// A and B markers – large red circles (safety boundary refs)
+function bigMarker(x, z, label) {
+  const m = new THREE.Mesh(
+    new THREE.CircleGeometry(0.55, 32),
+    new THREE.MeshStandardMaterial({ color: 0xcc0000, roughness: 0.5 })
+  )
+  m.rotation.x = -PI / 2
+  m.position.set(x, 0.016, z)
+  scene.add(m)
+}
+bigMarker(-14, -3)   // A
+bigMarker( 14, -3)   // B
+
+// Operator standing mat (blue rectangle)
+const opMat = new THREE.Mesh(
+  new THREE.PlaneGeometry(1.2, 0.6),
+  new THREE.MeshStandardMaterial({ color: 0x1565c0, roughness: 0.7 })
+)
+opMat.rotation.x = -PI / 2
+opMat.position.set(0, 0.016, OP_Z - 0.2)
+scene.add(opMat)
+
+// Simple operator figure (stick-person capsule stack)
+function makeOperator() {
+  const g = new THREE.Group()
+  const bodyMat = new THREE.MeshStandardMaterial({ color: 0xf5a623 })
+  const legMat  = new THREE.MeshStandardMaterial({ color: 0x1565c0 })
+  const headMat = new THREE.MeshStandardMaterial({ color: 0xf5cba7 })
+  const vest    = new THREE.MeshStandardMaterial({ color: 0xff3300 })
+
+  // legs
+  ;[[-0.1, 0], [0.1, 0]].forEach(([ox]) => {
+    const leg = new THREE.Mesh(new THREE.CapsuleGeometry(0.065, 0.55, 4, 8), legMat)
+    leg.position.set(ox, 0.39, 0)
+    g.add(leg)
+  })
+  // torso
+  const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.13, 0.38, 4, 8), vest)
+  torso.position.y = 1.0
+  g.add(torso)
+  // head
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.12, 12, 12), headMat)
+  head.position.y = 1.5
+  g.add(head)
+  // RC transmitter box
+  const rc = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.14, 0.06), bodyMat)
+  rc.position.set(0, 0.98, 0.2)
+  g.add(rc)
+  g.position.set(0, 0, OP_Z)
+  scene.add(g)
+}
+makeOperator()
+
+// Inspector sphere (gold, orbits drone during pre/post flight checks)
+const inspMesh = new THREE.Mesh(
+  new THREE.SphereGeometry(0.18, 12, 12),
+  new THREE.MeshStandardMaterial({ color: 0xffd700, emissive: 0xaa8800, emissiveIntensity: 0.4 })
+)
+inspMesh.visible = false
+scene.add(inspMesh)
+
+// ═══════════════════════════════════════════════════════════════
+//  QUADROTOR DRONE MODEL
+// ═══════════════════════════════════════════════════════════════
+const droneGroup = new THREE.Group()
+scene.add(droneGroup)
+
+// Body
+const bodyMesh = new THREE.Mesh(
+  new THREE.BoxGeometry(0.30, 0.07, 0.30),
+  new THREE.MeshStandardMaterial({ color: 0x2a2a2a, roughness: 0.6 })
+)
+droneGroup.add(bodyMesh)
+
+// Central dome
+const dome = new THREE.Mesh(
+  new THREE.SphereGeometry(0.10, 10, 8, 0, PI * 2, 0, PI / 2),
+  new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.5 })
+)
+dome.position.y = 0.035
+droneGroup.add(dome)
+
+// FPV camera bump (front, indicates nose direction)
+const fpvBump = new THREE.Mesh(
+  new THREE.BoxGeometry(0.055, 0.04, 0.04),
+  new THREE.MeshStandardMaterial({ color: 0x111111 })
+)
+fpvBump.position.set(0, 0.025, -0.15)
+droneGroup.add(fpvBump)
+
+// FPV mount node for camera
+const fpvMount = new THREE.Object3D()
+fpvMount.position.set(0, 0.04, -0.16)
+droneGroup.add(fpvMount)
+
+// 4 arms in X-configuration (±45° from axes)
+// Motor positions (NE/NW/SW/SE from body center)
+const MOTOR_POS = [
+  [-0.24,  0,  0.24],   // SW arm (back-left)
+  [-0.24,  0, -0.24],   // NW arm (front-left) — red (nose side)
+  [ 0.24,  0, -0.24],   // NE arm (front-right) — red (nose side)
+  [ 0.24,  0,  0.24],   // SE arm (back-right)
+]
+const propGroups = []
+
+MOTOR_POS.forEach(([mx, my, mz], i) => {
+  // Arm from center to motor
+  const armLen = Math.sqrt(mx * mx + mz * mz)
+  const arm = new THREE.Mesh(
+    new THREE.BoxGeometry(armLen, 0.025, 0.045),
+    new THREE.MeshStandardMaterial({ color: i < 2 ? 0x880000 : 0x2a2a2a })
+  )
+  arm.position.set(mx / 2, 0, mz / 2)
+  arm.rotation.y = Math.atan2(-mz, mx)
+  droneGroup.add(arm)
+
+  // Motor cylinder
+  const motor = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.055, 0.055, 0.05, 10),
+    new THREE.MeshStandardMaterial({ color: 0x444444, metalness: 0.6 })
+  )
+  motor.position.set(mx, 0.03, mz)
+  droneGroup.add(motor)
+
+  // Propeller disc (flat torus approximation)
+  const propGroup = new THREE.Group()
+  propGroup.position.set(mx, 0.06, mz)
+  const propDisc = new THREE.Mesh(
+    new THREE.TorusGeometry(0.135, 0.012, 4, 24),
+    new THREE.MeshStandardMaterial({ color: i % 2 === 0 ? 0x555555 : 0x777777,
+      transparent: true, opacity: 0.75 })
+  )
+  propDisc.rotation.x = PI / 2
+  propGroup.add(propDisc)
+  // Two blade lines
+  ;[-1, 1].forEach(sign => {
+    const blade = new THREE.Mesh(
+      new THREE.BoxGeometry(0.27, 0.006, 0.032),
+      new THREE.MeshStandardMaterial({ color: 0x888888 })
+    )
+    blade.rotation.y = sign * PI / 4
+    propGroup.add(blade)
+  })
+  droneGroup.add(propGroup)
+  propGroups.push(propGroup)
+})
+
+// Landing legs
+;[[-0.13, 0.14], [-0.13, -0.14], [0.13, 0.14], [0.13, -0.14]].forEach(([lx, lz]) => {
+  const leg = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.008, 0.008, 0.12, 6),
+    new THREE.MeshStandardMaterial({ color: 0x555555 })
+  )
+  leg.position.set(lx, -0.06, lz)
+  droneGroup.add(leg)
+  // foot bar
+  const foot = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.006, 0.006, 0.22, 6),
+    new THREE.MeshStandardMaterial({ color: 0x555555 })
+  )
+  foot.rotation.z = PI / 2
+  foot.position.set(lx, -0.12, lz)
+  droneGroup.add(foot)
+})
+
+droneGroup.castShadow = true
+
+// ═══════════════════════════════════════════════════════════════
+//  CAMERAS
+// ═══════════════════════════════════════════════════════════════
+const W = innerWidth, H = innerHeight
+
+// Operator camera
+const opCam = new THREE.PerspectiveCamera(58, W / H, 0.1, 500)
+opCam.position.set(0, 1.7, OP_Z)
+opCam.lookAt(0, FLY_ALT, 0)
+
+// FPV camera (attached to drone nose)
+const fpvCam = new THREE.PerspectiveCamera(80, W / H, 0.05, 500)
+
+// Top-down orthographic
+const TOP_HALF = 14
+const topCam = new THREE.OrthographicCamera(
+  -TOP_HALF * (W / H), TOP_HALF * (W / H),
+  TOP_HALF, -TOP_HALF, 0.1, 300
+)
+topCam.position.set(0, 50, 0)
+topCam.lookAt(0, 0, 0)
+topCam.up.set(0, 0, -1)   // north (−Z) appears at top
+
+// ═══════════════════════════════════════════════════════════════
+//  SEQ — full exam sequence (autopilot demo)
+//  Fields: s=step, p=position at START of entry, yaw=target yaw,
+//          v=speed (0=hover), d=dwell seconds, t=callout, hi=highlight
+//  Yaw convention: 0=north(-Z), PI/2=east(+X), PI=south(+Z), -PI/2=west(-X)
+//  CW from above = positive yaw rotation
+// ═══════════════════════════════════════════════════════════════
+const SEQ = [
+  // ── A: 飛行前檢查 ───────────────────────────────────
+  { s:'A', p:[0,0,0], yaw:PI, v:0, d:4,   t:'【A. 飛行前檢查】\n確認型式、最大起飛重量、旋翼規格、電池規格…', hi:1 },
+  { s:'A', p:[0,0,0], yaw:PI, v:0, d:3.5, t:'確認遙控器搖桿、開關、電量全部正常 ✓' },
+  { s:'A', p:[0,0,0], yaw:PI, v:0, d:6,   t:'以逆時針方向 ↺ 繞機 360° 飛行前實體檢查…' },
+
+  // ── B: 設定飛行任務 ──────────────────────────────────
+  { s:'B', p:[0,0,0], yaw:PI, v:0, d:2.5, t:'【B. 設定飛行任務】\n「3、2、1、Go」', hi:1 },
+  { s:'B', p:[0,0,0], yaw:PI, v:0, d:4,   t:'從 2 種任務規劃圖卡中擇一\n設定導航點（位置、高度、速度）' },
+  { s:'B', p:[0,0,0], yaw:PI, v:0, d:3.5, t:'設定歸航點（位置、高度）\n設定地理圍欄（如適用）' },
+  { s:'B', p:[0,0,0], yaw:PI, v:0, d:3,   t:'確認控制信號鏈路暢通\n命令上傳完成 ──「結束」', hi:1 },
+
+  // ── Ca: 定點起降及四面停懸 ────────────────────────────
+  { s:'Ca', p:[0,0,0], yaw:PI, v:0, d:2.5, t:'【C-a. 定點起降及四面停懸】\n「3、2、1、Go」── 機頭朝外，準備起飛', hi:1 },
+  // takeoff: move from (0,0,0) → next entry p=(0,FLY_ALT,0)
+  { s:'Ca', p:[0,0,0],        yaw:PI,      v:2,   t:'起飛上升至 1~2 公尺…' },
+  // 4-sided hover sequence (CW): south → west → north → east → south
+  { s:'Ca', p:[0,FLY_ALT,0],  yaw:PI,      v:0, d:6.5, t:'① 機頭朝外（南）── 定點懸停 5 秒' },
+  { s:'Ca', p:[0,FLY_ALT,0],  yaw:-PI/2,   v:0, d:7,   t:'② 順時針旋轉 90°──「側面」懸停 5 秒' },
+  { s:'Ca', p:[0,FLY_ALT,0],  yaw:0,       v:0, d:7,   t:'③ 順時針旋轉 90°──「機頭朝內」懸停 5 秒' },
+  { s:'Ca', p:[0,FLY_ALT,0],  yaw:PI/2,    v:0, d:7,   t:'④ 順時針旋轉 90°──「側面」懸停 5 秒' },
+  { s:'Ca', p:[0,FLY_ALT,0],  yaw:PI,      v:0, d:7,   t:'⑤ 順時針旋轉 90°──「機頭朝外」懸停 5 秒' },
+  // land: (0,FLY_ALT,0) → (0,0,0)
+  { s:'Ca', p:[0,FLY_ALT,0],  yaw:PI,      v:2,   t:'降落至起降點 H…' },
+  { s:'Ca', p:[0,0,0],        yaw:PI,      v:0, d:3,   t:'起落架不超出 H 點標示範圍\n「結束」', hi:1 },
+
+  // ── Cb: 矩形航線 ─────────────────────────────────────
+  { s:'Cb', p:[0,0,0], yaw:PI, v:0, d:2.5, t:'【C-b. 矩形航線（12m×5m）】\n「3、2、1、Go」── 機頭朝外，準備起飛', hi:1 },
+  // takeoff
+  { s:'Cb', p:[0,0,0],           yaw:PI,     v:2,   t:'起飛上升至 1~2 公尺…' },
+  { s:'Cb', p:[0,FLY_ALT,0],     yaw:PI,     v:0, d:6, t:'H ── 機頭朝外，定點懸停 5 秒' },
+
+  // CW lap: H→P1→P2→P3→P4→H  (先往左，順時針圈)
+  { s:'Cb', p:[0,FLY_ALT,0],     yaw:-PI/2,  v:3,   t:'順時針圈 ① H ➜ P1（機頭朝西）' },
+  { s:'Cb', p:[-HW,FLY_ALT,0],   yaw:-PI/2,  v:0, d:6, t:'P1 ── 定點懸停 5 秒' },
+  { s:'Cb', p:[-HW,FLY_ALT,0],   yaw:0,      v:3,   t:'順時針圈 ② P1 ➜ P2（機頭朝北）' },
+  { s:'Cb', p:[-HW,FLY_ALT,-REC_D], yaw:0,   v:0, d:6, t:'P2 ── 定點懸停 5 秒' },
+  { s:'Cb', p:[-HW,FLY_ALT,-REC_D], yaw:PI/2,v:3,   t:'順時針圈 ③ P2 ➜ P3（機頭朝東）' },
+  { s:'Cb', p:[HW,FLY_ALT,-REC_D],  yaw:PI/2,v:0, d:6, t:'P3 ── 定點懸停 5 秒' },
+  { s:'Cb', p:[HW,FLY_ALT,-REC_D],  yaw:PI,  v:3,   t:'順時針圈 ④ P3 ➜ P4（機頭朝南）' },
+  { s:'Cb', p:[HW,FLY_ALT,0],    yaw:PI,     v:0, d:6, t:'P4 ── 定點懸停 5 秒' },
+  { s:'Cb', p:[HW,FLY_ALT,0],    yaw:-PI/2,  v:3,   t:'順時針圈 ⑤ P4 ➜ H' },
+  { s:'Cb', p:[0,FLY_ALT,0],     yaw:PI,     v:0, d:6, t:'H ── 機頭朝外，換逆時針圈待命' },
+
+  // CCW lap: H→P4→P3→P2→P1→H  (再往右，逆時針圈)
+  { s:'Cb', p:[0,FLY_ALT,0],     yaw:PI/2,   v:3,   t:'逆時針圈 ① H ➜ P4（機頭朝東）' },
+  { s:'Cb', p:[HW,FLY_ALT,0],    yaw:PI/2,   v:0, d:6, t:'P4 ── 定點懸停 5 秒' },
+  { s:'Cb', p:[HW,FLY_ALT,0],    yaw:0,      v:3,   t:'逆時針圈 ② P4 ➜ P3（機頭朝北）' },
+  { s:'Cb', p:[HW,FLY_ALT,-REC_D], yaw:0,    v:0, d:6, t:'P3 ── 定點懸停 5 秒' },
+  { s:'Cb', p:[HW,FLY_ALT,-REC_D], yaw:-PI/2,v:3,   t:'逆時針圈 ③ P3 ➜ P2（機頭朝西）' },
+  { s:'Cb', p:[-HW,FLY_ALT,-REC_D],yaw:-PI/2,v:0, d:6, t:'P2 ── 定點懸停 5 秒' },
+  { s:'Cb', p:[-HW,FLY_ALT,-REC_D],yaw:PI,   v:3,   t:'逆時針圈 ④ P2 ➜ P1（機頭朝南）' },
+  { s:'Cb', p:[-HW,FLY_ALT,0],   yaw:PI,     v:0, d:6, t:'P1 ── 定點懸停 5 秒' },
+  { s:'Cb', p:[-HW,FLY_ALT,0],   yaw:PI/2,   v:3,   t:'逆時針圈 ⑤ P1 ➜ H' },
+  { s:'Cb', p:[0,FLY_ALT,0],     yaw:PI,     v:0, d:3, t:'H ── 機頭朝外，維持懸停\n「結束」', hi:1 },
+
+  // ── D: 結束飛行任務（定點精準降落）──────────────────
+  { s:'D', p:[0,FLY_ALT,0], yaw:PI, v:0, d:2.5, t:'【D. 結束飛行任務】\n「3、2、1、Go」── 執行精準降落', hi:1 },
+  { s:'D', p:[0,FLY_ALT,0], yaw:PI, v:1.5, t:'緩慢下降至起降點 H…' },
+  { s:'D', p:[0,0,0],       yaw:PI, v:0, d:3.5, t:'起落架不超出 H 點標示範圍\n安全落地 ──「結束」', hi:1 },
+
+  // ── F: 飛行後檢查 ────────────────────────────────────
+  { s:'F', p:[0,0,0], yaw:PI, v:0, d:6, t:'【F. 飛行後檢查】\n以逆時針方向 ↺ 繞機 360° 飛行後檢查…' },
+  { s:'F', p:[0,0,0], yaw:PI, v:0, d:4, t:'飛行後檢查完成 ✓\n測驗全部結束！', hi:1 },
+]
+
+// Step definitions (for the step panel UI)
+const STEP_DEFS = [
+  { id:'A',  label:'A. 飛行前檢查',        icon:'🔍' },
+  { id:'B',  label:'B. 設定飛行任務',       icon:'📡' },
+  { id:'Ca', label:'C-a. 四面停懸',         icon:'🔄' },
+  { id:'Cb', label:'C-b. 矩形航線',         icon:'⬛' },
+  { id:'D',  label:'D. 精準降落',           icon:'🎯' },
+  { id:'F',  label:'F. 飛行後檢查',         icon:'✅' },
+]
+
+// ═══════════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════════
+let mode      = 'demo'      // 'demo' | 'manual'
+let mainCam   = 'op'        // 'op' | 'fpv' | 'top' | 'all'
+let playing   = true
+let wpIdx     = 0           // current SEQ index
+let wpProg    = 0           // 0..1 progress along current transit
+let waitAccum = 0           // seconds waited at current hover entry
+
+let dronePos = new THREE.Vector3(0, 0, 0)
+let droneYaw = PI           // facing south (toward operator) initially
+let prevPos  = new THREE.Vector3()
+
+let inspAngle = 0           // inspector orbit angle (radians)
+
+// Practice waypoint hover tracking (manual mode)
+const PRACTICE_WPS = [
+  { id:'H-air', x:0,   y:FLY_ALT, z:0,       label:'H（高度懸停）' },
+  { id:'P1',    x:-HW, y:FLY_ALT, z:0,        label:'P1' },
+  { id:'P2',    x:-HW, y:FLY_ALT, z:-REC_D,   label:'P2' },
+  { id:'P3',    x: HW, y:FLY_ALT, z:-REC_D,   label:'P3' },
+  { id:'P4',    x: HW, y:FLY_ALT, z:0,        label:'P4' },
+  { id:'H-land',x:0,   y:0,       z:0,        label:'H（精準降落）' },
+]
+const hoverAcc = {}    // id → accumulated seconds
+PRACTICE_WPS.forEach(w => hoverAcc[w.id] = 0)
+let activeWP = null
+
+// ═══════════════════════════════════════════════════════════════
+//  KEYBOARD INPUT
+// ═══════════════════════════════════════════════════════════════
+const keys = {}
+window.addEventListener('keydown', e => {
+  keys[e.code] = true
+  if (e.code === 'Space') e.preventDefault()
+})
+window.addEventListener('keyup', e => { keys[e.code] = false })
+
+// ═══════════════════════════════════════════════════════════════
+//  VIRTUAL JOYSTICKS (manual mode touch)
+// ═══════════════════════════════════════════════════════════════
+const sticks = { L: { x:0, y:0, tid:null }, R: { x:0, y:0, tid:null } }
+const stickR = 45   // max displacement radius (px)
+
+function initJoystick(el, thumb, stick) {
+  const center = () => ({ x: el.offsetLeft + el.offsetWidth / 2,
+                           y: el.offsetTop  + el.offsetHeight / 2 })
+  function move(touch) {
+    const c = center()
+    let dx = touch.clientX - c.x
+    let dy = touch.clientY - c.y
+    const dist = Math.sqrt(dx * dx + dy * dy)
+    if (dist > stickR) { dx *= stickR / dist; dy *= stickR / dist }
+    stick.x = dx / stickR
+    stick.y = dy / stickR
+    thumb.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`
+  }
+  function reset() {
+    stick.x = 0; stick.y = 0; stick.tid = null
+    thumb.style.transform = 'translate(-50%,-50%)'
+  }
+  el.addEventListener('touchstart', e => {
+    stick.tid = e.changedTouches[0].identifier
+    move(e.changedTouches[0])
+  }, { passive: true })
+  el.addEventListener('touchmove', e => {
+    for (const t of e.changedTouches) if (t.identifier === stick.tid) move(t)
+  }, { passive: true })
+  el.addEventListener('touchend', e => {
+    for (const t of e.changedTouches) if (t.identifier === stick.tid) reset()
+  }, { passive: true })
+}
+initJoystick(document.getElementById('stL'), document.getElementById('thL'), sticks.L)
+initJoystick(document.getElementById('stR'), document.getElementById('thR'), sticks.R)
+
+// ═══════════════════════════════════════════════════════════════
+//  MATH HELPERS
+// ═══════════════════════════════════════════════════════════════
+function lerpAngle(a, b, t) {
+  let d = b - a
+  while (d >  PI) d -= PI * 2
+  while (d < -PI) d += PI * 2
+  let r = a + d * Math.min(t, 1)
+  while (r >  PI) r -= PI * 2
+  while (r < -PI) r += PI * 2
+  return r
+}
+
+function v3(p) { return new THREE.Vector3(...p) }
+
+function yawFromDir(dx, dz) {
+  // Returns yaw such that nose points along (dx, 0, dz)
+  return Math.atan2(dx, -dz)
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  DEMO AUTOPILOT
+// ═══════════════════════════════════════════════════════════════
+function updateDemo(dt) {
+  if (!playing || wpIdx >= SEQ.length) return
+
+  const wp  = SEQ[wpIdx]
+  const nxt = SEQ[wpIdx + 1]
+
+  if (wp.v === 0) {
+    // ── HOVER / ROTATE entry ──────────────────────────────────
+    // Lerp yaw toward target
+    droneYaw = lerpAngle(droneYaw, wp.yaw, dt * 4.5)
+    waitAccum += dt
+    if (waitAccum >= (wp.d || 0)) {
+      waitAccum = 0
+      wpIdx++
+    }
+    // Inspector animation during A and F (CCW orbit)
+    if (wp.s === 'A' || wp.s === 'F') {
+      inspMesh.visible = true
+      inspAngle -= dt * 0.9   // CCW (negative = CW when viewed from above with Z-flip)
+      inspMesh.position.set(
+        dronePos.x + Math.sin(inspAngle) * 2.4,
+        dronePos.y + 0.6,
+        dronePos.z + Math.cos(inspAngle) * 2.4
+      )
+    } else {
+      inspMesh.visible = false
+    }
+  } else {
+    // ── TRANSIT entry ─────────────────────────────────────────
+    if (!nxt) { wpIdx++; return }
+    const startP = v3(wp.p)
+    const endP   = v3(nxt.p)
+    const seg    = new THREE.Vector3().subVectors(endP, startP)
+    const segLen = seg.length()
+
+    if (segLen < 0.001) { wpIdx++; return }
+
+    const speed = wp.v
+    wpProg += (speed * dt) / segLen
+    if (wpProg >= 1) { wpProg = 0; wpIdx++; return }
+
+    dronePos.lerpVectors(startP, endP, wpProg)
+
+    // Auto-compute yaw from horizontal direction; fall back to wp.yaw for vertical moves
+    const horizMag = Math.sqrt(seg.x * seg.x + seg.z * seg.z)
+    const targetYaw = horizMag > 0.05 ? yawFromDir(seg.x, seg.z) : (wp.yaw ?? droneYaw)
+    droneYaw = lerpAngle(droneYaw, targetYaw, dt * 5)
+
+    inspMesh.visible = false
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  MANUAL CONTROL
+// ═══════════════════════════════════════════════════════════════
+const MAN = { moveSpd: 4, yawSpd: PI * 0.9, throttle: 2.5 }
+
+function updateManual(dt) {
+  // --- Yaw (left stick X / Q,E) ---
+  let yawInput = 0
+  if (keys['KeyQ'])      yawInput -= 1   // CCW
+  if (keys['KeyE'])      yawInput += 1   // CW
+  yawInput += sticks.L.x
+  yawInput = Math.max(-1, Math.min(1, yawInput))
+  droneYaw = lerpAngle(droneYaw, droneYaw + yawInput * MAN.yawSpd * dt, 1)
+
+  // --- Throttle (left stick Y / Space, Shift) ---
+  let throttle = 0
+  if (keys['Space'])      throttle += 1
+  if (keys['ShiftLeft'] || keys['ShiftRight']) throttle -= 1
+  throttle -= sticks.L.y   // push up = negative Y on stick
+  throttle  = Math.max(-1, Math.min(1, throttle))
+  dronePos.y += throttle * MAN.throttle * dt
+  dronePos.y  = Math.max(0, Math.min(25, dronePos.y))
+
+  // --- Forward/back (right stick Y / W,S) ---
+  let fwd = 0
+  if (keys['KeyW'] || keys['ArrowUp'])   fwd += 1
+  if (keys['KeyS'] || keys['ArrowDown']) fwd -= 1
+  fwd -= sticks.R.y
+  fwd = Math.max(-1, Math.min(1, fwd))
+
+  // --- Strafe (right stick X / A,D) ---
+  let strafe = 0
+  if (keys['KeyD'] || keys['ArrowRight']) strafe += 1
+  if (keys['KeyA'] || keys['ArrowLeft'])  strafe -= 1
+  strafe += sticks.R.x
+  strafe = Math.max(-1, Math.min(1, strafe))
+
+  // Move in drone-heading frame
+  const sinY = Math.sin(droneYaw), cosY = Math.cos(droneYaw)
+  dronePos.x += (fwd * sinY + strafe * cosY) * MAN.moveSpd * dt
+  dronePos.z += (fwd * (-cosY) + strafe * sinY) * MAN.moveSpd * dt
+
+  // --- Hover timer detection ---
+  updateHoverTimer(dt)
+}
+
+function updateHoverTimer(dt) {
+  const timerEl  = document.getElementById('htimer')
+  const wpNameEl = document.getElementById('htWP')
+  const progEl   = document.getElementById('htProg')
+
+  let nearest = null
+  let nearDist = Infinity
+
+  for (const wp of PRACTICE_WPS) {
+    const dx = dronePos.x - wp.x
+    const dy = dronePos.y - wp.y
+    const dz = dronePos.z - wp.z
+    const distXZ = Math.sqrt(dx * dx + dz * dz)
+    const distY  = Math.abs(dy)
+    if (distXZ < 0.7 && distY < 0.45) {
+      const d = distXZ + distY
+      if (d < nearDist) { nearDist = d; nearest = wp }
+    }
+  }
+
+  if (nearest) {
+    hoverAcc[nearest.id] = Math.min(hoverAcc[nearest.id] + dt, 6)
+    activeWP = nearest
+    const t = hoverAcc[nearest.id]
+    wpNameEl.textContent = nearest.label
+    const done = t >= 5 ? ' ✓' : ''
+    progEl.textContent = `${t.toFixed(1)} s / 5.0 s${done}`
+    timerEl.style.display = 'block'
+    timerEl.style.borderColor = t >= 5 ? '#4caf50' : 'rgba(255,255,255,.3)'
+  } else {
+    // Decay hover time when drone leaves vicinity
+    if (activeWP) {
+      hoverAcc[activeWP.id] = Math.max(0, hoverAcc[activeWP.id] - dt * 3)
+    }
+    activeWP = null
+    timerEl.style.display = 'none'
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  MULTI-VIEWPORT RENDER
+// ═══════════════════════════════════════════════════════════════
+const PIP_SZ = Math.round(Math.min(W, H) * 0.24)
+const MARGIN  = 10
+
+function setViewport(x, y, w, h, cam) {
+  renderer.setViewport(x, y, w, h)
+  renderer.setScissor(x, y, w, h)
+  renderer.setScissorTest(true)
+  cam.aspect = w / h
+  if (cam.isOrthographicCamera) {
+    const aspect = w / h
+    cam.left   = -TOP_HALF * aspect
+    cam.right  =  TOP_HALF * aspect
+    cam.top    =  TOP_HALF
+    cam.bottom = -TOP_HALF
+  }
+  cam.updateProjectionMatrix()
+  renderer.render(scene, cam)
+}
+
+function renderAll() {
+  renderer.clear()
+
+  if (mainCam === 'all') {
+    // Three-way split: op (left), top (top-right), fpv (bottom-right)
+    const hw = Math.floor(W / 2)
+    const hh = Math.floor(H / 2)
+    setViewport(0,   0,  hw,  H,  opCam)
+    setViewport(hw,  hh, W - hw, H - hh, topCam)
+    setViewport(hw,  0,  W - hw, hh,     fpvCam)
+  } else {
+    // Main view fills entire canvas
+    setViewport(0, 0, W, H, activeCam())
+
+    // PiP 1 — top-down (top-right)
+    const pip1y = H - MARGIN - PIP_SZ
+    setViewport(W - MARGIN - PIP_SZ, pip1y, PIP_SZ, PIP_SZ, topCam)
+
+    // PiP 2 — secondary (bottom-right)
+    const secCam = mainCam === 'fpv' ? opCam : fpvCam
+    setViewport(W - MARGIN - PIP_SZ, MARGIN, PIP_SZ, PIP_SZ, secCam)
+  }
+}
+
+function activeCam() {
+  if (mainCam === 'op')  return opCam
+  if (mainCam === 'fpv') return fpvCam
+  if (mainCam === 'top') return topCam
+  return opCam
+}
+
+function layoutPip() {
+  const pf1 = document.getElementById('pf1')
+  const pf2 = document.getElementById('pf2')
+  const pl1 = document.getElementById('pl1')
+  const pl2 = document.getElementById('pl2')
+  const pip1y = H - MARGIN - PIP_SZ
+  const showPip = mainCam !== 'all'
+
+  if (showPip) {
+    Object.assign(pf1.style, {
+      display:'block', right: MARGIN+'px', top: (H - pip1y - PIP_SZ)+'px',
+      width: PIP_SZ+'px', height: PIP_SZ+'px'
+    })
+    Object.assign(pf2.style, {
+      display:'block', right: MARGIN+'px', bottom: MARGIN+'px',
+      width: PIP_SZ+'px', height: PIP_SZ+'px'
+    })
+    pl1.style.cssText = `display:block;right:${MARGIN+4}px;top:${H - pip1y - PIP_SZ + 3}px`
+    pl1.textContent = '🗺 俯視'
+    pl2.style.cssText = `display:block;right:${MARGIN+4}px;bottom:${MARGIN + PIP_SZ + 4}px`
+    pl2.textContent = mainCam === 'fpv' ? '👁 操作者' : '🎥 FPV'
+  } else {
+    pf1.style.display = 'none'; pf2.style.display = 'none'
+    pl1.style.display = 'none'; pl2.style.display = 'none'
+  }
+
+  // Split labels
+  const all = mainCam === 'all'
+  document.getElementById('sl-op').style.cssText =
+    all ? 'display:block;left:8px;bottom:8px' : 'display:none'
+  document.getElementById('sl-top').style.cssText =
+    all ? `display:block;left:${Math.floor(W/2)+8}px;top:8px` : 'display:none'
+  document.getElementById('sl-fpv').style.cssText =
+    all ? `display:block;left:${Math.floor(W/2)+8}px;bottom:8px` : 'display:none'
+
+  // FPV crosshair
+  const fpvhud = document.getElementById('fpvhud')
+  fpvhud.style.display = (mainCam === 'fpv') ? 'block' : 'none'
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  ANIMATION LOOP
+// ═══════════════════════════════════════════════════════════════
+let propSpin = 0
+
+function animate() {
+  requestAnimationFrame(animate)
+  const dt = Math.min(clock.getDelta(), 0.1)
+
+  // Update drone state
+  prevPos.copy(dronePos)
+  if (mode === 'demo')   updateDemo(dt)
+  else                   updateManual(dt)
+
+  // Sync dronePos from SEQ hover entries
+  if (mode === 'demo') {
+    const wp = SEQ[Math.min(wpIdx, SEQ.length - 1)]
+    if (wp && wp.v === 0) dronePos.copy(v3(wp.p))
+  }
+
+  // Apply to drone mesh
+  droneGroup.position.copy(dronePos)
+  droneGroup.rotation.y = droneYaw
+
+  // Spin propellers
+  propSpin += dt * 25
+  propGroups.forEach((pg, i) => {
+    pg.rotation.y = propSpin * (i % 2 === 0 ? 1 : -1)
+  })
+
+  // Update FPV camera to follow drone nose
+  const fwdVec = new THREE.Vector3(Math.sin(droneYaw), 0, -Math.cos(droneYaw))
+  fpvMount.getWorldPosition(fpvCam.position)
+  fpvCam.lookAt(fpvCam.position.clone().add(fwdVec))
+  fpvCam.rotation.z = 0
+
+  // Operator camera gently tracks drone
+  opCam.position.set(0, 1.7, OP_Z)
+  const lookTarget = new THREE.Vector3(dronePos.x * 0.4, Math.max(dronePos.y, 0.5), dronePos.z * 0.3)
+  opCam.lookAt(lookTarget)
+
+  // Top camera follows drone XZ
+  topCam.position.set(dronePos.x, 50, dronePos.z)
+  topCam.lookAt(dronePos.x, 0, dronePos.z)
+
+  // Update status HUD
+  const velX = (dronePos.x - prevPos.x) / Math.max(dt, 0.001)
+  const velY = (dronePos.y - prevPos.y) / Math.max(dt, 0.001)
+  const velZ = (dronePos.z - prevPos.z) / Math.max(dt, 0.001)
+  const speed = Math.sqrt(velX*velX + velY*velY + velZ*velZ)
+  document.getElementById('sAlt').textContent = dronePos.y.toFixed(1)
+  document.getElementById('sSpd').textContent = speed.toFixed(1)
+  let hdgDeg = Math.round(((droneYaw / PI) * 180 + 360) % 360)
+  document.getElementById('sHdg').textContent = hdgDeg
+
+  // Update callout from demo SEQ
+  if (mode === 'demo' && wpIdx < SEQ.length) updateCallout()
+
+  renderAll()
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  UI HELPERS
+// ═══════════════════════════════════════════════════════════════
+function updateCallout() {
+  const wp = SEQ[wpIdx] || SEQ[SEQ.length - 1]
+  const el = document.getElementById('callout')
+  el.textContent = wp.t || ''
+  el.classList.toggle('hi', !!wp.hi)
+}
+
+function buildStepPanel() {
+  const steps = document.getElementById('steps')
+  STEP_DEFS.forEach(def => {
+    const div = document.createElement('div')
+    div.className = 'si'
+    div.id = 'si-' + def.id
+    div.onclick = () => jumpToStep(def.id)
+    div.innerHTML = `<div class="sid">${def.icon}</div><span>${def.label}</span>`
+    steps.appendChild(div)
+  })
+}
+
+function updateStepPanel() {
+  const cur = wpIdx < SEQ.length ? SEQ[wpIdx].s : null
+  STEP_DEFS.forEach(def => {
+    const el = document.getElementById('si-' + def.id)
+    if (el) el.classList.toggle('on', def.id === cur)
+  })
+}
+
+function jumpToStep(stepId) {
+  const idx = SEQ.findIndex(w => w.s === stepId)
+  if (idx < 0) return
+  wpIdx = idx
+  wpProg = 0
+  waitAccum = 0
+  dronePos.copy(v3(SEQ[idx].p))
+  droneYaw = SEQ[idx].yaw ?? PI
+  updateCallout()
+  updateStepPanel()
+}
+
+function togglePlay() {
+  playing = !playing
+  document.getElementById('bPlay').textContent = playing ? '⏸ 暫停' : '▶ 繼續'
+}
+
+function stepNav(dir) {
+  // Find index in STEP_DEFS
+  const cur = wpIdx < SEQ.length ? SEQ[wpIdx].s : STEP_DEFS[0].id
+  const si  = STEP_DEFS.findIndex(d => d.id === cur)
+  const ni  = Math.max(0, Math.min(STEP_DEFS.length - 1, si + dir))
+  jumpToStep(STEP_DEFS[ni].id)
+}
+
+function setMainCam(cam) {
+  mainCam = cam
+  document.querySelectorAll('.cb').forEach(b => b.classList.remove('on'))
+  const btn = document.getElementById('cam-' + cam)
+  if (btn) btn.classList.add('on')
+  layoutPip()
+}
+
+function toggleMode() {
+  mode = mode === 'demo' ? 'manual' : 'demo'
+  const btn = document.getElementById('modebtn')
+  if (mode === 'manual') {
+    btn.textContent = '🕹 手動模式'
+    btn.classList.add('manual')
+    document.getElementById('ply').style.display = 'none'
+    document.getElementById('sMode').textContent = '手動'
+    document.getElementById('keyhint').style.display = 'block'
+    document.getElementById('stL').style.display = 'block'
+    document.getElementById('stR').style.display = 'block'
+    document.getElementById('callout').textContent = '🕹 手動模式：自由練習飛行'
+    document.getElementById('callout').classList.remove('hi')
+  } else {
+    btn.textContent = '🎬 示範模式'
+    btn.classList.remove('manual')
+    document.getElementById('ply').style.display = 'flex'
+    document.getElementById('sMode').textContent = '示範'
+    document.getElementById('keyhint').style.display = 'none'
+    document.getElementById('stL').style.display = 'none'
+    document.getElementById('stR').style.display = 'none'
+    document.getElementById('htimer').style.display = 'none'
+    jumpToStep(SEQ[wpIdx]?.s || 'A')
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  WINDOW RESIZE
+// ═══════════════════════════════════════════════════════════════
+window.addEventListener('resize', () => {
+  const nw = innerWidth, nh = innerHeight
+  renderer.setSize(nw, nh)
+  opCam.aspect = nw / nh
+  opCam.updateProjectionMatrix()
+  fpvCam.aspect = nw / nh
+  fpvCam.updateProjectionMatrix()
+  layoutPip()
+})
+
+// ═══════════════════════════════════════════════════════════════
+//  BOOT
+// ═══════════════════════════════════════════════════════════════
+buildStepPanel()
+jumpToStep('A')
+layoutPip()
+animate()
+</script>
+</body>
+</html>
