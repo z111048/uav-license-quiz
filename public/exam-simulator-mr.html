@@ -1420,8 +1420,11 @@ function toggleMode() {
     document.getElementById('callout').classList.remove('hi')
     // Hide inspector (yellow person — demo-only actor)
     inspMesh.visible = false
-    // In manual mode: hide 📋 steps toggle; 📊 toggle controls steps + HUD together
-    document.getElementById('steps-toggle').style.display = 'none'
+    // In manual mode: both 📋 and 📊 appear on the left side, each controlling itself
+    const hudBtn = document.getElementById('hud-toggle')
+    hudBtn.style.right = 'auto'
+    hudBtn.style.left  = '8px'
+    hudBtn.style.top   = '50px'
     setStepsPanelVisible(false)
     setHudVisible(false)
   } else {
@@ -1435,8 +1438,11 @@ function toggleMode() {
     motorTarget = 0
     jumpToStep(SEQ[wpIdx]?.s || 'A')
     motorTarget = 1   // demo keeps motors running
-    // In demo mode: restore 📋 steps toggle, show steps panel, hide HUD
-    document.getElementById('steps-toggle').style.display = ''
+    // In demo mode: restore 📊 to original right-side position, show steps
+    const hudBtn = document.getElementById('hud-toggle')
+    hudBtn.style.left  = 'auto'
+    hudBtn.style.right = '8px'
+    hudBtn.style.top   = '8px'
     setHudVisible(false)
     setStepsPanelVisible(true)
   }
@@ -1491,14 +1497,10 @@ function setHudVisible(visible) {
     btn.style.borderColor = 'rgba(255,255,255,.6)'
     // Show/hide keyhint depending on current mode
     document.getElementById('keyhint').style.display = mode === 'manual' ? 'block' : 'none'
-    // In manual mode: 📊 also shows the steps panel (replaces 📋 toggle)
-    if (mode === 'manual') setStepsPanelVisible(true)
   } else {
     rpEl.style.display = 'none'
     btn.textContent = '📊'
     btn.style.borderColor = 'rgba(255,255,255,.3)'
-    // In manual mode: 📊 close also hides steps panel
-    if (mode === 'manual') setStepsPanelVisible(false)
   }
 }
 
