@@ -1456,7 +1456,9 @@ document.getElementById('opEye').addEventListener('input', e => {
 })
 syncOpEyeUI()
 initMobileLayout()
-initJoysticks()
+// NOTE: initJoysticks() is called lazily from toggleMode() the first time
+// manual mode is entered, so the zone elements are already visible and
+// have correct layout when nipplejs queries their dimensions.
 layoutPip()
 animate()
 </script>
