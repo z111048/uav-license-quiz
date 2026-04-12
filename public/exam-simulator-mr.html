@@ -130,6 +130,13 @@ body{overflow:hidden;background:#0a0a1a;font-family:'Segoe UI',system-ui,sans-se
   cursor:pointer;line-height:34px;text-align:center;padding:0;
   touch-action:manipulation}
 
+/* ── Audio mute toggle ── */
+#audio-toggle{display:block;position:absolute;right:46px;top:8px;z-index:25;
+  width:34px;height:34px;border-radius:8px;background:rgba(0,0,0,.85);
+  border:1px solid rgba(255,255,255,.3);color:#fff;font-size:1rem;
+  cursor:pointer;line-height:34px;text-align:center;padding:0;
+  touch-action:manipulation}
+
 /* ── Small landscape (phone ≤ 500 px tall) ── */
 @media screen and (max-height:500px) and (orientation:landscape){
   /* Shift step panel below the toggle */
@@ -167,6 +174,7 @@ body{overflow:hidden;background:#0a0a1a;font-family:'Segoe UI',system-ui,sans-se
 
 <button id="steps-toggle" onclick="toggleSteps()" title="開啟/關閉流程面板">📋</button>
 <button id="hud-toggle" onclick="toggleHud()" title="開啟/關閉 HUD 面板">📊</button>
+<button id="audio-toggle" onclick="toggleAudio()" title="靜音/開聲">🔊</button>
 
 <div id="steps">
   <div id="shdr">📋 術科測驗流程</div>
@@ -1058,6 +1066,7 @@ const MAN = {
   tiltRate:   10,     // rad/s tilt response (how quickly drone reaches target angle)
 }
 let manVelX = 0, manVelZ = 0, manVelY = 0  // physical velocity in world frame (m/s)
+let curThrInput = 0  // throttle input exposed to audio engine (-1 to +1)
 
 function updateManual(dt) {
   // --- Yaw (left stick X / Q,E) ---
@@ -1072,6 +1081,7 @@ function updateManual(dt) {
   if (keys['Space'])      thrInput += 1
   if (keys['ShiftLeft'] || keys['ShiftRight']) thrInput -= 1
   thrInput = Math.max(-1, Math.min(1, thrInput - sticks.L.y))
+  curThrInput = thrInput  // expose to audio engine
   manVelY += thrInput * MAN.throttleSpd * dt
   manVelY *= Math.max(0, 1 - 3.5 * dt)   // vertical drag / hover damping
   dronePos.y += manVelY * dt
@@ -1220,6 +1230,159 @@ function layoutPip() {
 }
 
 // ═══════════════════════════════════════════════════════════════
+//  DRONE AUDIO ENGINE  (Web Audio API synthesis — no external files)
+//  Physical model: 4 motors × 3-blade props → blade-pass frequency
+//
+//  DJI Phantom-style at hover ≈ 5 500 RPM shaft × 3 blades / 60 ≈ 275 Hz BPF
+//  4 oscillator banks (sawtooth + overtones), each slightly detuned → "beating"
+//  Wind: bandpass white noise rising with horizontal speed
+// ═══════════════════════════════════════════════════════════════
+let audioCtx        = null
+let masterGain      = null
+let motorGainNodes  = []    // GainNode per motor bank
+let motorOscNodes   = []    // [[{osc,mult},...], ...] per motor
+let windGainNode    = null
+let audioReady      = false
+let audioMuted      = false
+
+const HOVER_BPF    = 275   // Hz — blade-pass freq at motorRpm = 1.0 (cruise/hover)
+const IDLE_BPF     = 38    // Hz — near-zero RPM start (keeps oscillators alive)
+const MOTOR_DETUNE = [-12, +9, -6, +14]  // cents — detuning between motors for "beating"
+
+function unlockAudio() {
+  if (audioReady) return
+  try {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)()
+
+    // Dynamics compressor prevents clipping when all 4 motor banks are loud
+    const comp = audioCtx.createDynamicsCompressor()
+    comp.threshold.value = -16
+    comp.knee.value      = 8
+    comp.ratio.value     = 4
+    comp.attack.value    = 0.005
+    comp.release.value   = 0.30
+    comp.connect(audioCtx.destination)
+
+    masterGain = audioCtx.createGain()
+    masterGain.gain.value = audioMuted ? 0 : 0.30
+    masterGain.connect(comp)
+
+    // ── 4 motor oscillator banks ─────────────────────────────────────────────
+    // Sawtooth wave naturally contains ALL integer harmonics → motor "buzz"
+    // Square wave at 2× BPF adds odd-harmonic edge (mechanical feel)
+    // Sine at 4× BPF models the high-pitched electrical motor whine
+    motorGainNodes = []
+    motorOscNodes  = []
+
+    for (let m = 0; m < 4; m++) {
+      const bankGain = audioCtx.createGain()
+      bankGain.gain.value = 0   // starts silent; ramped up by updateAudio()
+      bankGain.connect(masterGain)
+      motorGainNodes.push(bankGain)
+
+      const bankOscs = []
+
+      // Sawtooth — fundamental + all harmonics (dominant motor buzz)
+      const saw = audioCtx.createOscillator()
+      saw.type          = 'sawtooth'
+      saw.frequency.value = HOVER_BPF
+      saw.detune.value  = MOTOR_DETUNE[m]
+      const sawG = audioCtx.createGain()
+      sawG.gain.value   = 0.55
+      saw.connect(sawG); sawG.connect(bankGain); saw.start()
+      bankOscs.push({ osc: saw, mult: 1 })
+
+      // Square at 2× — reinforces odd harmonics, adds mechanical "edge"
+      const sqr = audioCtx.createOscillator()
+      sqr.type          = 'square'
+      sqr.frequency.value = HOVER_BPF * 2
+      sqr.detune.value  = MOTOR_DETUNE[m] + 4
+      const sqrG = audioCtx.createGain()
+      sqrG.gain.value   = 0.15
+      sqr.connect(sqrG); sqrG.connect(bankGain); sqr.start()
+      bankOscs.push({ osc: sqr, mult: 2 })
+
+      // Sine at 4× — high motor-electrical whine
+      const whi = audioCtx.createOscillator()
+      whi.type          = 'sine'
+      whi.frequency.value = HOVER_BPF * 4
+      whi.detune.value  = MOTOR_DETUNE[m]
+      const whiG = audioCtx.createGain()
+      whiG.gain.value   = 0.07
+      whi.connect(whiG); whiG.connect(bankGain); whi.start()
+      bankOscs.push({ osc: whi, mult: 4 })
+
+      motorOscNodes.push(bankOscs)
+    }
+
+    // ── Wind / air-rush noise ─────────────────────────────────────────────────
+    // 2-second looping white noise → bandpass filter → gain
+    const bufLen   = Math.floor(audioCtx.sampleRate * 2)
+    const noiseBuf = audioCtx.createBuffer(1, bufLen, audioCtx.sampleRate)
+    const nd       = noiseBuf.getChannelData(0)
+    for (let i = 0; i < bufLen; i++) nd[i] = Math.random() * 2 - 1
+
+    const windSrc = audioCtx.createBufferSource()
+    windSrc.buffer = noiseBuf
+    windSrc.loop   = true
+
+    const windBP          = audioCtx.createBiquadFilter()
+    windBP.type           = 'bandpass'
+    windBP.frequency.value = 700
+    windBP.Q.value        = 1.0
+
+    windGainNode           = audioCtx.createGain()
+    windGainNode.gain.value = 0
+    windSrc.connect(windBP); windBP.connect(windGainNode)
+    windGainNode.connect(masterGain)
+    windSrc.start()
+
+    audioReady = true
+  } catch (e) {
+    console.warn('DroneAudio: init failed —', e)
+  }
+}
+
+// Called every animation frame — smoothly tracks motorRpm, speed, throttle
+function updateAudio(motorRpm, speedMs, thrInput) {
+  if (!audioReady || audioMuted) return
+  if (audioCtx.state === 'suspended') audioCtx.resume()
+
+  const t  = audioCtx.currentTime
+  const tc = 0.06   // Web Audio smoothing time-constant (seconds)
+
+  // BPF scales with motorRpm; climbing slightly increases RPM → pitch shift
+  const bpf    = IDLE_BPF + motorRpm * (HOVER_BPF - IDLE_BPF) + Math.max(0, thrInput) * 22
+
+  // Volume: quadratic ramp — nearly silent at low RPM, punchy at cruise
+  const mGain  = motorRpm * motorRpm * 0.20
+
+  motorGainNodes.forEach((gn, m) => {
+    gn.gain.setTargetAtTime(mGain, t, tc)
+    motorOscNodes[m].forEach(({ osc, mult }) => {
+      osc.frequency.setTargetAtTime(bpf * mult, t, tc)
+    })
+  })
+
+  // Wind noise rises with horizontal speed (propwash & aerodynamic noise)
+  const windLevel = Math.min(1, speedMs / 10) * Math.max(0, motorRpm) * 0.18
+  windGainNode.gain.setTargetAtTime(windLevel, t, tc)
+}
+
+function setAudioMute(muted) {
+  audioMuted = muted
+  const btn = document.getElementById('audio-toggle')
+  if (btn) btn.textContent = muted ? '🔇' : '🔊'
+  if (!audioReady) return
+  masterGain.gain.setTargetAtTime(muted ? 0 : 0.30, audioCtx.currentTime, 0.15)
+}
+
+function toggleAudio() {
+  if (!audioReady) unlockAudio()
+  setAudioMute(!audioMuted)
+}
+
+// ═══════════════════════════════════════════════════════════════
 //  ANIMATION LOOP
 // ═══════════════════════════════════════════════════════════════
 let propSpin = 0
@@ -1287,6 +1450,10 @@ function animate() {
   document.getElementById('sSpd').textContent = speed.toFixed(1)
   let hdgDeg = Math.round(((droneYaw / PI) * 180 + 360) % 360)
   document.getElementById('sHdg').textContent = hdgDeg
+
+  // Update drone audio — frequency tracks motorRpm, speed, and throttle input
+  // In demo mode curThrInput stays 0 (smooth flight); manual mode sets it each frame
+  updateAudio(motorRpm, speed, curThrInput)
 
   // Tilt — demo mode only: derive from velocity. Manual mode sets tilt inside updateManual().
   if (mode === 'demo') {
@@ -1420,12 +1587,15 @@ function toggleMode() {
     document.getElementById('callout').classList.remove('hi')
     // Hide inspector (yellow person — demo-only actor)
     inspMesh.visible = false
-    // In manual mode: both 📋 and 📊 appear on the left side, each controlling itself
+    // In manual mode: 📋 📊 🔊 stack on the left side
     const hudBtn = document.getElementById('hud-toggle')
     hudBtn.style.right = 'auto'
     hudBtn.style.left  = '8px'
     hudBtn.style.top   = '50px'
-    setStepsPanelVisible(false)
+    const audBtn = document.getElementById('audio-toggle')
+    audBtn.style.right = 'auto'
+    audBtn.style.left  = '8px'
+    audBtn.style.top   = '92px'
     setHudVisible(false)
   } else {
     btn.textContent = '🎬 示範模式'
@@ -1436,13 +1606,18 @@ function toggleMode() {
     document.getElementById('zoneR').style.display = 'none'
     // Spin down motors then demo will spin them back up
     motorTarget = 0
+    curThrInput = 0
     jumpToStep(SEQ[wpIdx]?.s || 'A')
     motorTarget = 1   // demo keeps motors running
-    // In demo mode: restore 📊 to original right-side position, show steps
+    // In demo mode: restore 📊 🔊 to original right-side positions, show steps
     const hudBtn = document.getElementById('hud-toggle')
     hudBtn.style.left  = 'auto'
     hudBtn.style.right = '8px'
     hudBtn.style.top   = '8px'
+    const audBtn = document.getElementById('audio-toggle')
+    audBtn.style.left  = 'auto'
+    audBtn.style.right = '46px'
+    audBtn.style.top   = '8px'
     setHudVisible(false)
     setStepsPanelVisible(true)
   }
@@ -1542,6 +1717,10 @@ initMobileLayout()
 // manual mode is entered, so the zone elements are already visible and
 // have correct layout when nipplejs queries their dimensions.
 layoutPip()
+// Unlock Web Audio on first user gesture (browser autoplay policy)
+;['click', 'keydown', 'touchstart'].forEach(evt =>
+  document.addEventListener(evt, unlockAudio, { once: true, capture: true })
+)
 animate()
 </script>
 </body>

@@ -6,6 +6,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Recent changes (2026-04-12)**
 
+- Added drone sound synthesis to `public/exam-simulator-mr.html` using the Web Audio API (no external audio files):
+  - Physical model: 4 motor oscillator banks (sawtooth + square + sine) detuned ±6–14 cents to create the characteristic inter-motor "beating"; blade-pass frequency (`HOVER_BPF = 275 Hz`) scales with `motorRpm` (38 Hz idle → 275 Hz hover); throttle input adds ≤22 Hz pitch shift; wind noise (bandpass white noise at 700 Hz) rises with horizontal speed.
+  - `unlockAudio()` creates the `AudioContext` on first user gesture (click / keydown / touchstart) to comply with browser autoplay policy.
+  - `updateAudio(motorRpm, speedMs, thrInput)` is called every animation frame; uses `setTargetAtTime` for smooth parameter glides.
+  - `curThrInput` global captures throttle stick from `updateManual()` each frame; stays 0 in demo mode (smooth, constant hum).
+  - 🔊/🔇 toggle button (`#audio-toggle`) sits beside `#hud-toggle` (right:46px top:8px in demo mode; stacks to left:8px top:92px in manual mode with 📋 📊).
+  - `DynamicsCompressor` prevents clipping when all 4 banks are at full gain.
 - Restored `public/exam-simulator.html` (fixed-wing/general simulator) which was accidentally deleted.
 - Fixed TypeScript `TS1345` error in `src/test/exam-simulator.test.ts` by avoiding logical OR on `void` return types from assertions.
 - Fixed overlapping left-side HUD panels in `public/exam-simulator-mr.html`: wrapped `#keyhint`, `#opcamctl`, `#stat` in a `#right-panels` flex-column container so they stack without overlap even when keyboard-hint is visible in manual mode.
