@@ -153,8 +153,8 @@ describe('exam-simulator-mr.html — quadrotor model', () => {
     expect(HTML).toContain('propSpin')
   })
 
-  it('has landing legs', () => {
-    expect(HTML).toContain('Landing legs')
+  it('has landing gear', () => {
+    expect(HTML).toContain('Landing Gear')
   })
 
   it('has an FPV mount node attached to the drone', () => {

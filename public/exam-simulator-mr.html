@@ -578,125 +578,196 @@ inspMesh.visible = false
 scene.add(inspMesh)
 
 // ═══════════════════════════════════════════════════════════════
-//  QUADROTOR DRONE MODEL
+//  QUADROTOR DRONE MODEL  (DJI Phantom-style professional UAV)
 // ═══════════════════════════════════════════════════════════════
 const droneGroup = new THREE.Group()
 scene.add(droneGroup)
 
-// Body
-const bodyMesh = new THREE.Mesh(
-  new THREE.BoxGeometry(0.30, 0.07, 0.30),
-  new THREE.MeshStandardMaterial({ color: 0x2a2a2a, roughness: 0.6 })
-)
-droneGroup.add(bodyMesh)
+// ── Shared materials ─────────────────────────────────────────
+const mBody    = new THREE.MeshStandardMaterial({ color: 0x2c2c2e, roughness: 0.45, metalness: 0.30 })
+const mShell   = new THREE.MeshStandardMaterial({ color: 0x3a3a3c, roughness: 0.50, metalness: 0.20 })
+const mAccent  = new THREE.MeshStandardMaterial({ color: 0x636366, roughness: 0.35, metalness: 0.55 })
+const mMotor   = new THREE.MeshStandardMaterial({ color: 0x1c1c1e, metalness: 0.80, roughness: 0.25 })
+const mBell    = new THREE.MeshStandardMaterial({ color: 0x8e8e93, metalness: 0.90, roughness: 0.18 })
+const mPropDk  = new THREE.MeshStandardMaterial({ color: 0x1a1a1c, roughness: 0.38, side: THREE.DoubleSide })
+const mPropLt  = new THREE.MeshStandardMaterial({ color: 0x3a3a3c, roughness: 0.38, side: THREE.DoubleSide })
+const mNose    = new THREE.MeshStandardMaterial({ color: 0xf0f0f0, roughness: 0.30 })
+const mLens    = new THREE.MeshStandardMaterial({ color: 0x070707, metalness: 0.50, roughness: 0.10 })
+const mGlass   = new THREE.MeshStandardMaterial({ color: 0x101014, metalness: 0.30, roughness: 0.08, transparent: true, opacity: 0.88 })
+const mLeg     = new THREE.MeshStandardMaterial({ color: 0x2c2c2e, roughness: 0.65 })
+const mLedR    = new THREE.MeshStandardMaterial({ color: 0xff3b30, emissive: 0xff3b30, emissiveIntensity: 0.9 })
+const mLedG    = new THREE.MeshStandardMaterial({ color: 0x30d158, emissive: 0x30d158, emissiveIntensity: 0.9 })
+const mLedW    = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0.6 })
 
-// Central dome
+// ── Body — octagonal prism ────────────────────────────────────
+const body = new THREE.Mesh(new THREE.CylinderGeometry(0.175, 0.160, 0.068, 8), mBody)
+droneGroup.add(body)
+
+// Top shell plate
+const topShell = new THREE.Mesh(new THREE.CylinderGeometry(0.158, 0.158, 0.014, 8), mShell)
+topShell.position.y = 0.041
+droneGroup.add(topShell)
+
+// Battery / bottom plate
+const battPlate = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.022, 0.155), mAccent)
+battPlate.position.y = -0.045
+droneGroup.add(battPlate)
+
+// Central dome (tinted glass sensor dome)
 const dome = new THREE.Mesh(
-  new THREE.SphereGeometry(0.10, 10, 8, 0, PI * 2, 0, PI / 2),
-  new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.5 })
+  new THREE.SphereGeometry(0.092, 14, 10, 0, PI * 2, 0, PI / 2),
+  mGlass
 )
-dome.position.y = 0.035
+dome.position.y = 0.048
 droneGroup.add(dome)
 
-// FPV camera bump (front, indicates nose direction)
-const fpvBump = new THREE.Mesh(
-  new THREE.BoxGeometry(0.055, 0.04, 0.04),
-  new THREE.MeshStandardMaterial({ color: 0x111111 })
-)
-fpvBump.position.set(0, 0.025, -0.15)
-droneGroup.add(fpvBump)
+// Accent ring around dome base
+const accentRing = new THREE.Mesh(new THREE.TorusGeometry(0.105, 0.007, 6, 28), mBell)
+accentRing.rotation.x = PI / 2
+accentRing.position.y = 0.034
+droneGroup.add(accentRing)
 
-// Clear nose arrow so forward heading is visually unambiguous
-const noseArrowMat = new THREE.MeshStandardMaterial({ color: 0x00e676, emissive: 0x00a152, emissiveIntensity: 0.45 })
-const noseArrow = new THREE.Mesh(
-  new THREE.ConeGeometry(0.06, 0.18, 10),
-  noseArrowMat
-)
-noseArrow.rotation.x = -PI / 2
-noseArrow.position.set(0, 0.065, -0.24)
-droneGroup.add(noseArrow)
+// Nose marking — white strip on front face (direction indicator)
+const noseMark = new THREE.Mesh(new THREE.BoxGeometry(0.060, 0.010, 0.018), mNose)
+noseMark.position.set(0, 0.040, -0.162)
+droneGroup.add(noseMark)
 
-const noseStripe = new THREE.Mesh(
-  new THREE.BoxGeometry(0.09, 0.02, 0.14),
-  noseArrowMat
-)
-noseStripe.position.set(0, 0.05, -0.1)
-droneGroup.add(noseStripe)
+// FPV camera body
+const camBody = new THREE.Mesh(new THREE.BoxGeometry(0.048, 0.036, 0.024), mMotor)
+camBody.position.set(0, 0.008, -0.168)
+droneGroup.add(camBody)
 
-// FPV mount node for camera
+// FPV lens (small cylinder, 12-sided)
+const camLens = new THREE.Mesh(new THREE.CylinderGeometry(0.011, 0.011, 0.009, 12), mLens)
+camLens.rotation.x = PI / 2
+camLens.position.set(0, 0.008, -0.181)
+droneGroup.add(camLens)
+
+// Gimbal ball / camera pod underneath nose
+const gimbalBall = new THREE.Mesh(new THREE.SphereGeometry(0.032, 10, 8), mMotor)
+gimbalBall.position.set(0, -0.048, -0.09)
+droneGroup.add(gimbalBall)
+const gimbalCam = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.016, 0.024, 10), mLens)
+gimbalCam.rotation.x = PI / 2
+gimbalCam.position.set(0, -0.048, -0.118)
+droneGroup.add(gimbalCam)
+
+// FPV mount node (used for FPV camera view)
 const fpvMount = new THREE.Object3D()
 fpvMount.position.set(0, 0.04, -0.16)
 droneGroup.add(fpvMount)
 
-// 4 arms in X-configuration (±45° from axes)
-// Motor positions (NE/NW/SW/SE from body center)
+// ── Arms — X-configuration, tapered two-part design ──────────
+// Motor tip positions: SW / NW(front-left) / NE(front-right) / SE
 const MOTOR_POS = [
-  [-0.24,  0,  0.24],   // SW arm (back-left)
-  [-0.24,  0, -0.24],   // NW arm (front-left) — red (nose side)
-  [ 0.24,  0, -0.24],   // NE arm (front-right) — red (nose side)
-  [ 0.24,  0,  0.24],   // SE arm (back-right)
+  [-0.25,  0,  0.25],  // 0: SW  — back-left  (white LED)
+  [-0.25,  0, -0.25],  // 1: NW  — front-left  (red LED)
+  [ 0.25,  0, -0.25],  // 2: NE  — front-right (green LED)
+  [ 0.25,  0,  0.25],  // 3: SE  — back-right  (white LED)
 ]
 const propGroups = []
 
-MOTOR_POS.forEach(([mx, my, mz], i) => {
-  // Arm from center to motor
-  const armLen = Math.sqrt(mx * mx + mz * mz)
-  const arm = new THREE.Mesh(
-    new THREE.BoxGeometry(armLen, 0.025, 0.045),
-    new THREE.MeshStandardMaterial({ color: i < 2 ? 0x880000 : 0x2a2a2a })
-  )
-  arm.position.set(mx / 2, 0, mz / 2)
-  arm.rotation.y = Math.atan2(-mz, mx)
-  droneGroup.add(arm)
+MOTOR_POS.forEach(([mx, , mz], i) => {
+  const isFront = i === 1 || i === 2
+  const angle   = Math.atan2(-mz, mx)
+  const aLen    = Math.sqrt(mx * mx + mz * mz)
 
-  // Motor cylinder
-  const motor = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.055, 0.055, 0.05, 10),
-    new THREE.MeshStandardMaterial({ color: 0x444444, metalness: 0.6 })
-  )
-  motor.position.set(mx, 0.03, mz)
-  droneGroup.add(motor)
+  // Inner (thick) arm segment near body
+  const armIn = new THREE.Mesh(new THREE.BoxGeometry(aLen * 0.46, 0.036, 0.054), mBody)
+  armIn.position.set(mx * 0.27, 0, mz * 0.27)
+  armIn.rotation.y = angle
+  droneGroup.add(armIn)
 
-  // Propeller disc (flat torus approximation)
+  // Outer (slim) arm segment toward motor
+  const armOut = new THREE.Mesh(
+    new THREE.BoxGeometry(aLen * 0.54, 0.026, 0.038),
+    new THREE.MeshStandardMaterial({ color: isFront ? 0x7a0000 : 0x3a3a3c, roughness: 0.50 })
+  )
+  armOut.position.set(mx * 0.73, 0, mz * 0.73)
+  armOut.rotation.y = angle
+  droneGroup.add(armOut)
+
+  // Motor mount disc
+  const mount = new THREE.Mesh(new THREE.CylinderGeometry(0.050, 0.050, 0.010, 10), mShell)
+  mount.position.set(mx, -0.005, mz)
+  droneGroup.add(mount)
+
+  // Motor stator
+  const stator = new THREE.Mesh(new THREE.CylinderGeometry(0.040, 0.040, 0.022, 12), mMotor)
+  stator.position.set(mx, 0.011, mz)
+  droneGroup.add(stator)
+
+  // Motor bell (slightly wider, metallic)
+  const bell = new THREE.Mesh(new THREE.CylinderGeometry(0.047, 0.041, 0.020, 12), mBell)
+  bell.position.set(mx, 0.027, mz)
+  droneGroup.add(bell)
+
+  // Shaft cap
+  const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.008, 8), mBell)
+  cap.position.set(mx, 0.041, mz)
+  droneGroup.add(cap)
+
+  // ── Propeller ───────────────────────────────────────────────
   const propGroup = new THREE.Group()
-  propGroup.position.set(mx, 0.06, mz)
-  const propDisc = new THREE.Mesh(
-    new THREE.TorusGeometry(0.135, 0.012, 4, 24),
-    new THREE.MeshStandardMaterial({ color: i % 2 === 0 ? 0x555555 : 0x777777,
-      transparent: true, opacity: 0.75 })
-  )
-  propDisc.rotation.x = PI / 2
-  propGroup.add(propDisc)
-  // Two blade lines
-  ;[-1, 1].forEach(sign => {
-    const blade = new THREE.Mesh(
-      new THREE.BoxGeometry(0.27, 0.006, 0.032),
-      new THREE.MeshStandardMaterial({ color: 0x888888 })
-    )
-    blade.rotation.y = sign * PI / 4
-    propGroup.add(blade)
+  propGroup.position.set(mx, 0.049, mz)
+
+  // Hub
+  const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.007, 8), mMotor)
+  propGroup.add(hub)
+
+  // Two blades: tapered, with slight sweep (realistic airfoil approximation)
+  const propMat = i % 2 === 0 ? mPropDk : mPropLt
+  ;[0, PI].forEach(rot => {
+    const bladeGrp = new THREE.Group()
+    bladeGrp.rotation.y = rot
+
+    // Root section (wider)
+    const root = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.005, 0.030), propMat)
+    root.position.set(0.028, 0, 0)
+    bladeGrp.add(root)
+
+    // Mid section
+    const mid = new THREE.Mesh(new THREE.BoxGeometry(0.070, 0.005, 0.024), propMat)
+    mid.position.set(0.085, 0.001, 0)
+    mid.rotation.z = 0.04
+    bladeGrp.add(mid)
+
+    // Tip section (narrow)
+    const tip = new THREE.Mesh(new THREE.BoxGeometry(0.060, 0.004, 0.014), propMat)
+    tip.position.set(0.143, 0.002, 0)
+    tip.rotation.z = 0.07
+    bladeGrp.add(tip)
+
+    propGroup.add(bladeGrp)
   })
+
   droneGroup.add(propGroup)
   propGroups.push(propGroup)
+
+  // ── Navigation LED ─────────────────────────────────────────
+  const ledMat = i === 1 ? mLedR : (i === 2 ? mLedG : mLedW)
+  const led = new THREE.Mesh(new THREE.SphereGeometry(0.009, 6, 6), ledMat)
+  led.position.set(mx * 0.94, 0.016, mz * 0.94)
+  droneGroup.add(led)
 })
 
-// Landing legs
-;[[-0.13, 0.14], [-0.13, -0.14], [0.13, 0.14], [0.13, -0.14]].forEach(([lx, lz]) => {
-  const leg = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.008, 0.008, 0.12, 6),
-    new THREE.MeshStandardMaterial({ color: 0x555555 })
-  )
-  leg.position.set(lx, -0.06, lz)
-  droneGroup.add(leg)
-  // foot bar
-  const foot = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.006, 0.006, 0.22, 6),
-    new THREE.MeshStandardMaterial({ color: 0x555555 })
-  )
-  foot.rotation.z = PI / 2
-  foot.position.set(lx, -0.12, lz)
-  droneGroup.add(foot)
+// ── Landing Gear — two skid rails with angled struts ─────────
+// Front and back skid tubes (run left-right under the body)
+;[[-0.115, -0.14], [0.115, -0.14], [-0.115, 0.14], [0.115, 0.14]].forEach(([lx, lz]) => {
+  const strut = new THREE.Mesh(new THREE.CylinderGeometry(0.007, 0.007, 0.13, 6), mLeg)
+  strut.position.set(lx, -0.095, lz)
+  droneGroup.add(strut)
 })
+// Left skid rail (runs front-back)
+const skidL = new THREE.Mesh(new THREE.CylinderGeometry(0.007, 0.007, 0.32, 6), mLeg)
+skidL.rotation.x = PI / 2
+skidL.position.set(-0.115, -0.162, 0)
+droneGroup.add(skidL)
+// Right skid rail
+const skidR = new THREE.Mesh(new THREE.CylinderGeometry(0.007, 0.007, 0.32, 6), mLeg)
+skidR.rotation.x = PI / 2
+skidR.position.set( 0.115, -0.162, 0)
+droneGroup.add(skidR)
 
 droneGroup.castShadow = true
 
@@ -840,23 +911,34 @@ let joysticksReady = false
 function initJoysticks() {
   if (joysticksReady) return
   joysticksReady = true
+
+  // deadzone: ignore very small vectors to prevent drift
+  const DZ = 0.08
+
   const jL = nipplejs.create({
     mode: 'static', position: { left: '50%', top: '50%' },
     size: 110, color: '#2196F3',
-    zone: document.getElementById('zoneL')
+    zone: document.getElementById('zoneL'),
+    threshold: 0.05
   })
   jL.on('move', (_, d) => {
-    if (d && d.vector) { sticks.L.x = d.vector.x; sticks.L.y = -d.vector.y }
+    if (!d || !d.vector) return
+    sticks.L.x = Math.abs(d.vector.x) > DZ ? d.vector.x : 0
+    // nipplejs vector.y: positive = up. Keep sign so -= in control gives correct direction.
+    sticks.L.y = Math.abs(d.vector.y) > DZ ? -d.vector.y : 0
   })
   jL.on('end', () => { sticks.L.x = 0; sticks.L.y = 0 })
 
   const jR = nipplejs.create({
     mode: 'static', position: { left: '50%', top: '50%' },
     size: 110, color: '#FF9800',
-    zone: document.getElementById('zoneR')
+    zone: document.getElementById('zoneR'),
+    threshold: 0.05
   })
   jR.on('move', (_, d) => {
-    if (d && d.vector) { sticks.R.x = d.vector.x; sticks.R.y = -d.vector.y }
+    if (!d || !d.vector) return
+    sticks.R.x = Math.abs(d.vector.x) > DZ ? d.vector.x : 0
+    sticks.R.y = Math.abs(d.vector.y) > DZ ? -d.vector.y : 0
   })
   jR.on('end', () => { sticks.R.x = 0; sticks.R.y = 0 })
 }
@@ -1260,7 +1342,12 @@ function toggleMode() {
     document.getElementById('zoneL').style.display = 'block'
     document.getElementById('zoneR').style.display = 'block'
     initJoysticks()
-    document.getElementById('callout').textContent = '🕹 手動模式：自由練習飛行'
+    // Reset drone to ground at centre, nose facing away from operator
+    // so joystick controls always feel intuitive (left-stick up = ascend, etc.)
+    dronePos.set(0, 0, 0)
+    droneYaw = 0
+    sticks.L.x = sticks.L.y = sticks.R.x = sticks.R.y = 0
+    document.getElementById('callout').textContent = '🕹 手動模式：左搖桿 上升/偏航　右搖桿 前進/橫移'
     document.getElementById('callout').classList.remove('hi')
     // In manual mode: hide steps & HUD, let user decide
     setStepsPanelVisible(false)
