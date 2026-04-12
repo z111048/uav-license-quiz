@@ -771,18 +771,31 @@ skidR.position.set( 0.115, -0.162, 0)
 droneGroup.add(skidR)
 
 droneGroup.castShadow = true
+// Propagate castShadow to every child Mesh so Three.js shadowmap works correctly
+// (Group.castShadow does NOT auto-propagate in Three.js)
+droneGroup.traverse(obj => { if (obj.isMesh) obj.castShadow = true })
 
 // Landing gear offset: skid bottom is 0.162 m below droneGroup origin.
 // Adding this keeps dronePos.y=0 meaning skids touch the ground.
 const GEAR_H = 0.162
 
-// ── Blob shadow (fake dynamic shadow projected on ground) ────────
-const blobMat = new THREE.MeshBasicMaterial({
-  color: 0x000000, transparent: true, opacity: 0.40, depthWrite: false
+// ── Blob shadow (soft fill shadow on ground, supplements sun shadow) ─────
+// Uses three stacked discs (opaque core → transparent halo) for a soft edge.
+const _blobGrp = new THREE.Group()
+;[
+  { r: 0.22, op: 0.30 },
+  { r: 0.36, op: 0.14 },
+  { r: 0.52, op: 0.05 },
+].forEach(({ r, op }) => {
+  const m = new THREE.MeshBasicMaterial({
+    color: 0x000000, transparent: true, opacity: op, depthWrite: false
+  })
+  const mesh = new THREE.Mesh(new THREE.CircleGeometry(r, 28), m)
+  mesh.userData.baseOpacity = op
+  _blobGrp.add(mesh)
 })
-const blobShadow = new THREE.Mesh(new THREE.CircleGeometry(0.28, 24), blobMat)
-blobShadow.rotation.x = -PI / 2
-scene.add(blobShadow)
+_blobGrp.rotation.x = -PI / 2
+scene.add(_blobGrp)
 
 // ═══════════════════════════════════════════════════════════════
 //  CAMERAS
@@ -1049,46 +1062,71 @@ function updateDemo(dt) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  MANUAL CONTROL
+//  MANUAL CONTROL  — physics-based: stick → tilt angle → horizontal thrust
 // ═══════════════════════════════════════════════════════════════
-const MAN = { moveSpd: 1.8, yawSpd: PI * 0.45, throttle: 1.2 }
+const MAN = {
+  maxTilt:    0.32,   // max pitch/roll radians (~18°), feels like sporty mode
+  yawSpd:     PI * 0.45,
+  throttleSpd: 3.0,   // m/s² vertical acceleration at full stick
+  gravity:    9.8,    // simulated gravity (for thrust-tilt→horizontal physics)
+  drag:       2.6,    // horizontal air drag coefficient
+  tiltRate:   10,     // rad/s tilt response (how quickly drone reaches target angle)
+}
+let manVelX = 0, manVelZ = 0, manVelY = 0  // physical velocity in world frame (m/s)
 
 function updateManual(dt) {
   // --- Yaw (left stick X / Q,E) ---
   let yawInput = 0
   if (keys['KeyQ'])      yawInput -= 1   // CCW
   if (keys['KeyE'])      yawInput += 1   // CW
-  yawInput += sticks.L.x
-  yawInput = Math.max(-1, Math.min(1, yawInput))
+  yawInput = Math.max(-1, Math.min(1, yawInput + sticks.L.x))
   droneYaw = lerpAngle(droneYaw, droneYaw + yawInput * MAN.yawSpd * dt, 1)
 
-  // --- Throttle (left stick Y / Space, Shift) ---
-  let throttle = 0
-  if (keys['Space'])      throttle += 1
-  if (keys['ShiftLeft'] || keys['ShiftRight']) throttle -= 1
-  throttle -= sticks.L.y   // push up = negative Y on stick
-  throttle  = Math.max(-1, Math.min(1, throttle))
-  dronePos.y += throttle * MAN.throttle * dt
+  // --- Throttle (left stick Y / Space, Shift) — vertical inertia ---
+  let thrInput = 0
+  if (keys['Space'])      thrInput += 1
+  if (keys['ShiftLeft'] || keys['ShiftRight']) thrInput -= 1
+  thrInput = Math.max(-1, Math.min(1, thrInput - sticks.L.y))
+  manVelY += thrInput * MAN.throttleSpd * dt
+  manVelY *= Math.max(0, 1 - 3.5 * dt)   // vertical drag / hover damping
+  dronePos.y += manVelY * dt
   dronePos.y  = Math.max(0, Math.min(25, dronePos.y))
+  if (dronePos.y === 0 && manVelY < 0) manVelY = 0
 
-  // --- Forward/back (right stick Y / W,S) ---
-  let fwd = 0
-  if (keys['KeyW'] || keys['ArrowUp'])   fwd += 1
-  if (keys['KeyS'] || keys['ArrowDown']) fwd -= 1
-  fwd -= sticks.R.y
-  fwd = Math.max(-1, Math.min(1, fwd))
+  // --- Right stick → target pitch/roll (attitude mode) ---
+  // Horizontal input: combine keyboard + joystick
+  let fwdCmd = 0, sideCmd = 0
+  if (keys['KeyW'] || keys['ArrowUp'])    fwdCmd  += 1
+  if (keys['KeyS'] || keys['ArrowDown'])  fwdCmd  -= 1
+  if (keys['KeyD'] || keys['ArrowRight']) sideCmd += 1
+  if (keys['KeyA'] || keys['ArrowLeft'])  sideCmd -= 1
+  fwdCmd  = Math.max(-1, Math.min(1, fwdCmd  - sticks.R.y))
+  sideCmd = Math.max(-1, Math.min(1, sideCmd + sticks.R.x))
 
-  // --- Strafe (right stick X / A,D) ---
-  let strafe = 0
-  if (keys['KeyD'] || keys['ArrowRight']) strafe += 1
-  if (keys['KeyA'] || keys['ArrowLeft'])  strafe -= 1
-  strafe += sticks.R.x
-  strafe = Math.max(-1, Math.min(1, strafe))
+  // Tilt directly tracks stick: stick up (fwdCmd>0) → nose down (-pitch)
+  const targetPitch = -fwdCmd  * MAN.maxTilt
+  const targetRoll  = -sideCmd * MAN.maxTilt
+  const tiltLerp = Math.min(1, dt * MAN.tiltRate)
+  dronePitch += (targetPitch - dronePitch) * tiltLerp
+  droneRoll  += (targetRoll  - droneRoll)  * tiltLerp
 
-  // Move in drone-heading frame
+  // --- Horizontal physics: tilt angle → acceleration → velocity with drag ---
+  // horizontal_accel (local) = tilt_angle × gravity (small angle approx)
+  const accFwd_local  = -dronePitch * MAN.gravity   // nose down → forward thrust
+  const accSide_local = -droneRoll  * MAN.gravity   // right wing down → rightward thrust
+
+  // Rotate local acceleration into world frame
   const sinY = Math.sin(droneYaw), cosY = Math.cos(droneYaw)
-  dronePos.x += (fwd * sinY + strafe * cosY) * MAN.moveSpd * dt
-  dronePos.z += (fwd * (-cosY) + strafe * sinY) * MAN.moveSpd * dt
+  manVelX += (accFwd_local * sinY  + accSide_local * cosY) * dt
+  manVelZ += (accFwd_local * (-cosY) + accSide_local * sinY) * dt
+
+  // Air drag (exponential decay)
+  const hDrag = Math.max(0, 1 - MAN.drag * dt)
+  manVelX *= hDrag
+  manVelZ *= hDrag
+
+  dronePos.x += manVelX * dt
+  dronePos.z += manVelZ * dt
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1238,7 +1276,7 @@ function animate() {
   // Spin propellers (speed proportional to motorRpm)
   propSpin += dt * 25 * motorRpm
   propGroups.forEach((pg, i) => {
-    pg.rotation.y = propSpin * (i % 2 === 0 ? 1 : -1)
+    pg.rotation.y = propSpin * (i % 2 === 0 ? -1 : 1)
   })
 
   // Update FPV camera to follow drone nose
@@ -1265,21 +1303,27 @@ function animate() {
   let hdgDeg = Math.round(((droneYaw / PI) * 180 + 360) % 360)
   document.getElementById('sHdg').textContent = hdgDeg
 
-  // Tilt — project world velocity onto drone-local forward/right axes
-  const sinY = Math.sin(droneYaw), cosY = Math.cos(droneYaw)
-  const localFwd   =  velX * sinY - velZ * cosY   // positive = moving forward
-  const localRight =  velX * cosY + velZ * sinY   // positive = moving right
-  const TILT = 0.065  // max tilt radians per m/s; feels natural around 1–2 m/s cruise
-  const tiltLerp = Math.min(1, dt * 7)
-  dronePitch += (-localFwd   * TILT - dronePitch) * tiltLerp   // forward → nose down (−pitch)
-  droneRoll  += (-localRight * TILT - droneRoll)  * tiltLerp   // right   → right wing down (−roll)
+  // Tilt — demo mode only: derive from velocity. Manual mode sets tilt inside updateManual().
+  if (mode === 'demo') {
+    const sinY = Math.sin(droneYaw), cosY = Math.cos(droneYaw)
+    const localFwd   =  velX * sinY - velZ * cosY
+    const localRight =  velX * cosY + velZ * sinY
+    const DEMO_TILT = 0.055
+    const tiltLerp = Math.min(1, dt * 6)
+    dronePitch += (-localFwd   * DEMO_TILT - dronePitch) * tiltLerp
+    droneRoll  += (-localRight * DEMO_TILT - droneRoll)  * tiltLerp
+  }
 
-  // Blob shadow — fades and spreads as drone climbs
+  // Blob shadow — soft-edge multi-layer disc, fades/scales with altitude
   const alt = dronePos.y
-  blobShadow.position.set(dronePos.x, 0.005, dronePos.z)
-  blobMat.opacity = Math.max(0, 0.40 * (1 - alt / 7))
-  const bsc = 1.0 + alt * 0.18
-  blobShadow.scale.set(bsc, bsc, bsc)
+  const blobFade = Math.max(0, 1 - alt / 8)
+  _blobGrp.position.set(dronePos.x, 0.005, dronePos.z)
+  _blobGrp.rotation.x = -PI / 2   // keep flat on ground after position set
+  const bsc = 1.0 + alt * 0.16
+  _blobGrp.scale.set(bsc, 1, bsc)
+  _blobGrp.children.forEach(m => {
+    m.material.opacity = m.userData.baseOpacity * blobFade
+  })
 
   if (mode === 'demo' && wpIdx < SEQ.length) updateCallout()
 
@@ -1392,6 +1436,7 @@ function toggleMode() {
     dronePos.set(0, 0, 0)
     droneYaw = 0
     dronePitch = 0; droneRoll = 0
+    manVelX = 0; manVelY = 0; manVelZ = 0
     sticks.L.x = sticks.L.y = sticks.R.x = sticks.R.y = 0
     // Spin up motors from stopped (visual power-on effect)
     motorRpm = 0; motorTarget = 1

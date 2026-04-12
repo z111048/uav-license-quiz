@@ -162,9 +162,10 @@ describe('exam-simulator-mr.html — quadrotor model', () => {
     expect(HTML).toContain('Object3D')
   })
 
-  it('alternates propeller spin direction (counter-rotating pairs)', () => {
-    // One pair spins +1, the other −1
-    expect(HTML).toMatch(/propSpin\s*\*\s*\(.*%\s*2.*===.*0.*\?.*1.*:.*-1/)
+  it('alternates propeller spin direction (counter-rotating pairs, DJI-standard CW/CCW)', () => {
+    // SW+NE = CW (i%2===0 → -1 in Three.js positive-CCW convention)
+    // NW+SE = CCW (i%2===1 → +1)
+    expect(HTML).toMatch(/propSpin\s*\*\s*\(.*%\s*2.*===.*0.*\?.*-1.*:.*1/)
   })
 })
 
