@@ -581,6 +581,7 @@ scene.add(inspMesh)
 //  QUADROTOR DRONE MODEL  (DJI Phantom-style professional UAV)
 // ═══════════════════════════════════════════════════════════════
 const droneGroup = new THREE.Group()
+droneGroup.rotation.order = 'YXZ'   // yaw first, then pitch, then roll
 scene.add(droneGroup)
 
 // ── Shared materials ─────────────────────────────────────────
@@ -771,6 +772,18 @@ droneGroup.add(skidR)
 
 droneGroup.castShadow = true
 
+// Landing gear offset: skid bottom is 0.162 m below droneGroup origin.
+// Adding this keeps dronePos.y=0 meaning skids touch the ground.
+const GEAR_H = 0.162
+
+// ── Blob shadow (fake dynamic shadow projected on ground) ────────
+const blobMat = new THREE.MeshBasicMaterial({
+  color: 0x000000, transparent: true, opacity: 0.40, depthWrite: false
+})
+const blobShadow = new THREE.Mesh(new THREE.CircleGeometry(0.28, 24), blobMat)
+blobShadow.rotation.x = -PI / 2
+scene.add(blobShadow)
+
 // ═══════════════════════════════════════════════════════════════
 //  CAMERAS
 // ═══════════════════════════════════════════════════════════════
@@ -888,6 +901,8 @@ let waitAccum = 0           // seconds waited at current hover entry
 
 let dronePos = new THREE.Vector3(0, 0, 0)
 let droneYaw = 0            // facing north (-Z) initially
+let dronePitch = 0          // visual tilt: nose down = negative
+let droneRoll  = 0          // visual tilt: right wing down = negative
 let prevPos  = new THREE.Vector3()
 
 let inspAngle = 0           // inspector orbit angle (radians)
@@ -1185,6 +1200,8 @@ function layoutPip() {
 //  ANIMATION LOOP
 // ═══════════════════════════════════════════════════════════════
 let propSpin = 0
+let motorRpm    = 0   // 0 = stopped, 1 = full cruise speed
+let motorTarget = 1   // lerp target — demo boots immediately so target full rpm
 
 function animate() {
   requestAnimationFrame(animate)
@@ -1195,18 +1212,31 @@ function animate() {
   if (mode === 'demo')   updateDemo(dt)
   else                   updateManual(dt)
 
+  // Once motors finish spinning up in manual mode, update callout to normal hint
+  if (mode === 'manual' && motorRpm > 0.98 && motorTarget === 1) {
+    const el = document.getElementById('callout')
+    if (el.textContent.startsWith('🔴')) {
+      el.textContent = '🕹 手動模式：左搖桿 上升/偏航　右搖桿 前進/橫移'
+    }
+  }
+
   // Sync dronePos from SEQ hover entries
   if (mode === 'demo') {
     const wp = SEQ[Math.min(wpIdx, SEQ.length - 1)]
     if (wp && wp.v === 0) dronePos.copy(v3(wp.p))
   }
 
-  // Apply to drone mesh
-  droneGroup.position.copy(dronePos)
+  // Apply to drone mesh — position includes landing gear offset so skids touch ground at y=0
+  droneGroup.position.set(dronePos.x, dronePos.y + GEAR_H, dronePos.z)
   droneGroup.rotation.y = -droneYaw
+  droneGroup.rotation.x = dronePitch
+  droneGroup.rotation.z = droneRoll
 
-  // Spin propellers
-  propSpin += dt * 25
+  // Motor spin-up / spin-down (lerp toward motorTarget)
+  motorRpm += (motorTarget - motorRpm) * Math.min(1, dt * (motorTarget > motorRpm ? 1.5 : 2.5))
+
+  // Spin propellers (speed proportional to motorRpm)
+  propSpin += dt * 25 * motorRpm
   propGroups.forEach((pg, i) => {
     pg.rotation.y = propSpin * (i % 2 === 0 ? 1 : -1)
   })
@@ -1235,7 +1265,22 @@ function animate() {
   let hdgDeg = Math.round(((droneYaw / PI) * 180 + 360) % 360)
   document.getElementById('sHdg').textContent = hdgDeg
 
-  // Update callout from demo SEQ
+  // Tilt — project world velocity onto drone-local forward/right axes
+  const sinY = Math.sin(droneYaw), cosY = Math.cos(droneYaw)
+  const localFwd   =  velX * sinY - velZ * cosY   // positive = moving forward
+  const localRight =  velX * cosY + velZ * sinY   // positive = moving right
+  const TILT = 0.065  // max tilt radians per m/s; feels natural around 1–2 m/s cruise
+  const tiltLerp = Math.min(1, dt * 7)
+  dronePitch += (-localFwd   * TILT - dronePitch) * tiltLerp   // forward → nose down (−pitch)
+  droneRoll  += (-localRight * TILT - droneRoll)  * tiltLerp   // right   → right wing down (−roll)
+
+  // Blob shadow — fades and spreads as drone climbs
+  const alt = dronePos.y
+  blobShadow.position.set(dronePos.x, 0.005, dronePos.z)
+  blobMat.opacity = Math.max(0, 0.40 * (1 - alt / 7))
+  const bsc = 1.0 + alt * 0.18
+  blobShadow.scale.set(bsc, bsc, bsc)
+
   if (mode === 'demo' && wpIdx < SEQ.length) updateCallout()
 
   renderAll()
@@ -1346,8 +1391,11 @@ function toggleMode() {
     // so joystick controls always feel intuitive (left-stick up = ascend, etc.)
     dronePos.set(0, 0, 0)
     droneYaw = 0
+    dronePitch = 0; droneRoll = 0
     sticks.L.x = sticks.L.y = sticks.R.x = sticks.R.y = 0
-    document.getElementById('callout').textContent = '🕹 手動模式：左搖桿 上升/偏航　右搖桿 前進/橫移'
+    // Spin up motors from stopped (visual power-on effect)
+    motorRpm = 0; motorTarget = 1
+    document.getElementById('callout').textContent = '🔴 開機中… 左搖桿 上升/偏航　右搖桿 前進/橫移'
     document.getElementById('callout').classList.remove('hi')
     // In manual mode: hide steps & HUD, let user decide
     setStepsPanelVisible(false)
@@ -1359,7 +1407,10 @@ function toggleMode() {
     document.getElementById('sMode').textContent = '示範'
     document.getElementById('zoneL').style.display = 'none'
     document.getElementById('zoneR').style.display = 'none'
+    // Spin down motors then demo will spin them back up
+    motorTarget = 0
     jumpToStep(SEQ[wpIdx]?.s || 'A')
+    motorTarget = 1   // demo keeps motors running
     // In demo mode: auto-collapse all panels, show steps for navigation
     setHudVisible(false)
     setStepsPanelVisible(true)
