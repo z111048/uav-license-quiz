@@ -59,10 +59,53 @@ describe('exam-simulator-mr.html — HTML structure', () => {
     expect(HTML).toContain('stepNav(')
   })
 
+  it('starts with audio muted so the first audio toggle enables sound', () => {
+    expect(HTML).toContain('id="audio-toggle"')
+    expect(HTML).toContain('>🔇</button>')
+    expect(HTML).toContain('let audioMuted      = true')
+  })
+
+  it('uses an iOS-friendly audio unlock flow that retries until the context is running', () => {
+    expect(HTML).toContain('async function unlockAudio()')
+    expect(HTML).toContain('await audioCtx.resume()')
+    expect(HTML).toContain("const audioUnlockEvents = ['pointerdown', 'touchstart', 'click', 'keydown']")
+    expect(HTML).toContain('document.removeEventListener(evt, handleInitialAudioGesture, true)')
+    expect(HTML).toContain("const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent)")
+  })
+
+  it('shows audio status in the HUD for mobile debugging', () => {
+    expect(HTML).toContain('id="sAud"')
+    expect(HTML).toContain('音訊：<b id="sAud">未啟用</b>')
+    expect(HTML).toContain('function updateAudioStatus(text)')
+  })
+
   it('has a mode toggle button (demo ↔ manual)', () => {
     expect(HTML).toContain('toggleMode()')
-    expect(HTML).toContain('示範模式')
+    expect(HTML).toContain("id=\"sMode\"")
+    expect(HTML).toContain('示範')
     expect(HTML).toContain('手動模式')
+  })
+
+  it('includes explicit startup and shutdown power sequences for manual mode', () => {
+    expect(HTML).toContain("let powerState  = 'on'")
+    expect(HTML).toContain("function startManualPowerOn()")
+    expect(HTML).toContain("function startManualPowerOff(nextMode = 'demo')")
+    expect(HTML).toContain('無人機開機中')
+    expect(HTML).toContain('無人機關機中')
+  })
+
+  it('reloads on iOS orientation changes to recover full-screen layout', () => {
+    expect(HTML).toContain('function scheduleOrientationReload()')
+    expect(HTML).toContain("window.addEventListener('orientationchange'")
+    expect(HTML).toContain('window.location.reload()')
+  })
+
+  it('adds LED blink rhythm and prop inertia visuals during power transitions', () => {
+    expect(HTML).toContain('const navLeds = []')
+    expect(HTML).toContain('const propBlurDiscs = []')
+    expect(HTML).toContain('function updateNavLights()')
+    expect(HTML).toContain('function updatePropVisuals(dt)')
+    expect(HTML).toContain('shutdownPitchDrop')
   })
 
   it('has virtual joystick elements for touch control', () => {

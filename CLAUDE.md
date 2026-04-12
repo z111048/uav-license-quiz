@@ -4,15 +4,29 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
-**Recent changes (2026-04-12)**
+**Recent changes (2026-04-13)**
 
 - Added drone sound synthesis to `public/exam-simulator-mr.html` using the Web Audio API (no external audio files):
   - Physical model: 4 motor oscillator banks (sawtooth + square + sine) detuned ±6–14 cents to create the characteristic inter-motor "beating"; blade-pass frequency (`HOVER_BPF = 275 Hz`) scales with `motorRpm` (38 Hz idle → 275 Hz hover); throttle input adds ≤22 Hz pitch shift; wind noise (bandpass white noise at 700 Hz) rises with horizontal speed.
-  - `unlockAudio()` creates the `AudioContext` on first user gesture (click / keydown / touchstart) to comply with browser autoplay policy.
-  - `updateAudio(motorRpm, speedMs, thrInput)` is called every animation frame; uses `setTargetAtTime` for smooth parameter glides.
+  - Audio now starts **muted by default** (`audioMuted = true`, button text `🔇`) so the first tap on the audio button enables sound instead of accidentally muting the freshly-created context.
+  - `unlockAudio()` is now `async`; on iOS/WebKit it retries `AudioContext.resume()` from real user gestures until the context reaches `running`, and uses a 1-sample silent warmup buffer for reliability.
+  - HUD status line `#sAud` exposes audio state (`未啟用` / `已啟用` / `已啟用(靜音)` / `啟用失敗`) to debug mobile audio issues.
+  - `updateAudio(motorRpm, speedMs, thrInput)` is called every animation frame; uses `setTargetAtTime` for smooth parameter glides, and now applies additional pitch drop during shutdown (`shutdownPitchDrop`) so power-off sounds like motor spin-down instead of simple fade-out.
   - `curThrInput` global captures throttle stick from `updateManual()` each frame; stays 0 in demo mode (smooth, constant hum).
   - 🔊/🔇 toggle button (`#audio-toggle`) sits beside `#hud-toggle` (right:46px top:8px in demo mode; stacks to left:8px top:92px in manual mode with 📋 📊).
   - `DynamicsCompressor` prevents clipping when all 4 banks are at full gain.
+- Added explicit manual-mode power sequencing in `public/exam-simulator-mr.html`:
+  - `powerState` state machine: `'off' | 'starting' | 'on' | 'stopping'`
+  - `startManualPowerOn()` performs staged motor spool-up, callout text update, slight body wobble, and nav-light blink rhythm before controls become active.
+  - `startManualPowerOff()` performs staged spool-down before returning to demo mode.
+  - `updateManual()` now hard-locks control input unless `powerState === 'on'`.
+  - Propellers now have separate visual inertia (`propVisualRpm`) plus `propBlurDiscs` so shutdown preserves visible spin/blur briefly after motor target drops.
+- Navigation LEDs are now stateful:
+  - `navLeds[]` stores front/rear LED references.
+  - `updateNavLights()` drives front/rear blink rhythm during startup and fading flashes during shutdown by mutating `MeshStandardMaterial.emissiveIntensity`.
+- iPhone / iPad orientation handling:
+  - `scheduleOrientationReload()` forces `window.location.reload()` after orientation changes on iOS to recover from the occasional non-fullscreen WebKit viewport/layout bug.
+  - Both `resize` and `orientationchange` listeners call this helper.
 - Restored `public/exam-simulator.html` (fixed-wing/general simulator) which was accidentally deleted.
 - Fixed TypeScript `TS1345` error in `src/test/exam-simulator.test.ts` by avoiding logical OR on `void` return types from assertions.
 - Fixed overlapping left-side HUD panels in `public/exam-simulator-mr.html`: wrapped `#keyhint`, `#opcamctl`, `#stat` in a `#right-panels` flex-column container so they stack without overlap even when keyboard-hint is visible in manual mode.

@@ -18,5 +18,11 @@ Recent history follows Conventional Commit prefixes such as `feat:`, `fix:`, and
 ## Static HTML Simulators
 `public/exam-simulator.html` and `public/exam-simulator-mr.html` are standalone static HTML files (Three.js + nipplejs via CDN). Vite copies them verbatim into `dist/` — **no compilation needed**. The React app links to `exam-simulator-mr.html` via `SetupView`'s `onSimulator` prop, using `import.meta.env.BASE_URL` to resolve the correct path on GitHub Pages. When editing either simulator, use vanilla CSS/JS only; do not import npm modules.
 
+For `public/exam-simulator-mr.html`, preserve these simulator-specific behaviors unless the task explicitly changes them:
+- iPhone / iPad compatibility matters. Audio starts muted by default and must be unlocked from a real user gesture through the existing Web Audio flow (`unlockAudio()`, `toggleAudio()`, HUD status `#sAud`). Do not reintroduce autoplay-style initialization.
+- On iOS, orientation changes intentionally trigger a page reload (`scheduleOrientationReload()`) to recover from WebKit viewport bugs where the simulator sometimes fails to fill the screen after rotating to landscape.
+- Manual mode now uses an explicit power-state sequence (`powerState`: `off` / `starting` / `on` / `stopping`). Keep startup/shutdown effects coherent with that state machine: nav-light blink rhythm, staged motor spool-up/down, prop inertia/blur, and shutdown pitch drop in audio.
+- If you change simulator behavior, update the static simulator tests in `src/test/exam-simulator-mr.test.ts` as part of the same change.
+
 ## Security & Configuration Tips
 Never commit `.env`, Firebase credentials, downloaded PDFs in `ref/*.pdf`, or generated image artifacts ignored by `.gitignore`. Treat files in `public/data/` as build inputs: regenerate them intentionally and review diffs before committing.

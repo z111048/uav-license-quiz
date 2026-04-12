@@ -174,7 +174,7 @@ body{overflow:hidden;background:#0a0a1a;font-family:'Segoe UI',system-ui,sans-se
 
 <button id="steps-toggle" onclick="toggleSteps()" title="開啟/關閉流程面板">📋</button>
 <button id="hud-toggle" onclick="toggleHud()" title="開啟/關閉 HUD 面板">📊</button>
-<button id="audio-toggle" onclick="toggleAudio()" title="靜音/開聲">🔊</button>
+<button id="audio-toggle" onclick="toggleAudio()" title="靜音/開聲">🔇</button>
 
 <div id="steps">
   <div id="shdr">📋 術科測驗流程</div>
@@ -208,7 +208,8 @@ body{overflow:hidden;background:#0a0a1a;font-family:'Segoe UI',system-ui,sans-se
     高度：<b id="sAlt">0.0</b> m<br>
     速度：<b id="sSpd">0.0</b> m/s<br>
     航向：<b id="sHdg">180</b>°<br>
-    模式：<b id="sMode">手動</b>
+    模式：<b id="sMode">手動</b><br>
+    音訊：<b id="sAud">未啟用</b>
   </div>
 </div>
 
@@ -675,6 +676,8 @@ const MOTOR_POS = [
   [ 0.25,  0,  0.25],  // 3: SE  — back-right  (white LED)
 ]
 const propGroups = []
+const propBlurDiscs = []
+const navLeds = []
 
 MOTOR_POS.forEach(([mx, , mz], i) => {
   const isFront = i === 1 || i === 2
@@ -724,6 +727,20 @@ MOTOR_POS.forEach(([mx, , mz], i) => {
   const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.007, 8), mMotor)
   propGroup.add(hub)
 
+  // Motion-blur disc for high-RPM prop wash / shutdown inertia trail
+  const blurMat = new THREE.MeshBasicMaterial({
+    color: isFront ? 0xd7f7ff : 0xffffff,
+    transparent: true,
+    opacity: 0,
+    side: THREE.DoubleSide,
+    depthWrite: false
+  })
+  const blurDisc = new THREE.Mesh(new THREE.CircleGeometry(0.18, 28), blurMat)
+  blurDisc.rotation.x = -PI / 2
+  blurDisc.position.y = 0.002
+  propGroup.add(blurDisc)
+  propBlurDiscs.push(blurDisc)
+
   // Two blades: tapered, with slight sweep (realistic airfoil approximation)
   const propMat = i % 2 === 0 ? mPropDk : mPropLt
   ;[0, PI].forEach(rot => {
@@ -758,6 +775,7 @@ MOTOR_POS.forEach(([mx, , mz], i) => {
   const led = new THREE.Mesh(new THREE.SphereGeometry(0.009, 6, 6), ledMat)
   led.position.set(mx * 0.94, 0.016, mz * 0.94)
   droneGroup.add(led)
+  navLeds.push({ mesh: led, mat: ledMat, isFront })
 })
 
 // ── Landing Gear — two skid rails with angled struts ─────────
@@ -1069,6 +1087,14 @@ let manVelX = 0, manVelZ = 0, manVelY = 0  // physical velocity in world frame (
 let curThrInput = 0  // throttle input exposed to audio engine (-1 to +1)
 
 function updateManual(dt) {
+  if (powerState !== 'on') {
+    curThrInput = 0
+    manVelX = 0; manVelY = 0; manVelZ = 0
+    dronePitch += (0 - dronePitch) * Math.min(1, dt * 8)
+    droneRoll  += (0 - droneRoll)  * Math.min(1, dt * 8)
+    return
+  }
+
   // --- Yaw (left stick X / Q,E) ---
   let yawInput = 0
   if (keys['KeyQ'])      yawInput -= 1   // CCW
@@ -1243,116 +1269,152 @@ let motorGainNodes  = []    // GainNode per motor bank
 let motorOscNodes   = []    // [[{osc,mult},...], ...] per motor
 let windGainNode    = null
 let audioReady      = false
-let audioMuted      = false
+let audioMuted      = true
+const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
 
 const HOVER_BPF    = 275   // Hz — blade-pass freq at motorRpm = 1.0 (cruise/hover)
 const IDLE_BPF     = 38    // Hz — near-zero RPM start (keeps oscillators alive)
 const MOTOR_DETUNE = [-12, +9, -6, +14]  // cents — detuning between motors for "beating"
 
-function unlockAudio() {
-  if (audioReady) return
+function warmupAudioContext() {
+  if (!audioCtx) return
+  const src = audioCtx.createBufferSource()
+  src.buffer = audioCtx.createBuffer(1, 1, audioCtx.sampleRate)
+  src.connect(audioCtx.destination)
+  src.start(0)
+}
+
+function updateAudioStatus(text) {
+  const el = document.getElementById('sAud')
+  if (el) el.textContent = text
+}
+
+function showAudioHint(text, highlighted = false) {
+  const el = document.getElementById('callout')
+  if (!el) return
+  el.textContent = text
+  el.classList.toggle('hi', highlighted)
+}
+
+async function unlockAudio() {
   try {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)()
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)()
 
-    // Dynamics compressor prevents clipping when all 4 motor banks are loud
-    const comp = audioCtx.createDynamicsCompressor()
-    comp.threshold.value = -16
-    comp.knee.value      = 8
-    comp.ratio.value     = 4
-    comp.attack.value    = 0.005
-    comp.release.value   = 0.30
-    comp.connect(audioCtx.destination)
+      // Dynamics compressor prevents clipping when all 4 motor banks are loud
+      const comp = audioCtx.createDynamicsCompressor()
+      comp.threshold.value = -16
+      comp.knee.value      = 8
+      comp.ratio.value     = 4
+      comp.attack.value    = 0.005
+      comp.release.value   = 0.30
+      comp.connect(audioCtx.destination)
 
-    masterGain = audioCtx.createGain()
-    masterGain.gain.value = audioMuted ? 0 : 0.30
-    masterGain.connect(comp)
+      masterGain = audioCtx.createGain()
+      masterGain.gain.value = audioMuted ? 0 : 0.30
+      masterGain.connect(comp)
 
-    // ── 4 motor oscillator banks ─────────────────────────────────────────────
-    // Sawtooth wave naturally contains ALL integer harmonics → motor "buzz"
-    // Square wave at 2× BPF adds odd-harmonic edge (mechanical feel)
-    // Sine at 4× BPF models the high-pitched electrical motor whine
-    motorGainNodes = []
-    motorOscNodes  = []
+      // ── 4 motor oscillator banks ─────────────────────────────────────────────
+      // Sawtooth wave naturally contains ALL integer harmonics → motor "buzz"
+      // Square wave at 2× BPF adds odd-harmonic edge (mechanical feel)
+      // Sine at 4× BPF models the high-pitched electrical motor whine
+      motorGainNodes = []
+      motorOscNodes  = []
 
-    for (let m = 0; m < 4; m++) {
-      const bankGain = audioCtx.createGain()
-      bankGain.gain.value = 0   // starts silent; ramped up by updateAudio()
-      bankGain.connect(masterGain)
-      motorGainNodes.push(bankGain)
+      for (let m = 0; m < 4; m++) {
+        const bankGain = audioCtx.createGain()
+        bankGain.gain.value = 0   // starts silent; ramped up by updateAudio()
+        bankGain.connect(masterGain)
+        motorGainNodes.push(bankGain)
 
-      const bankOscs = []
+        const bankOscs = []
 
-      // Sawtooth — fundamental + all harmonics (dominant motor buzz)
-      const saw = audioCtx.createOscillator()
-      saw.type          = 'sawtooth'
-      saw.frequency.value = HOVER_BPF
-      saw.detune.value  = MOTOR_DETUNE[m]
-      const sawG = audioCtx.createGain()
-      sawG.gain.value   = 0.55
-      saw.connect(sawG); sawG.connect(bankGain); saw.start()
-      bankOscs.push({ osc: saw, mult: 1 })
+        // Sawtooth — fundamental + all harmonics (dominant motor buzz)
+        const saw = audioCtx.createOscillator()
+        saw.type          = 'sawtooth'
+        saw.frequency.value = HOVER_BPF
+        saw.detune.value  = MOTOR_DETUNE[m]
+        const sawG = audioCtx.createGain()
+        sawG.gain.value   = 0.55
+        saw.connect(sawG); sawG.connect(bankGain); saw.start()
+        bankOscs.push({ osc: saw, mult: 1 })
 
-      // Square at 2× — reinforces odd harmonics, adds mechanical "edge"
-      const sqr = audioCtx.createOscillator()
-      sqr.type          = 'square'
-      sqr.frequency.value = HOVER_BPF * 2
-      sqr.detune.value  = MOTOR_DETUNE[m] + 4
-      const sqrG = audioCtx.createGain()
-      sqrG.gain.value   = 0.15
-      sqr.connect(sqrG); sqrG.connect(bankGain); sqr.start()
-      bankOscs.push({ osc: sqr, mult: 2 })
+        // Square at 2× — reinforces odd harmonics, adds mechanical "edge"
+        const sqr = audioCtx.createOscillator()
+        sqr.type          = 'square'
+        sqr.frequency.value = HOVER_BPF * 2
+        sqr.detune.value  = MOTOR_DETUNE[m] + 4
+        const sqrG = audioCtx.createGain()
+        sqrG.gain.value   = 0.15
+        sqr.connect(sqrG); sqrG.connect(bankGain); sqr.start()
+        bankOscs.push({ osc: sqr, mult: 2 })
 
-      // Sine at 4× — high motor-electrical whine
-      const whi = audioCtx.createOscillator()
-      whi.type          = 'sine'
-      whi.frequency.value = HOVER_BPF * 4
-      whi.detune.value  = MOTOR_DETUNE[m]
-      const whiG = audioCtx.createGain()
-      whiG.gain.value   = 0.07
-      whi.connect(whiG); whiG.connect(bankGain); whi.start()
-      bankOscs.push({ osc: whi, mult: 4 })
+        // Sine at 4× — high motor-electrical whine
+        const whi = audioCtx.createOscillator()
+        whi.type          = 'sine'
+        whi.frequency.value = HOVER_BPF * 4
+        whi.detune.value  = MOTOR_DETUNE[m]
+        const whiG = audioCtx.createGain()
+        whiG.gain.value   = 0.07
+        whi.connect(whiG); whiG.connect(bankGain); whi.start()
+        bankOscs.push({ osc: whi, mult: 4 })
 
-      motorOscNodes.push(bankOscs)
+        motorOscNodes.push(bankOscs)
+      }
+
+      // ── Wind / air-rush noise ─────────────────────────────────────────────────
+      // 2-second looping white noise → bandpass filter → gain
+      const bufLen   = Math.floor(audioCtx.sampleRate * 2)
+      const noiseBuf = audioCtx.createBuffer(1, bufLen, audioCtx.sampleRate)
+      const nd       = noiseBuf.getChannelData(0)
+      for (let i = 0; i < bufLen; i++) nd[i] = Math.random() * 2 - 1
+
+      const windSrc = audioCtx.createBufferSource()
+      windSrc.buffer = noiseBuf
+      windSrc.loop   = true
+
+      const windBP          = audioCtx.createBiquadFilter()
+      windBP.type           = 'bandpass'
+      windBP.frequency.value = 700
+      windBP.Q.value        = 1.0
+
+      windGainNode           = audioCtx.createGain()
+      windGainNode.gain.value = 0
+      windSrc.connect(windBP); windBP.connect(windGainNode)
+      windGainNode.connect(masterGain)
+      windSrc.start()
+
+      audioReady = true
     }
 
-    // ── Wind / air-rush noise ─────────────────────────────────────────────────
-    // 2-second looping white noise → bandpass filter → gain
-    const bufLen   = Math.floor(audioCtx.sampleRate * 2)
-    const noiseBuf = audioCtx.createBuffer(1, bufLen, audioCtx.sampleRate)
-    const nd       = noiseBuf.getChannelData(0)
-    for (let i = 0; i < bufLen; i++) nd[i] = Math.random() * 2 - 1
-
-    const windSrc = audioCtx.createBufferSource()
-    windSrc.buffer = noiseBuf
-    windSrc.loop   = true
-
-    const windBP          = audioCtx.createBiquadFilter()
-    windBP.type           = 'bandpass'
-    windBP.frequency.value = 700
-    windBP.Q.value        = 1.0
-
-    windGainNode           = audioCtx.createGain()
-    windGainNode.gain.value = 0
-    windSrc.connect(windBP); windBP.connect(windGainNode)
-    windGainNode.connect(masterGain)
-    windSrc.start()
-
-    audioReady = true
+    if (audioCtx.state !== 'running') {
+      await audioCtx.resume()
+    }
+    warmupAudioContext()
+    updateAudioStatus(audioMuted ? '已啟用(靜音)' : '已啟用')
+    return audioCtx.state === 'running'
   } catch (e) {
     console.warn('DroneAudio: init failed —', e)
+    updateAudioStatus('啟用失敗')
+    return false
   }
 }
 
 // Called every animation frame — smoothly tracks motorRpm, speed, throttle
 function updateAudio(motorRpm, speedMs, thrInput) {
-  if (!audioReady || audioMuted) return
-  if (audioCtx.state === 'suspended') audioCtx.resume()
+  if (!audioReady || audioMuted || !audioCtx || audioCtx.state !== 'running') return
 
   const t  = audioCtx.currentTime
   const tc = 0.06   // Web Audio smoothing time-constant (seconds)
+  const shutdownPitchDrop = powerState === 'stopping'
+    ? Math.min(48, powerTimer * 40 + (1 - motorRpm) * 26)
+    : 0
 
   // BPF scales with motorRpm; climbing slightly increases RPM → pitch shift
-  const bpf    = IDLE_BPF + motorRpm * (HOVER_BPF - IDLE_BPF) + Math.max(0, thrInput) * 22
+  const bpf    = Math.max(18,
+    IDLE_BPF + motorRpm * (HOVER_BPF - IDLE_BPF) + Math.max(0, thrInput) * 22 - shutdownPitchDrop
+  )
 
   // Volume: quadratic ramp — nearly silent at low RPM, punchy at cruise
   const mGain  = motorRpm * motorRpm * 0.20
@@ -1373,13 +1435,24 @@ function setAudioMute(muted) {
   audioMuted = muted
   const btn = document.getElementById('audio-toggle')
   if (btn) btn.textContent = muted ? '🔇' : '🔊'
+  updateAudioStatus(!audioReady ? '未啟用' : muted ? '已啟用(靜音)' : '已啟用')
   if (!audioReady) return
   masterGain.gain.setTargetAtTime(muted ? 0 : 0.30, audioCtx.currentTime, 0.15)
 }
 
-function toggleAudio() {
-  if (!audioReady) unlockAudio()
-  setAudioMute(!audioMuted)
+async function toggleAudio() {
+  const nextMuted = !audioMuted
+  if (!nextMuted) {
+    const ok = await unlockAudio()
+    if (!ok) {
+      showAudioHint('音訊啟用失敗，請再點一次喇叭，或確認 iPhone 已關閉靜音模式', true)
+      return
+    }
+  }
+  setAudioMute(nextMuted)
+  if (!nextMuted && IS_IOS) {
+    showAudioHint('若 iPhone 仍無聲，請關閉靜音模式/專注模式，並調高媒體音量', true)
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1388,6 +1461,199 @@ function toggleAudio() {
 let propSpin = 0
 let motorRpm    = 0   // 0 = stopped, 1 = full cruise speed
 let motorTarget = 1   // lerp target — demo boots immediately so target full rpm
+let propVisualRpm = 0
+let powerState  = 'on'  // 'off' | 'starting' | 'on' | 'stopping'
+let powerTimer  = 0
+let pendingMode = null
+
+function setModeButton(label, manual = false) {
+  const btn = document.getElementById('modebtn')
+  btn.textContent = label
+  btn.classList.toggle('manual', manual)
+}
+
+function updateNavLights() {
+  const blink = Math.sin(powerTimer * PI * 7)
+  navLeds.forEach(({ mat, isFront }) => {
+    let intensity = isFront ? 0.85 : 0.45
+
+    if (powerState === 'starting') {
+      intensity = isFront
+        ? (blink > 0.15 ? 1.8 : 0.18)
+        : (blink < -0.1 ? 1.25 : 0.10)
+    } else if (powerState === 'stopping') {
+      intensity = isFront
+        ? Math.max(0, 1.15 - powerTimer * 1.5)
+        : Math.max(0, 0.85 - powerTimer * 1.1)
+      if (Math.sin(powerTimer * PI * 9) > 0.55) intensity *= 0.25
+    } else if (powerState === 'off') {
+      intensity = 0.05
+    }
+
+    mat.emissiveIntensity = intensity
+  })
+}
+
+function updatePropVisuals(dt) {
+  const propResponse = motorRpm > propVisualRpm ? 2.8 : (powerState === 'stopping' ? 0.65 : 1.8)
+  propVisualRpm += (motorRpm - propVisualRpm) * Math.min(1, dt * propResponse)
+
+  const spinFactor = powerState === 'stopping'
+    ? Math.max(propVisualRpm, motorRpm * 0.75)
+    : propVisualRpm
+
+  propSpin += dt * 25 * spinFactor
+  propGroups.forEach((pg, i) => {
+    pg.rotation.y = propSpin * (i % 2 === 0 ? -1 : 1)
+  })
+
+  propBlurDiscs.forEach(disc => {
+    const blurLevel = Math.max(0, (propVisualRpm - 0.22) / 0.78)
+    disc.material.opacity = Math.min(0.24, blurLevel * 0.24)
+    disc.scale.setScalar(0.88 + blurLevel * 0.22)
+  })
+}
+
+function prepareManualLayout() {
+  document.getElementById('ply').style.display = 'none'
+  document.getElementById('sMode').textContent = '手動'
+  document.getElementById('zoneL').style.display = 'block'
+  document.getElementById('zoneR').style.display = 'block'
+  initJoysticks()
+  inspMesh.visible = false
+
+  const hudBtn = document.getElementById('hud-toggle')
+  hudBtn.style.right = 'auto'
+  hudBtn.style.left  = '8px'
+  hudBtn.style.top   = '50px'
+
+  const audBtn = document.getElementById('audio-toggle')
+  audBtn.style.right = 'auto'
+  audBtn.style.left  = '8px'
+  audBtn.style.top   = '92px'
+
+  setHudVisible(false)
+}
+
+function prepareDemoLayout() {
+  document.getElementById('ply').style.display = 'flex'
+  document.getElementById('sMode').textContent = '示範'
+  document.getElementById('zoneL').style.display = 'none'
+  document.getElementById('zoneR').style.display = 'none'
+
+  const hudBtn = document.getElementById('hud-toggle')
+  hudBtn.style.left  = 'auto'
+  hudBtn.style.right = '8px'
+  hudBtn.style.top   = '8px'
+
+  const audBtn = document.getElementById('audio-toggle')
+  audBtn.style.left  = 'auto'
+  audBtn.style.right = '46px'
+  audBtn.style.top   = '8px'
+
+  setHudVisible(false)
+  setStepsPanelVisible(true)
+}
+
+function startManualPowerOn() {
+  mode = 'manual'
+  prepareManualLayout()
+  setModeButton('🔴 啟動中…', true)
+
+  dronePos.set(0, 0, 0)
+  droneYaw = 0
+  dronePitch = 0
+  droneRoll = 0
+  manVelX = 0; manVelY = 0; manVelZ = 0
+  sticks.L.x = sticks.L.y = sticks.R.x = sticks.R.y = 0
+  curThrInput = 0
+
+  motorRpm = 0
+  motorTarget = 0
+  powerState = 'starting'
+  powerTimer = 0
+  pendingMode = null
+
+  const callout = document.getElementById('callout')
+  callout.textContent = '🔴 無人機開機中… ESC 自檢、馬達依序升速'
+  callout.classList.add('hi')
+}
+
+function finishDemoModeSwitch() {
+  mode = 'demo'
+  prepareDemoLayout()
+  setModeButton('🕹 手動模式')
+  curThrInput = 0
+  powerState = 'on'
+  powerTimer = 0
+  jumpToStep(SEQ[wpIdx]?.s || 'A')
+  motorTarget = 1
+}
+
+function startManualPowerOff(nextMode = 'demo') {
+  pendingMode = nextMode
+  powerState = 'stopping'
+  powerTimer = 0
+  curThrInput = 0
+  manVelX = 0; manVelY = 0; manVelZ = 0
+  dronePos.set(0, 0, 0)
+  dronePitch = 0
+  droneRoll = 0
+  motorTarget = 0
+  setModeButton('⚫ 關機中…', true)
+
+  const callout = document.getElementById('callout')
+  callout.textContent = '⚫ 無人機關機中… 馬達減速停止'
+  callout.classList.add('hi')
+}
+
+function updatePowertrain(dt) {
+  powerTimer += dt
+  updateNavLights()
+
+  if (powerState === 'starting') {
+    if (powerTimer < 0.45)      motorTarget = 0.10
+    else if (powerTimer < 1.0)  motorTarget = 0.35
+    else if (powerTimer < 1.8)  motorTarget = 0.72
+    else                        motorTarget = 1
+
+    if (mode === 'manual') {
+      const wobble = Math.min(1, powerTimer / 1.8)
+      droneRoll  += (Math.sin(powerTimer * 20) * 0.012 * wobble - droneRoll) * Math.min(1, dt * 10)
+      dronePitch += (Math.cos(powerTimer * 17) * 0.010 * wobble - dronePitch) * Math.min(1, dt * 10)
+    }
+
+    if (powerTimer > 2.1 && motorRpm > 0.97) {
+      powerState = 'on'
+      powerTimer = 0
+      if (mode === 'manual') {
+        setModeButton('🕹 手動模式', true)
+        const callout = document.getElementById('callout')
+        callout.textContent = '🕹 手動模式：左搖桿 上升/偏航　右搖桿 前進/橫移'
+        callout.classList.remove('hi')
+      }
+    }
+  } else if (powerState === 'stopping') {
+    if (powerTimer < 0.25) motorTarget = Math.min(motorRpm, 0.45)
+    else                   motorTarget = 0
+
+    dronePitch += (0 - dronePitch) * Math.min(1, dt * 10)
+    droneRoll  += (0 - droneRoll)  * Math.min(1, dt * 10)
+
+    if (motorRpm < 0.025) {
+      powerState = 'off'
+      powerTimer = 0
+      motorRpm = 0
+      propVisualRpm = 0
+      if (pendingMode === 'demo') {
+        pendingMode = null
+        finishDemoModeSwitch()
+      }
+    }
+  } else if (powerState === 'off') {
+    motorTarget = 0
+  }
+}
 
 function animate() {
   requestAnimationFrame(animate)
@@ -1397,14 +1663,7 @@ function animate() {
   prevPos.copy(dronePos)
   if (mode === 'demo')   updateDemo(dt)
   else                   updateManual(dt)
-
-  // Once motors finish spinning up in manual mode, update callout to normal hint
-  if (mode === 'manual' && motorRpm > 0.98 && motorTarget === 1) {
-    const el = document.getElementById('callout')
-    if (el.textContent.startsWith('🔴')) {
-      el.textContent = '🕹 手動模式：左搖桿 上升/偏航　右搖桿 前進/橫移'
-    }
-  }
+  updatePowertrain(dt)
 
   // Sync dronePos from SEQ hover entries
   if (mode === 'demo') {
@@ -1421,11 +1680,8 @@ function animate() {
   // Motor spin-up / spin-down (lerp toward motorTarget)
   motorRpm += (motorTarget - motorRpm) * Math.min(1, dt * (motorTarget > motorRpm ? 1.5 : 2.5))
 
-  // Spin propellers (speed proportional to motorRpm)
-  propSpin += dt * 25 * motorRpm
-  propGroups.forEach((pg, i) => {
-    pg.rotation.y = propSpin * (i % 2 === 0 ? -1 : 1)
-  })
+  // Spin propellers with separate visual inertia for startup/shutdown feel
+  updatePropVisuals(dt)
 
   // Update FPV camera to follow drone nose
   const fwdVec = new THREE.Vector3(Math.sin(droneYaw), 0, -Math.cos(droneYaw))
@@ -1564,62 +1820,12 @@ function syncOpEyeUI() {
 }
 
 function toggleMode() {
-  mode = mode === 'demo' ? 'manual' : 'demo'
-  const btn = document.getElementById('modebtn')
   if (mode === 'manual') {
-    btn.textContent = '🕹 手動模式'
-    btn.classList.add('manual')
-    document.getElementById('ply').style.display = 'none'
-    document.getElementById('sMode').textContent = '手動'
-    document.getElementById('zoneL').style.display = 'block'
-    document.getElementById('zoneR').style.display = 'block'
-    initJoysticks()
-    // Reset drone to ground at centre, nose facing away from operator
-    // so joystick controls always feel intuitive (left-stick up = ascend, etc.)
-    dronePos.set(0, 0, 0)
-    droneYaw = 0
-    dronePitch = 0; droneRoll = 0
-    manVelX = 0; manVelY = 0; manVelZ = 0
-    sticks.L.x = sticks.L.y = sticks.R.x = sticks.R.y = 0
-    // Spin up motors from stopped (visual power-on effect)
-    motorRpm = 0; motorTarget = 1
-    document.getElementById('callout').textContent = '🔴 開機中… 左搖桿 上升/偏航　右搖桿 前進/橫移'
-    document.getElementById('callout').classList.remove('hi')
-    // Hide inspector (yellow person — demo-only actor)
-    inspMesh.visible = false
-    // In manual mode: 📋 📊 🔊 stack on the left side
-    const hudBtn = document.getElementById('hud-toggle')
-    hudBtn.style.right = 'auto'
-    hudBtn.style.left  = '8px'
-    hudBtn.style.top   = '50px'
-    const audBtn = document.getElementById('audio-toggle')
-    audBtn.style.right = 'auto'
-    audBtn.style.left  = '8px'
-    audBtn.style.top   = '92px'
-    setHudVisible(false)
+    if (powerState === 'stopping') return
+    startManualPowerOff('demo')
   } else {
-    btn.textContent = '🎬 示範模式'
-    btn.classList.remove('manual')
-    document.getElementById('ply').style.display = 'flex'
-    document.getElementById('sMode').textContent = '示範'
-    document.getElementById('zoneL').style.display = 'none'
-    document.getElementById('zoneR').style.display = 'none'
-    // Spin down motors then demo will spin them back up
-    motorTarget = 0
-    curThrInput = 0
-    jumpToStep(SEQ[wpIdx]?.s || 'A')
-    motorTarget = 1   // demo keeps motors running
-    // In demo mode: restore 📊 🔊 to original right-side positions, show steps
-    const hudBtn = document.getElementById('hud-toggle')
-    hudBtn.style.left  = 'auto'
-    hudBtn.style.right = '8px'
-    hudBtn.style.top   = '8px'
-    const audBtn = document.getElementById('audio-toggle')
-    audBtn.style.left  = 'auto'
-    audBtn.style.right = '46px'
-    audBtn.style.top   = '8px'
-    setHudVisible(false)
-    setStepsPanelVisible(true)
+    if (powerState === 'starting') return
+    startManualPowerOn()
   }
 }
 
@@ -1690,10 +1896,29 @@ function initMobileLayout() {
   setHudVisible(false)
 }
 
+let lastOrientation = innerWidth > innerHeight ? 'landscape' : 'portrait'
+let orientationReloadTimer = null
+
+function scheduleOrientationReload() {
+  if (!IS_IOS) return
+  const nextOrientation = innerWidth > innerHeight ? 'landscape' : 'portrait'
+  if (nextOrientation === lastOrientation) return
+  lastOrientation = nextOrientation
+  clearTimeout(orientationReloadTimer)
+  orientationReloadTimer = setTimeout(() => {
+    window.location.reload()
+  }, 180)
+}
+
 window.addEventListener('resize', () => {
   // Re-apply current state on orientation change
   setStepsPanelVisible(stepsVisible)
   setHudVisible(hudVisible)
+  scheduleOrientationReload()
+})
+
+window.addEventListener('orientationchange', () => {
+  scheduleOrientationReload()
 })
 
 // ═══════════════════════════════════════════════════════════════
@@ -1702,7 +1927,7 @@ window.addEventListener('resize', () => {
 buildStepPanel()
 jumpToStep('A')
 // Boot in demo mode — play bar visible, joysticks hidden
-document.getElementById('modebtn').textContent = '🎬 示範模式'
+setModeButton('🕹 手動模式')
 document.getElementById('ply').style.display = 'flex'
 document.getElementById('sMode').textContent = '示範'
 document.getElementById('zoneL').style.display = 'none'
@@ -1713,13 +1938,23 @@ document.getElementById('opEye').addEventListener('input', e => {
 })
 syncOpEyeUI()
 initMobileLayout()
+updateAudioStatus('未啟用')
 // NOTE: initJoysticks() is called lazily from toggleMode() the first time
 // manual mode is entered, so the zone elements are already visible and
 // have correct layout when nipplejs queries their dimensions.
 layoutPip()
-// Unlock Web Audio on first user gesture (browser autoplay policy)
-;['click', 'keydown', 'touchstart'].forEach(evt =>
-  document.addEventListener(evt, unlockAudio, { once: true, capture: true })
+// Keep trying to unlock Web Audio on user gestures until iOS/WebKit actually
+// transitions the context to "running".
+const audioUnlockEvents = ['pointerdown', 'touchstart', 'click', 'keydown']
+async function handleInitialAudioGesture() {
+  const ok = await unlockAudio()
+  if (!ok) return
+  audioUnlockEvents.forEach(evt =>
+    document.removeEventListener(evt, handleInitialAudioGesture, true)
+  )
+}
+audioUnlockEvents.forEach(evt =>
+  document.addEventListener(evt, handleInitialAudioGesture, true)
 )
 animate()
 </script>
