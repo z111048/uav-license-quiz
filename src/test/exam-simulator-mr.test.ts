@@ -214,8 +214,9 @@ describe('exam-simulator-mr.html — environment', () => {
     expect(HTML).toContain('bigMarker')
   })
 
-  it('has an inspector sphere for 360° check animation', () => {
+  it('has an inspector figure for 360° check animation', () => {
     expect(HTML).toContain('inspMesh')
+    expect(HTML).toContain('CylinderGeometry')
     expect(HTML).toContain('inspAngle')
   })
 })

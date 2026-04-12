@@ -12,9 +12,10 @@ interface Props {
   onAllAbove: () => void
   onStudyMode: () => void
   onAdvisor: () => void
+  onSimulator: () => void
 }
 
-export default function SetupView({ questions, onStart, onReadingMode, onWhitelist, onAllAbove, onStudyMode, onAdvisor, currentBankId, chapterNote }: Props) {
+export default function SetupView({ questions, onStart, onReadingMode, onWhitelist, onAllAbove, onStudyMode, onAdvisor, onSimulator, currentBankId, chapterNote }: Props) {
   const chapters = [...new Set(questions.map((q) => q.chapter))]
   const [selectedChapters, setSelectedChapters] = useState<string[]>([])
   const [count, setCount] = useState<number | 'all'>(50)
@@ -187,6 +188,14 @@ export default function SetupView({ questions, onStart, onReadingMode, onWhiteli
             className="text-gray-400 hover:text-blue-600 underline text-xs"
           >
             🪁 不確定要考哪種證？重新診斷
+          </button>
+        </div>
+        <div>
+          <button
+            onClick={onSimulator}
+            className="text-teal-600 hover:text-teal-800 underline text-sm font-medium"
+          >
+            🚁 術科測驗模擬器（無人多旋翼機基本級）
           </button>
         </div>
       </div>

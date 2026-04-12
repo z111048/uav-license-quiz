@@ -1,5 +1,5 @@
-# PDF 原始檔（由 update_question_bank.py 自動下載）
-ref/*.pdf
+# 原始參考資料（含 PDF 與圖片，不進版控）
+ref/
 
 # Node.js
 node_modules/

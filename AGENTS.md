@@ -1,0 +1,22 @@
+# Repository Guidelines
+
+## Project Structure & Module Organization
+`src/` contains the Vite + React + TypeScript app. Keep shared state in `src/App.tsx`, reusable types in `src/types.ts`, helpers in `src/utils.ts`, and screen components in `src/components/`. Put frontend tests in `src/test/`. Static assets live in `public/`; versioned question banks and AI-generated manifests are under `public/data/`. Python maintenance scripts sit at the repo root (`update_question_bank.py`, `generate_study_aids.py`) and in `scripts/images/` for image-analysis and upload workflows.
+
+## Build, Test, and Development Commands
+Run `npm install` once, then `npm run dev` to start the local app on port `5176`. Use `npm run build` to type-check and create the production bundle in `dist/`. Run `npm test` for a single Vitest pass and `npm run test:watch` during active frontend work. For data refreshes, use `uv run update_question_bank.py` to download and rebuild `public/data/*.json`. AI content scripts also run through `uv`, for example `uv run generate_study_aids.py`.
+
+## Coding Style & Naming Conventions
+Follow the existing TypeScript style: 2-space indentation, semicolon-free statements, single quotes, and functional React components. Name components in `PascalCase` (`QuizView.tsx`), functions and variables in `camelCase`, and keep constants in `UPPER_SNAKE_CASE` only when they are true globals. No ESLint or Prettier config is checked in, so match surrounding code closely and keep diffs small.
+
+## Testing Guidelines
+This project uses `Vitest` with `@testing-library/react` and `jsdom` (`src/test/setup.ts`). Add tests beside the existing suite in `src/test/`, using `*.test.ts` for utilities and `*.test.tsx` for component behavior. Cover user-visible flows: rendering, selection, callbacks, and bank-data normalization. Run `npm test` before opening a PR.
+
+## Commit & Pull Request Guidelines
+Recent history follows Conventional Commit prefixes such as `feat:`, `fix:`, and `refactor:`. Keep commit subjects short, imperative, and scoped to one change. PRs should explain user-facing impact, call out any regenerated data files in `public/data/`, link related issues, and include screenshots or short recordings for UI changes. If a change affects deployment behavior, note any `VITE_BASE` or GitHub Pages implications.
+
+## Static HTML Simulators
+`public/exam-simulator.html` and `public/exam-simulator-mr.html` are standalone static HTML files (Three.js + nipplejs via CDN). Vite copies them verbatim into `dist/` — **no compilation needed**. The React app links to `exam-simulator-mr.html` via `SetupView`'s `onSimulator` prop, using `import.meta.env.BASE_URL` to resolve the correct path on GitHub Pages. When editing either simulator, use vanilla CSS/JS only; do not import npm modules.
+
+## Security & Configuration Tips
+Never commit `.env`, Firebase credentials, downloaded PDFs in `ref/*.pdf`, or generated image artifacts ignored by `.gitignore`. Treat files in `public/data/` as build inputs: regenerate them intentionally and review diffs before committing.

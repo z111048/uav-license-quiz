@@ -4,9 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
-**Recent changes (2026-03-06)**
+**Recent changes (2026-04-12)**
 
-- Resolved merge conflicts in src/App.tsx, src/components/SetupView.tsx, src/types.ts; added LicenseAdvisorView and StudyView; updated ViewType and SetupView props.
+- Fixed overlapping left-side HUD panels in `public/exam-simulator-mr.html`: wrapped `#keyhint`, `#opcamctl`, `#stat` in a `#right-panels` flex-column container so they stack without overlap even when keyboard-hint is visible in manual mode.
+- Added 術科測驗模擬器 entry link in `SetupView`: new `onSimulator` prop opens `exam-simulator-mr.html` in a new tab using `import.meta.env.BASE_URL`.
+- Note: `public/exam-simulator-mr.html` (and `public/exam-simulator.html`) are standalone static HTML files — Vite copies them as-is to `dist/`, no compilation required.
 
 **Frontend development:**
 ```bash

@@ -225,6 +225,10 @@ export default function App() {
                 onAllAbove={() => setView('allabove')}
                 onStudyMode={handleStudyMode}
                 onAdvisor={() => setView('advisor')}
+                onSimulator={() => {
+                  const BASE_URL = import.meta.env.BASE_URL as string
+                  window.open(BASE_URL + 'exam-simulator-mr.html', '_blank', 'noopener,noreferrer')
+                }}
               />
             )}
 

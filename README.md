@@ -1,10 +1,9 @@
 # 無人機學科線上練習系統 (UAV License Quiz)
 
-近期更新（2026-03-06）
+近期更新（2026-04-12）
 
-- 已解決合併衝突：src/App.tsx、src/components/SetupView.tsx、src/types.ts。
-- 新增功能：LicenseAdvisorView（預設 advisor 視圖）與 StudyView（AI 學習模式）。
-- 修正：更新 ViewType 型別與 SetupView Props，以同時支援 advisor / allabove / study。
+- 新增術科測驗模擬器入口：SetupView 底部新增「🚁 術科測驗模擬器（無人多旋翼機基本級）」連結，點擊於新分頁開啟。
+- 修正模擬器左上 HUD 面板重疊問題：`#keyhint`、`#opcamctl`、`#stat` 改以 flex-column 容器堆疊，切換手動模式時不再互相覆蓋。
 
 專為準備無人機學科考試設計的互動式練習系統，支援四種題庫版本，並具備「無腦背白名單」邏輯，幫助考生快速識別唯一正確選項。
 
@@ -23,6 +22,7 @@
 - **「以上皆是」策略分析**：自動分類含「以上皆是」選項的題目，區分可直接背（答案就是以上皆是）與陷阱題（以上皆是是錯誤選項），並附統計數字
 - **AI 學習模式**（專業操作證）：透過 Claude Haiku API 為每題生成關鍵字提示、諧音口訣、概念解析、錯誤選項說明，支援章節篩選與關鍵字搜尋
 - **題目示意圖**（專業操作證）：Gemini AI 為 371 道需要視覺輔助的題目（tier 1/2）生成 3D 技術示意圖，顯示於測驗、閱讀與 AI 學習模式；圖片托管於 Firebase Storage CDN。圖片均標註「AI 產製，僅供參考」免責說明
+- **術科測驗模擬器**（無人多旋翼機基本級）：獨立 3D 互動模擬器，可體驗懸停、起降、航點飛行等術科測驗流程；支援自動導航與手動（W/A/S/D / 虛擬搖桿）兩種模式，多視角切換。於學科練習的設定頁底部入口開啟
 
 ## 開發
 
@@ -103,6 +103,8 @@ npm run test:watch    # 開發時 watch 模式
 使用 **Vitest + @testing-library/react**，測試放在 `src/test/`：
 - `utils.test.ts` — `shuffleArray` / `normalizeBankData` 單元測試
 - `QuizView.test.tsx` — 渲染、選項點擊、作答記錄、`onFinish` callback 驗證
+- `exam-simulator.test.ts` — `public/exam-simulator.html` 靜態 HTML 結構與邏輯驗證
+- `exam-simulator-mr.test.ts` — `public/exam-simulator-mr.html` 靜態 HTML 結構與邏輯驗證
 
 ### 建置
 
@@ -185,6 +187,8 @@ uav-license-quiz/
 │   ├── icon-192.png           # PWA 圖示（192×192）
 │   ├── icon-512.png           # PWA 圖示（512×512）
 │   ├── og-image.png           # 社群分享封面圖（1200×630）
+│   ├── exam-simulator.html    # 術科測驗模擬器（固定翼/多旋翼通用版，靜態 HTML）
+│   ├── exam-simulator-mr.html # 術科測驗模擬器（無人多旋翼機基本級，靜態 HTML）
 │   ├── robots.txt             # 允許爬蟲索引，宣告 sitemap 位置
 │   ├── sitemap.xml            # 網站地圖（供 Google / Bing 索引）
 │   ├── site.webmanifest       # PWA 宣告（名稱、主題色、icons）
