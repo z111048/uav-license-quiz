@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Recent changes (2026-04-12)**
 
+- Restored `public/exam-simulator.html` (fixed-wing/general simulator) which was accidentally deleted.
+- Fixed TypeScript `TS1345` error in `src/test/exam-simulator.test.ts` by avoiding logical OR on `void` return types from assertions.
 - Fixed overlapping left-side HUD panels in `public/exam-simulator-mr.html`: wrapped `#keyhint`, `#opcamctl`, `#stat` in a `#right-panels` flex-column container so they stack without overlap even when keyboard-hint is visible in manual mode.
 - Added 術科測驗模擬器 entry link in `SetupView`: new `onSimulator` prop opens `exam-simulator-mr.html` in a new tab using `import.meta.env.BASE_URL`.
 - Note: `public/exam-simulator-mr.html` (and `public/exam-simulator.html`) are standalone static HTML files — Vite copies them as-is to `dist/`, no compilation required.

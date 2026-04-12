@@ -177,13 +177,11 @@ describe('exam-simulator.html — environment', () => {
   })
 
   it('draws the oval race-track path', () => {
-    expect(HTML).toContain('Race-track path')
-      || expect(HTML).toContain('RT_R')
+    expect(HTML.includes('Race-track path') || HTML.includes('RT_R')).toBe(true)
   })
 
   it('draws the five-leg traffic-pattern path', () => {
-    expect(HTML).toContain('Traffic-pattern path')
-      || expect(HTML).toContain('五邊航線')
+    expect(HTML.includes('Traffic-pattern path') || HTML.includes('五邊航線')).toBe(true)
   })
 })
 

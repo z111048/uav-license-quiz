@@ -2,6 +2,7 @@
 
 近期更新（2026-04-12）
 
+- 修復測試與建置錯誤：復原被意外刪除的 `public/exam-simulator.html` 並修正 `src/test/exam-simulator.test.ts` 中的 TypeScript 型別錯誤（TS1345）。
 - 新增術科測驗模擬器入口：SetupView 底部新增「🚁 術科測驗模擬器（無人多旋翼機基本級）」連結，點擊於新分頁開啟。
 - 修正模擬器左上 HUD 面板重疊問題：`#keyhint`、`#opcamctl`、`#stat` 改以 flex-column 容器堆疊，切換手動模式時不再互相覆蓋。
 
