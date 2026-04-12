@@ -292,20 +292,9 @@ describe('exam-simulator-mr.html — manual control', () => {
     expect(HTML).toContain('Math.max(0')
   })
 
-  it('implements hover timer detection for practice waypoints', () => {
-    expect(HTML).toContain('updateHoverTimer')
-    expect(HTML).toContain('PRACTICE_WPS')
-    expect(HTML).toContain('hoverAcc')
-  })
-
-  it('practice waypoints include all 4 rectangle corners and H', () => {
-    // P1, P2, P3, P4, H
-    expect(HTML).toContain("id:'P1'")
-    expect(HTML).toContain("id:'P2'")
-    expect(HTML).toContain("id:'P3'")
-    expect(HTML).toContain("id:'P4'")
-    expect(HTML).toContain("id:'H-air'")
-    expect(HTML).toContain("id:'H-land'")
+  it('has a HUD toggle button for right-panels', () => {
+    expect(HTML).toContain('toggleHud')
+    expect(HTML).toContain('hud-toggle')
   })
 })
 

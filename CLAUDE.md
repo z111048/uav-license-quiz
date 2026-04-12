@@ -11,6 +11,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Fixed overlapping left-side HUD panels in `public/exam-simulator-mr.html`: wrapped `#keyhint`, `#opcamctl`, `#stat` in a `#right-panels` flex-column container so they stack without overlap even when keyboard-hint is visible in manual mode.
 - Added 術科測驗模擬器 entry link in `SetupView`: new `onSimulator` prop opens `exam-simulator-mr.html` in a new tab using `import.meta.env.BASE_URL`.
 - Note: `public/exam-simulator-mr.html` (and `public/exam-simulator.html`) are standalone static HTML files — Vite copies them as-is to `dist/`, no compilation required.
+- Mobile UI overhaul for `public/exam-simulator-mr.html`:
+  - Default boot mode is now **demo** (auto-plays immediately, play bar visible on open).
+  - 📋 top-left toggle: always-visible button to show/hide the 術科流程 steps panel; auto-expands in demo mode, auto-collapses in manual mode.
+  - 📊 top-right toggle: always-visible button to show/hide HUD panels (`#keyhint`, `#opcamctl`, `#stat`); hidden by default in both modes.
+  - `#right-panels` repositioned to `right:8px; top:50px` (was left-anchored relative to steps panel).
+  - Steps panel now highlights the current demo step in real time (fixed: `updateStepPanel()` now called from `updateCallout()` on every animation frame).
+  - Removed centre-screen hover timer (`#htimer`, P1 XX s / 5 s block) and associated `PRACTICE_WPS`/`hoverAcc` logic.
+  - Playback bar (`#ply`) and camera bar (`#cams`) gap increased (`#ply` bottom: 52px → 76px desktop, 58px mobile).
+  - Fixed touch-drag text selection on joystick zones: added `user-select:none; -webkit-user-select:none` to `body`.
+  - Camera buttons use `flex-wrap:wrap` + `max-width:92vw` to prevent overflow on small screens.
+  - Manual mode joystick sensitivity reduced significantly: `moveSpd 4→1.8`, `yawSpd PI×0.9→PI×0.45`, `throttle 2.5→1.2`.
 
 **Frontend development:**
 ```bash
