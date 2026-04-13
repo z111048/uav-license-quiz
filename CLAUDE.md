@@ -17,8 +17,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - Manual keyboard mapping now mirrors the left/right stick semantics:
     - left stick: `W/S` throttle, `A/D` yaw
     - right stick: arrow keys for planar movement
+  - Mobile CSC detection now uses `CSC_AXIS_THRESHOLD = 0.55` instead of near-axis-max thresholds, because nipplejs touch diagonals are circular and do not reliably reach `0.92` on both axes.
+  - HUD status line `#sCsc` exposes CSC readiness/debug state (`示範模式` / `未開機` / `請落地後操作` / `待命（下內八 / 下外八）` / `內八/外八偵測中 xx%` / `CSC 成立...`).
   - Keep `updateManual()` locked when powered but `motorState !== 'running'`; do not reintroduce yaw/lift movement before motors are started.
   - Visual prop spin was intentionally increased (`MAN.idleRotor = 0.30`, `propSpin += dt * 90 * Math.max(0, spinFactor)`) so startup and climb look believable.
+  - Manual horizontal travel was intentionally sped up for mobile usability (`MAN.maxTilt = 0.42`, `MAN.drag = 1.8`, `MAN.tiltRate = 12`); preserve the faster forward/side response unless explicitly asked to retune it.
 - Added drone sound synthesis to `public/exam-simulator-mr.html` using the Web Audio API (no external audio files):
   - Physical model: 4 motor oscillator banks (sawtooth + square + sine) detuned ±6–14 cents to create the characteristic inter-motor "beating"; blade-pass frequency (`HOVER_BPF = 275 Hz`) scales with `motorRpm` (38 Hz idle → 275 Hz hover); throttle input adds ≤22 Hz pitch shift; wind noise (bandpass white noise at 700 Hz) rises with horizontal speed.
   - Audio now starts **muted by default** (`audioMuted = true`, button text `🔇`) so the first tap on the audio button enables sound instead of accidentally muting the freshly-created context.
@@ -64,6 +67,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - Propeller rotation direction fixed to DJI standard: SW(i=0)+NE(i=2) = CW (`-1`), NW(i=1)+SE(i=3) = CCW (`+1`). Formula: `(i%2===0 ? -1:1)`.
   - All child meshes set `castShadow=true` via `droneGroup.traverse()` for Three.js shadowmap.
   - Blob shadow (`_blobGrp`) removed — real Three.js sun shadow is sufficient.
+  - `hPad.receiveShadow = true` is required so the aircraft shadow does not visually disappear over the H pad.
+  - The H pad includes a geometric `H` marking built from flat planes; keep it as local geometry instead of introducing font loading or external assets.
 - Motor spin-up/down animation: `motorRpm` lerps toward `motorTarget`; manual mode entry shows "🔴 開機中…" callout until `motorRpm >= 0.98`.
 - Physics-based manual mode: stick → target pitch/roll angle (`MAN.maxTilt = 0.32 rad`) → horizontal acceleration via `acc = tilt × gravity` → velocity with `MAN.drag = 2.6` air resistance → position. Vertical has inertia (`manVelY`).
 - Joystick lazy-init fix: `initJoysticks()` no longer called at boot (zones are `display:none`); called inside `toggleMode()` after zones are shown, ensuring nipplejs gets correct bounding box.

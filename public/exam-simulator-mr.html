@@ -214,7 +214,8 @@ body{overflow:hidden;background:#0a0a1a;font-family:'Segoe UI',system-ui,sans-se
     速度：<b id="sSpd">0.0</b> m/s<br>
     航向：<b id="sHdg">180</b>°<br>
     模式：<b id="sMode">手動</b><br>
-    音訊：<b id="sAud">未啟用</b>
+    音訊：<b id="sAud">未啟用</b><br>
+    CSC：<b id="sCsc">示範模式</b>
   </div>
 </div>
 
@@ -366,10 +367,25 @@ const hPad = new THREE.Mesh(
 )
 hPad.rotation.x = -PI / 2
 hPad.position.set(0, 0.015, 0)
+hPad.receiveShadow = true
 scene.add(hPad)
 
 // H pad inner ring
 groundRing(0.75, 0.75, 0x333333, 0.017)
+
+// H pad marking
+const hMarkMat = new THREE.MeshStandardMaterial({ color: 0x2f2f2f, roughness: 0.72 })
+;[
+  { x: -0.22, z: 0, w: 0.12, d: 0.60 },
+  { x:  0.22, z: 0, w: 0.12, d: 0.60 },
+  { x:  0.00, z: 0, w: 0.52, d: 0.12 },
+].forEach(({ x, z, w, d }) => {
+  const seg = new THREE.Mesh(new THREE.PlaneGeometry(w, d), hMarkMat)
+  seg.rotation.x = -PI / 2
+  seg.position.set(x, 0.0165, z)
+  seg.receiveShadow = true
+  scene.add(seg)
+})
 
 // Dashed center line from H toward north (−Z) through rectangle
 function dashedLine(x, z0, z1, color, y = 0.012) {
@@ -1081,12 +1097,12 @@ function updateDemo(dt) {
 //  MANUAL CONTROL  — physics-based: stick → tilt angle → horizontal thrust
 // ═══════════════════════════════════════════════════════════════
 const MAN = {
-  maxTilt:    0.32,   // max pitch/roll radians (~18°), feels like sporty mode
+  maxTilt:    0.42,   // max pitch/roll radians (~24°), quicker forward/side travel on touch
   yawSpd:     PI * 0.45,
   throttleSpd: 3.0,   // m/s² vertical acceleration at full stick
   gravity:    9.8,    // simulated gravity (for thrust-tilt→horizontal physics)
-  drag:       2.6,    // horizontal air drag coefficient
-  tiltRate:   10,     // rad/s tilt response (how quickly drone reaches target angle)
+  drag:       1.8,    // horizontal air drag coefficient
+  tiltRate:   12,     // rad/s tilt response (how quickly drone reaches target angle)
   idleRotor:  0.30,   // idle rotor speed after CSC motor start
 }
 let manVelX = 0, manVelZ = 0, manVelY = 0  // physical velocity in world frame (m/s)
@@ -1095,6 +1111,7 @@ let motorState = 'running' // 'stopped' | 'starting' | 'running' | 'stopping'
 let motorStateTimer = 0
 let cscHoldTimer = 0
 let landedStopTimer = 0
+const CSC_AXIS_THRESHOLD = 0.55
 
 function startManualMotors() {
   if (mode !== 'manual' || powerState !== 'on' || motorState !== 'stopped') return
@@ -1118,24 +1135,36 @@ function stopManualMotors(reason = 'landed') {
   callout.classList.add('hi')
 }
 
-function handleManualCsc(yawInput, thrInput, fwdCmd, sideCmd, dt) {
-  const grounded = dronePos.y <= 0.03 && Math.abs(manVelX) < 0.35 && Math.abs(manVelZ) < 0.35
-  if (!grounded || powerState !== 'on') {
-    cscHoldTimer = Math.max(0, cscHoldTimer - dt * 2)
-    return false
-  }
+function getManualCscState(yawInput, thrInput, fwdCmd, sideCmd) {
+  if (mode !== 'manual') return { held: false, text: '示範模式' }
+  if (powerState !== 'on') return { held: false, text: '未開機' }
 
-  const inward  = yawInput > 0.92 && thrInput < -0.92 && fwdCmd < -0.92 && sideCmd < -0.92
-  const outward = yawInput < -0.92 && thrInput < -0.92 && fwdCmd < -0.92 && sideCmd > 0.92
-  const cscHeld = inward || outward
-  if (!cscHeld) {
+  const grounded = dronePos.y <= 0.03 && Math.abs(manVelX) < 0.35 && Math.abs(manVelZ) < 0.35
+  if (!grounded) return { held: false, text: '請落地後操作' }
+
+  // Touch joysticks use a circular range, so diagonal components top out around 0.7.
+  const inward = yawInput > CSC_AXIS_THRESHOLD && thrInput < -CSC_AXIS_THRESHOLD && fwdCmd < -CSC_AXIS_THRESHOLD && sideCmd < -CSC_AXIS_THRESHOLD
+  const outward = yawInput < -CSC_AXIS_THRESHOLD && thrInput < -CSC_AXIS_THRESHOLD && fwdCmd < -CSC_AXIS_THRESHOLD && sideCmd > CSC_AXIS_THRESHOLD
+  if (!(inward || outward)) return { held: false, text: '待命（下內八 / 下外八）' }
+
+  const progress = Math.round((Math.min(0.35, cscHoldTimer) / 0.35) * 100)
+  const gesture = inward ? '內八' : '外八'
+  return { held: true, text: `${gesture}偵測中 ${progress}%` }
+}
+
+function handleManualCsc(yawInput, thrInput, fwdCmd, sideCmd, dt) {
+  const cscState = getManualCscState(yawInput, thrInput, fwdCmd, sideCmd)
+  updateCscStatus(cscState.text)
+  if (!cscState.held) {
     cscHoldTimer = Math.max(0, cscHoldTimer - dt * 2)
     return false
   }
 
   cscHoldTimer += dt
+  updateCscStatus(getManualCscState(yawInput, thrInput, fwdCmd, sideCmd).text)
   if (cscHoldTimer < 0.35) return true
   cscHoldTimer = 0
+  updateCscStatus(motorState === 'stopped' ? 'CSC 成立，啟動中' : 'CSC 成立，停止中')
 
   if (motorState === 'stopped') startManualMotors()
   else if (motorState === 'running') stopManualMotors('csc')
@@ -1369,6 +1398,11 @@ function warmupAudioContext() {
 
 function updateAudioStatus(text) {
   const el = document.getElementById('sAud')
+  if (el) el.textContent = text
+}
+
+function updateCscStatus(text) {
+  const el = document.getElementById('sCsc')
   if (el) el.textContent = text
 }
 
@@ -1681,6 +1715,7 @@ function updatePropVisuals(dt) {
 function prepareManualLayout() {
   document.getElementById('ply').style.display = 'none'
   document.getElementById('sMode').textContent = '手動'
+  updateCscStatus('未開機')
   document.getElementById('zoneL').style.display = 'block'
   document.getElementById('zoneR').style.display = 'block'
   initJoysticks()
@@ -1702,6 +1737,7 @@ function prepareManualLayout() {
 function prepareDemoLayout() {
   document.getElementById('ply').style.display = 'flex'
   document.getElementById('sMode').textContent = '示範'
+  updateCscStatus('示範模式')
   document.getElementById('zoneL').style.display = 'none'
   document.getElementById('zoneR').style.display = 'none'
 

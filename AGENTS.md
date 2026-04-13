@@ -27,6 +27,9 @@ For `public/exam-simulator-mr.html`, preserve these simulator-specific behaviors
   - Power-on only energizes the aircraft and nav lights. It must not start prop rotation by itself.
   - Props start only after a ground CSC gesture (`handleManualCsc`) and stop after landing with sustained down throttle, or an explicit ground CSC stop.
   - Manual flight input must stay locked while powered but motors are not running.
+- Mobile CSC handling has been tuned for nipplejs touch input. Preserve the lower diagonal threshold (`CSC_AXIS_THRESHOLD = 0.55`) and the HUD debug line `#sCsc` unless the task explicitly changes mobile startup behavior.
+- Manual horizontal movement has already been retuned to feel faster on phones (`MAN.maxTilt = 0.42`, `MAN.drag = 1.8`, `MAN.tiltRate = 12`). Avoid silently reverting these values.
+- The H landing pad is expected to both receive shadows (`hPad.receiveShadow = true`) and show a visible geometric `H` marking.
 - If you change simulator behavior, update the static simulator tests in `src/test/exam-simulator-mr.test.ts` as part of the same change.
 
 ## Security & Configuration Tips

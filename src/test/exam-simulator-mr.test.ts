@@ -79,6 +79,12 @@ describe('exam-simulator-mr.html — HTML structure', () => {
     expect(HTML).toContain('function updateAudioStatus(text)')
   })
 
+  it('shows CSC status in the HUD for mobile manual-control debugging', () => {
+    expect(HTML).toContain('id="sCsc"')
+    expect(HTML).toContain('CSC：<b id="sCsc">示範模式</b>')
+    expect(HTML).toContain('function updateCscStatus(text)')
+  })
+
   it('has a mode toggle button (demo ↔ manual)', () => {
     expect(HTML).toContain('id="modebtn"')
     expect(HTML).toContain("modeBtn.addEventListener('click', toggleMode)")
@@ -236,6 +242,9 @@ describe('exam-simulator-mr.html — environment', () => {
   it('has an H landing pad', () => {
     expect(HTML).toContain('hPad')
     expect(HTML).toContain('CircleGeometry')
+    expect(HTML).toContain('hPad.receiveShadow = true')
+    expect(HTML).toContain('// H pad marking')
+    expect(HTML).toContain('hMarkMat')
   })
 
   it('draws the 12×5 m flight rectangle outline', () => {
@@ -347,6 +356,13 @@ describe('exam-simulator-mr.html — manual control', () => {
   it('keeps power-on separate from prop spin and uses CSC to start motors', () => {
     expect(HTML).toContain("let motorState = 'running'")
     expect(HTML).toContain('function handleManualCsc')
+    expect(HTML).toContain('function getManualCscState')
+    expect(HTML).toContain('const CSC_AXIS_THRESHOLD = 0.55')
+    expect(HTML).toContain('Touch joysticks use a circular range')
+    expect(HTML).toContain('待命（下內八 / 下外八）')
+    expect(HTML).toContain("const gesture = inward ? '內八' : '外八'")
+    expect(HTML).toContain('偵測中 ${progress}%')
+    expect(HTML).toContain('CSC 成立，啟動中')
     expect(HTML).toContain('雙搖桿下內八或下外八可啟動葉槳')
     expect(HTML).toContain('葉槳保持停止')
     expect(HTML).toContain('CSC 啟動馬達中')
@@ -375,6 +391,12 @@ describe('exam-simulator-mr.html — manual control', () => {
     expect(HTML).toContain('Right stick → target pitch/roll')
     expect(HTML).toContain('左搖桿：旋轉 / 升降')
     expect(HTML).toContain('右搖桿：前後 / 平移')
+  })
+
+  it('tunes manual horizontal motion for faster forward, backward, and lateral travel', () => {
+    expect(HTML).toContain('maxTilt:    0.42')
+    expect(HTML).toContain('drag:       1.8')
+    expect(HTML).toContain('tiltRate:   12')
   })
 
   it('clamps drone altitude to ≥ 0 (no underground flight)', () => {
