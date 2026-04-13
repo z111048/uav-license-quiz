@@ -6,6 +6,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Recent changes (2026-04-13)**
 
+- `public/exam-simulator-mr.html` manual-mode interaction now more closely matches a DJI multirotor:
+  - `modebtn` and `powerbtn` are separate. `modebtn` only switches demo/manual mode. `powerbtn` alone handles aircraft power with a DJI-style short-press-then-hold interaction.
+  - Power-on no longer spins props. It only energizes the aircraft and nav lights; props stay stopped until a ground CSC gesture starts the motors.
+  - Manual motor state is now separate from aircraft power (`motorState`: `'stopped' | 'starting' | 'running' | 'stopping'`).
+  - Desktop CSC mappings for `handleManualCsc(...)` are:
+    - inward: `S + D + ↓ + ←`
+    - outward: `S + A + ↓ + →`
+  - After landing, props stop only after sustained down-throttle on the ground; not immediately on touchdown.
+  - Manual keyboard mapping now mirrors the left/right stick semantics:
+    - left stick: `W/S` throttle, `A/D` yaw
+    - right stick: arrow keys for planar movement
+  - Keep `updateManual()` locked when powered but `motorState !== 'running'`; do not reintroduce yaw/lift movement before motors are started.
+  - Visual prop spin was intentionally increased (`MAN.idleRotor = 0.30`, `propSpin += dt * 90 * Math.max(0, spinFactor)`) so startup and climb look believable.
 - Added drone sound synthesis to `public/exam-simulator-mr.html` using the Web Audio API (no external audio files):
   - Physical model: 4 motor oscillator banks (sawtooth + square + sine) detuned ±6–14 cents to create the characteristic inter-motor "beating"; blade-pass frequency (`HOVER_BPF = 275 Hz`) scales with `motorRpm` (38 Hz idle → 275 Hz hover); throttle input adds ≤22 Hz pitch shift; wind noise (bandpass white noise at 700 Hz) rises with horizontal speed.
   - Audio now starts **muted by default** (`audioMuted = true`, button text `🔇`) so the first tap on the audio button enables sound instead of accidentally muting the freshly-created context.

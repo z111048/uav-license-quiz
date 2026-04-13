@@ -80,17 +80,29 @@ describe('exam-simulator-mr.html — HTML structure', () => {
   })
 
   it('has a mode toggle button (demo ↔ manual)', () => {
-    expect(HTML).toContain('toggleMode()')
+    expect(HTML).toContain('id="modebtn"')
+    expect(HTML).toContain("modeBtn.addEventListener('click', toggleMode)")
+    expect(HTML).toContain('🕹 手動模式')
     expect(HTML).toContain("id=\"sMode\"")
     expect(HTML).toContain('示範')
-    expect(HTML).toContain('手動模式')
+  })
+
+  it('separates the manual-mode toggle from the power button', () => {
+    expect(HTML).toContain('id="powerbtn"')
+    expect(HTML).toContain("powerBtn.addEventListener('click', togglePower)")
+    expect(HTML).toContain('🔋 電源')
   })
 
   it('includes explicit startup and shutdown power sequences for manual mode', () => {
     expect(HTML).toContain("let powerState  = 'on'")
     expect(HTML).toContain("function startManualPowerOn()")
-    expect(HTML).toContain("function startManualPowerOff(nextMode = 'demo')")
-    expect(HTML).toContain('無人機開機中')
+    expect(HTML).toContain("function startManualPowerOff(nextMode = null)")
+    expect(HTML).toContain('const DJI_POWER_HOLD_MS = 650')
+    expect(HTML).toContain('const DJI_POWER_ARM_MS  = 5000')
+    expect(HTML).toContain('primePowerButton')
+    expect(HTML).toContain('再長按開機')
+    expect(HTML).toContain('再長按關機')
+    expect(HTML).toContain('系統上電、航燈亮起，葉槳保持停止')
     expect(HTML).toContain('無人機關機中')
   })
 
@@ -321,15 +333,48 @@ describe('exam-simulator-mr.html — manual control', () => {
     expect(HTML).toContain('updateManual')
   })
 
-  it('supports keyboard input for all axes (WASD + QE + Space/Shift)', () => {
+  it('supports keyboard input with WASD on the left stick and arrows on the right stick', () => {
     expect(HTML).toContain("'KeyW'")
     expect(HTML).toContain("'KeyS'")
     expect(HTML).toContain("'KeyA'")
     expect(HTML).toContain("'KeyD'")
-    expect(HTML).toContain("'KeyQ'")
-    expect(HTML).toContain("'KeyE'")
-    expect(HTML).toContain("'Space'")
-    expect(HTML).toContain("'ShiftLeft'")
+    expect(HTML).toContain("'ArrowUp'")
+    expect(HTML).toContain("'ArrowDown'")
+    expect(HTML).toContain("'ArrowLeft'")
+    expect(HTML).toContain("'ArrowRight'")
+  })
+
+  it('keeps power-on separate from prop spin and uses CSC to start motors', () => {
+    expect(HTML).toContain("let motorState = 'running'")
+    expect(HTML).toContain('function handleManualCsc')
+    expect(HTML).toContain('雙搖桿下內八或下外八可啟動葉槳')
+    expect(HTML).toContain('葉槳保持停止')
+    expect(HTML).toContain('CSC 啟動馬達中')
+  })
+
+  it('blocks rotation and lift while powered on but motors are not started', () => {
+    expect(HTML).toContain("if (motorState !== 'running') {")
+    expect(HTML).toContain('curThrInput = 0')
+    expect(HTML).toContain('return')
+  })
+
+  it('raises rotor target speed with climb input and tilt load after motor start', () => {
+    expect(HTML).toContain('idleRotor:  0.30')
+    expect(HTML).toContain('const climbLoad = Math.max(0, curThrInput) * 0.58')
+    expect(HTML).toContain('const tiltLoad = Math.min(0.12')
+    expect(HTML).toContain('motorTarget = Math.min(1, MAN.idleRotor + climbLoad + tiltLoad)')
+  })
+
+  it('uses a faster prop visual spin rate for manual rotor startup and flight', () => {
+    expect(HTML).toContain('propSpin += dt * 90 * Math.max(0, spinFactor)')
+  })
+
+  it('keeps left stick on yaw/throttle and right stick on planar movement', () => {
+    expect(HTML).toContain('Yaw (left stick X / A,D)')
+    expect(HTML).toContain('Throttle (left stick Y / W,S)')
+    expect(HTML).toContain('Right stick → target pitch/roll')
+    expect(HTML).toContain('左搖桿：旋轉 / 升降')
+    expect(HTML).toContain('右搖桿：前後 / 平移')
   })
 
   it('clamps drone altitude to ≥ 0 (no underground flight)', () => {

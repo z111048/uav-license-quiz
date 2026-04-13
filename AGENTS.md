@@ -21,7 +21,12 @@ Recent history follows Conventional Commit prefixes such as `feat:`, `fix:`, and
 For `public/exam-simulator-mr.html`, preserve these simulator-specific behaviors unless the task explicitly changes them:
 - iPhone / iPad compatibility matters. Audio starts muted by default and must be unlocked from a real user gesture through the existing Web Audio flow (`unlockAudio()`, `toggleAudio()`, HUD status `#sAud`). Do not reintroduce autoplay-style initialization.
 - On iOS, orientation changes intentionally trigger a page reload (`scheduleOrientationReload()`) to recover from WebKit viewport bugs where the simulator sometimes fails to fill the screen after rotating to landscape.
-- Manual mode now uses an explicit power-state sequence (`powerState`: `off` / `starting` / `on` / `stopping`). Keep startup/shutdown effects coherent with that state machine: nav-light blink rhythm, staged motor spool-up/down, prop inertia/blur, and shutdown pitch drop in audio.
+- Manual mode now separates `mode` switching, aircraft power, and motor/prop state. Keep these behaviors coherent unless the task explicitly changes them:
+  - `modebtn` only switches between demo and manual mode.
+  - `powerbtn` alone handles DJI-style power interaction: short press once, then press and hold to power on/off.
+  - Power-on only energizes the aircraft and nav lights. It must not start prop rotation by itself.
+  - Props start only after a ground CSC gesture (`handleManualCsc`) and stop after landing with sustained down throttle, or an explicit ground CSC stop.
+  - Manual flight input must stay locked while powered but motors are not running.
 - If you change simulator behavior, update the static simulator tests in `src/test/exam-simulator-mr.test.ts` as part of the same change.
 
 ## Security & Configuration Tips
