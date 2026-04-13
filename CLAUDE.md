@@ -6,6 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Recent changes (2026-04-13)**
 
+- Added exam field ground markings to `public/exam-simulator-mr.html` per CAA spec (`ref/無人機場地細部尺寸.pdf`):
+  - **Basic level (圖9)**: cyan double-frame around 12×5m P1–P4 rectangle (outer 14×7m, inner 10×3m); traffic cones at P1–P4 only (not at white boundary corners)
+  - **Advanced level (圖10)**: yellow double-frame (outer 16×16m, inner 8×8m); red outer arcs r=8m each drawn only to vertical centreline x=0 (~277°); red inner rings r=4m centred at (±6,−6); removed A/B ground-circle markers
+  - Traffic cone model improved: thinner white reflective bands (h=0.025m), wider body, square black base plate
+  - Helpers added: `groundRingAt`, `groundArc`, `groundFillRect`, `groundFillDisc`
 - `public/exam-simulator-mr.html` manual-mode interaction now more closely matches a DJI multirotor:
   - `modebtn` and `powerbtn` are separate. `modebtn` only switches demo/manual mode. `powerbtn` alone handles aircraft power with a DJI-style short-press-then-hold interaction.
   - Power-on no longer spins props. It only energizes the aircraft and nav lights; props stay stopped until a ground CSC gesture starts the motors.

@@ -302,13 +302,13 @@ ground.rotation.x = -PI / 2
 ground.receiveShadow = true
 scene.add(ground)
 
-// Exam mat centered on the 15m x 15m field
+// Exam mat – covers both basic (15m×15m) and advanced (30m×23m) fields
 const mat = new THREE.Mesh(
-  new THREE.PlaneGeometry(18, 18),
+  new THREE.PlaneGeometry(32, 26),
   new THREE.MeshStandardMaterial({ color: 0x8a8a8a, roughness: 0.85 })
 )
 mat.rotation.x = -PI / 2
-mat.position.set(0, 0.005, FIELD_CENTER_Z)
+mat.position.set(0, 0.005, -4.5)
 mat.receiveShadow = true
 scene.add(mat)
 
@@ -354,11 +354,52 @@ function groundFillRect(cx, cz, w, d, color, y = 0.011) {
   return m
 }
 
+// Helper: circle outline at an arbitrary (cx, cz) position
+function groundRingAt(cx, cz, r, color, y = 0.01) {
+  const segs = 64
+  const pts = []
+  for (let i = 0; i <= segs; i++) {
+    const a = (i / segs) * PI * 2
+    pts.push(new THREE.Vector3(cx + Math.sin(a) * r, 0, cz + Math.cos(a) * r))
+  }
+  const geom = new THREE.BufferGeometry().setFromPoints(pts)
+  const line = new THREE.Line(geom, new THREE.LineBasicMaterial({ color }))
+  line.position.y = y
+  scene.add(line)
+}
+
+// Helper: solid filled disc on the ground
+function groundFillDisc(cx, cz, r, color, y = 0.012) {
+  const disc = new THREE.Mesh(
+    new THREE.CircleGeometry(r, 48),
+    new THREE.MeshStandardMaterial({ color, roughness: 0.6 })
+  )
+  disc.rotation.x = -PI / 2
+  disc.position.set(cx, y, cz)
+  scene.add(disc)
+}
+
+// Helper: arc outline (aStart→aEnd CCW; angle 0 = south +Z, PI/2 = east, PI = north −Z)
+function groundArc(cx, cz, r, aStart, aEnd, color, y = 0.01) {
+  const segs = 48
+  const pts = []
+  for (let i = 0; i <= segs; i++) {
+    const a = aStart + (i / segs) * (aEnd - aStart)
+    pts.push(new THREE.Vector3(cx + Math.sin(a) * r, 0, cz + Math.cos(a) * r))
+  }
+  const geom = new THREE.BufferGeometry().setFromPoints(pts)
+  const line = new THREE.Line(geom, new THREE.LineBasicMaterial({ color }))
+  line.position.y = y
+  scene.add(line)
+}
+
 // 15m x 15m field boundary from 圖 9
 groundRect(0, FIELD_CENTER_Z, FIELD_W, FIELD_W, 0xffffff, 0.014)
 
-// Flight rectangle (12m × 5m), centered at (0, 0, -2.5)
-groundRect(0, -REC_D / 2, REC_W, REC_D, 0xffffff, 0.014)
+// Cyan outer frame: P1–P4 rect (12m×5m) expanded 1m on all sides → 14m×7m, 圖 9
+groundRect(0, -REC_D / 2, REC_W + 2, REC_D + 2, 0x00bfff, 0.014)
+// Cyan inner frame: P1–P4 rect (12m×5m) contracted 1m on all sides → 10m×3m, 圖 9
+groundRect(0, -REC_D / 2, REC_W - 2, REC_D - 2, 0x00bfff, 0.015)
 
 // H pad – white filled disc
 const hPad = new THREE.Mesh(
@@ -419,50 +460,77 @@ cornerMarker(-HW, -REC_D)    // P2 back-left
 cornerMarker( HW, -REC_D)    // P3 back-right
 cornerMarker( HW,  0)        // P4 front-right
 
-// Safety cone helper
+// Safety cone helper – orange traffic cone with white reflective bands
 function cone(x, z) {
   const g = new THREE.Group()
+  // Main orange body
   const body = new THREE.Mesh(
-    new THREE.ConeGeometry(0.12, 0.45, 8),
-    new THREE.MeshStandardMaterial({ color: 0xff6600 })
+    new THREE.ConeGeometry(0.15, 0.6, 12),
+    new THREE.MeshStandardMaterial({ color: 0xff5500, roughness: 0.6 })
   )
-  body.position.y = 0.225
+  body.position.y = 0.32
+  // White reflective band (upper)
+  const band1 = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.075, 0.095, 0.025, 12),
+    new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 })
+  )
+  band1.position.y = 0.44
+  // White reflective band (lower)
+  const band2 = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.105, 0.13, 0.025, 12),
+    new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 })
+  )
+  band2.position.y = 0.3
+  // Flat square base plate
   const base = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.16, 0.16, 0.04, 8),
-    new THREE.MeshStandardMaterial({ color: 0x222222 })
+    new THREE.BoxGeometry(0.44, 0.03, 0.44),
+    new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.8 })
   )
-  base.position.y = 0.02
-  g.add(body, base)
+  base.position.y = 0.015
+  g.add(body, band1, band2, base)
   g.position.set(x, 0, z)
   scene.add(g)
 }
 
-// Cones at 15m x 15m field corners from 圖 9
-cone(-FIELD_HALF, FIELD_NORTH_Z); cone(FIELD_HALF, FIELD_NORTH_Z)
-cone(-FIELD_HALF, FIELD_SOUTH_Z); cone(FIELD_HALF, FIELD_SOUTH_Z)
-// Cones placed directly on rectangle hover points P1–P4
+// Cones placed directly on rectangle hover points P1–P4 (basic level only)
 cone(-HW, 0)       // P1
 cone(-HW, -REC_D)  // P2
 cone(HW, -REC_D)   // P3
 cone(HW, 0)        // P4
 
-// A and B markers – large red circles (safety boundary refs)
-function bigMarker(x, z, label) {
-  const m = new THREE.Mesh(
-    new THREE.CircleGeometry(0.55, 32),
-    new THREE.MeshStandardMaterial({ color: 0xcc0000, roughness: 0.5 })
-  )
-  m.rotation.x = -PI / 2
-  m.position.set(x, 0.016, z)
-  scene.add(m)
-}
-bigMarker(-FIELD_HALF, FIELD_CENTER_Z)   // A
-bigMarker( FIELD_HALF, FIELD_CENTER_Z)   // B
+
 
 // P / h boxes and evaluator area from 圖 9
 groundFillRect(0, 2.75, 1, 1, 0xffffff, 0.013) // P
 groundFillRect(0, 3.75, 1, 1, 0xffffff, 0.013) // h
 groundFillRect(0, 5.15, 3, 0.9, 0xffffff, 0.013) // 評鑑人員
+
+// ─────────────────────────────────────────────────────────────────
+//  高級測驗場地 markings – 圖 10 (shared H = origin)
+//  Shifted 2m south from base diagram reference
+//  Circle centers: (−6,−6) and (+6,−6), radius 6m
+//  P1(−6,−12) P3(−6,0) P5(+6,−12) P7(+6,0)  P2(−12,−6) P4(0,−6) P6(+12,−6)
+//  「外框圓只有畫到中線處」→ outer arc r=8m full circle; inner ring r=4m full circle
+// ─────────────────────────────────────────────────────────────────
+
+// Yellow outer frame: P1-P3-P5-P7 (12m×12m) expanded 2m on all sides → 16m×16m
+groundRect(0, -6, 16, 16, 0xffff00, 0.014)
+// Yellow inner frame: P1-P3-P5-P7 (12m×12m) contracted 2m on all sides → 8m×8m
+groundRect(0, -6,  8,  8, 0xffff00, 0.015)
+
+// Red outer arc (r=8m) – each circle's OUTER side only; stops at vertical centerline x=0
+// Left  circle (cx=−6): x=0 crossings at a=arcsin(0.75) and a=π−arcsin(0.75)
+//   Draw long arc (0,−11.29)→north→west→south→(0,−0.71), span≈277°
+const _aS = Math.asin(6 / 8)
+groundArc(-6, -6, 8, Math.PI - _aS, _aS + 2 * PI,    0xff2222, 0.014)
+// Right circle (cx=+6): symmetric – long arc (0,−0.71)→south→east→north→(0,−11.29)
+groundArc( 6, -6, 8, -_aS,          Math.PI + _aS,   0xff2222, 0.014)
+// Inner rings: r=4m, full circles, centered at (±6,−6) – same centers as outer arcs
+// South tangent at z=−2, north tangent at z=−10
+groundRingAt(-6, -6, 4, 0xff2222, 0.013)
+groundRingAt( 6, -6, 4, 0xff2222, 0.013)
+
+
 
 // Operator standing mat
 const opMat = new THREE.Mesh(

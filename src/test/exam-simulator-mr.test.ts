@@ -275,8 +275,8 @@ describe('exam-simulator-mr.html — environment', () => {
     expect(HTML).toContain('OP_Z')
   })
 
-  it('has A and B safety markers', () => {
-    expect(HTML).toContain('bigMarker')
+  it('has safety cone markers at field positions', () => {
+    expect(HTML).toContain('cone(')
   })
 
   it('has an inspector figure for 360° check animation', () => {
