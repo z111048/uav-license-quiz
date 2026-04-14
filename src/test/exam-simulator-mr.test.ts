@@ -358,6 +358,8 @@ describe('exam-simulator-mr.html — manual control', () => {
     expect(HTML).toContain('function handleManualCsc')
     expect(HTML).toContain('function getManualCscState')
     expect(HTML).toContain('const CSC_AXIS_THRESHOLD = 0.55')
+    expect(HTML).toContain("if (rthState !== 'inactive') {")
+    expect(HTML).toContain("rthState = 'inactive'")
     expect(HTML).toContain('Touch joysticks use a circular range')
     expect(HTML).toContain('待命（下內八 / 下外八）')
     expect(HTML).toContain("const gesture = inward ? '內八' : '外八'")
@@ -531,5 +533,209 @@ describe('rectangle waypoint geometry', () => {
 
   it('rectangle depth (P1.z − P2.z) is 5 m', () => {
     expect(0 - (-recD)).toBe(5)
+  })
+})
+
+// ═══════════════════════════════════════════════════════════════
+//  11. Wind field — computeWindVelocity pure logic
+// ═══════════════════════════════════════════════════════════════
+
+// Mirror of the computeWindVelocity pure function from the simulator
+function computeWindVelocity(
+  speed: number,
+  dir: number,
+  turbulence: number,
+  t: number,
+): { x: number; z: number } {
+  if (speed <= 0) return { x: 0, z: 0 }
+  let wx = -Math.sin(dir) * speed
+  let wz =  Math.cos(dir) * speed
+  if (turbulence > 0) {
+    const amp = speed * turbulence * 0.85
+    const tx = amp * (Math.sin(t * 1.3) * 0.5 + Math.sin(t * 2.7) * 0.35 + Math.sin(t * 5.1) * 0.15)
+    const tz = amp * (Math.sin(t * 1.7) * 0.5 + Math.sin(t * 3.1) * 0.35 + Math.sin(t * 4.3) * 0.15)
+    wx += tx; wz += tz
+  }
+  return { x: wx, z: wz }
+}
+
+describe('computeWindVelocity — wind physics', () => {
+  it('returns zero vector when speed is 0', () => {
+    const wv = computeWindVelocity(0, 0, 0, 0)
+    expect(wv.x).toBe(0)
+    expect(wv.z).toBe(0)
+  })
+
+  it('FROM north (dir=0) pushes drone south (+Z direction)', () => {
+    const wv = computeWindVelocity(5, 0, 0, 0)
+    expect(wv.x).toBeCloseTo(0, 5)
+    expect(wv.z).toBeCloseTo(5, 5) // +Z = south
+  })
+
+  it('FROM east (dir=π/2) pushes drone west (−X direction)', () => {
+    const wv = computeWindVelocity(5, Math.PI / 2, 0, 0)
+    expect(wv.x).toBeCloseTo(-5, 5) // −X = west
+    expect(wv.z).toBeCloseTo(0, 5)
+  })
+
+  it('FROM south (dir=π) pushes drone north (−Z direction)', () => {
+    const wv = computeWindVelocity(5, Math.PI, 0, 0)
+    expect(wv.x).toBeCloseTo(0, 5)
+    expect(wv.z).toBeCloseTo(-5, 4) // −Z = north
+  })
+
+  it('FROM west (dir=3π/2) pushes drone east (+X direction)', () => {
+    const wv = computeWindVelocity(5, 3 * Math.PI / 2, 0, 0)
+    expect(wv.x).toBeCloseTo(5, 5) // +X = east
+    expect(wv.z).toBeCloseTo(0, 4)
+  })
+
+  it('turbulence output is bounded (max amplitude ≤ speed × 2.5)', () => {
+    // Sum-of-sines coefficients sum to 1.0; max turbulence amp = speed * turb * 0.85
+    // Combined worst case: base + turbulence ≤ speed + speed * 0.85 < speed * 2.5
+    const speed = 5
+    const results: number[] = []
+    for (let t = 0; t < 100; t += 0.1) {
+      const wv = computeWindVelocity(speed, 0, 1, t)
+      results.push(Math.abs(wv.x), Math.abs(wv.z))
+    }
+    const maxMag = Math.max(...results)
+    expect(maxMag).toBeLessThan(speed * 2.5)
+  })
+
+  it('turbulence is zero-mean over many frames (no persistent drift)', () => {
+    // The turbulence component alone averages near zero over enough samples
+    const speed = 5
+    let sumX = 0, sumZ = 0
+    const N = 1000
+    for (let t = 0; t < N * 0.05; t += 0.05) {
+      const withTurb = computeWindVelocity(speed, 0, 1, t)
+      const noTurb   = computeWindVelocity(speed, 0, 0, t)
+      sumX += withTurb.x - noTurb.x
+      sumZ += withTurb.z - noTurb.z
+    }
+    // Average turbulence contribution should be < 0.1 m/s (roughly zero-mean)
+    expect(Math.abs(sumX / N)).toBeLessThan(0.1)
+    expect(Math.abs(sumZ / N)).toBeLessThan(0.1)
+  })
+
+  it('has computeWindVelocity function in simulator HTML', () => {
+    expect(HTML).toContain('function computeWindVelocity(')
+  })
+})
+
+// ═══════════════════════════════════════════════════════════════
+//  12. RTH & Flight Mode — HTML structure checks
+// ═══════════════════════════════════════════════════════════════
+describe('exam-simulator-mr.html — RTH and flight mode features', () => {
+  it('has RTH state machine constants', () => {
+    expect(HTML).toContain('const RTH_ALT = 5.0')
+    expect(HTML).toContain('const RTH_HOME_RADIUS = 0.5')
+    expect(HTML).toContain('const RTH_YAW_HOME = 0')
+    expect(HTML).toContain('const GPS_KP = 0.6')
+    expect(HTML).toContain('const RTH_ALT_KP = 1.5')
+  })
+
+  it('has RTH state variable initialized to inactive', () => {
+    expect(HTML).toContain("let rthState = 'inactive'")
+  })
+
+  it('has flight mode state variable initialized to ATTI', () => {
+    expect(HTML).toContain("let flightMode = 'ATTI'")
+  })
+
+  it('has toggleRTH, startRTH, cancelRTH functions', () => {
+    expect(HTML).toContain('function toggleRTH()')
+    expect(HTML).toContain('function startRTH()')
+    expect(HTML).toContain('function cancelRTH(reason)')
+  })
+
+  it('has toggleFlightMode function toggling ATTI ↔ POS', () => {
+    expect(HTML).toContain('function toggleFlightMode()')
+    expect(HTML).toContain("flightMode === 'ATTI' ? 'POS' : 'ATTI'")
+  })
+
+  it('has RTH and flight-mode buttons in the camera bar', () => {
+    expect(HTML).toContain('id="rth-btn"')
+    expect(HTML).toContain('id="fmode-btn"')
+    expect(HTML).toContain('onclick="toggleRTH()"')
+    expect(HTML).toContain('onclick="toggleFlightMode()"')
+  })
+
+  it('shows RTH and flight mode status in the HUD', () => {
+    expect(HTML).toContain('id="sFMode"')
+    expect(HTML).toContain('id="sRth"')
+    expect(HTML).toContain('飛行模式：<b id="sFMode">')
+    expect(HTML).toContain('RTH：<b id="sRth">')
+  })
+
+  it('has wind speed display in HUD', () => {
+    expect(HTML).toContain('id="sWindSpd"')
+    expect(HTML).toContain('風速：<b id="sWindSpd">')
+  })
+
+  it('has wind panel toggle button', () => {
+    expect(HTML).toContain('id="wind-toggle"')
+    expect(HTML).toContain('onclick="toggleWindPanel()"')
+  })
+
+  it('has wind panel with speed/direction/turbulence controls', () => {
+    expect(HTML).toContain('id="wind-panel"')
+    expect(HTML).toContain('id="windSpdSlider"')
+    expect(HTML).toContain('id="windDirSelect"')
+    expect(HTML).toContain('id="turbSlider"')
+  })
+
+  it('R key triggers toggleRTH in keydown handler', () => {
+    expect(HTML).toContain("e.code === 'KeyR' && mode === 'manual'")
+    expect(HTML).toContain('toggleRTH()')
+  })
+
+  it('F key triggers toggleFlightMode in keydown handler', () => {
+    expect(HTML).toContain("e.code === 'KeyF' && mode === 'manual'")
+    expect(HTML).toContain('toggleFlightMode()')
+  })
+
+  it('POS mode applies PD correction toward holdPos when sticks neutral', () => {
+    expect(HTML).toContain("flightMode === 'POS' && rthState === 'inactive'")
+    expect(HTML).toContain('GPS_KP * fwdErr')
+    expect(HTML).toContain('GPS_KD * fwdVel')
+  })
+
+  it('RTH has three phases: climbing, navigating, descending', () => {
+    expect(HTML).toContain("rthState === 'climbing'")
+    expect(HTML).toContain("rthState === 'navigating'")
+    expect(HTML).toContain("rthState === 'descending'")
+  })
+
+  it('RTH aligns the aircraft back to home heading during return', () => {
+    expect(HTML).toContain("if (rthState !== 'inactive') {")
+    expect(HTML).toContain('lerpAngle(droneYaw, RTH_YAW_HOME')
+  })
+
+  it('wind drag model uses velocity-relaxation formula (physically bounded)', () => {
+    expect(HTML).toContain('manVelX = manVelX * hDrag + wv.x * (1 - hDrag)')
+    expect(HTML).toContain('manVelZ = manVelZ * hDrag + wv.z * (1 - hDrag)')
+  })
+
+  it('RTH is cancelled on power off', () => {
+    expect(HTML).toContain('function startManualPowerOff(nextMode = null)')
+    expect(HTML).toContain('cancelRTH()')
+  })
+
+  it('RTH is cancelled when switching to demo mode', () => {
+    expect(HTML).toContain('function finishDemoModeSwitch()')
+    expect(HTML).toContain('cancelRTH(')
+  })
+
+  it('clears landing and CSC timers after RTH landing so motors can restart', () => {
+    expect(HTML).toContain("if (reason === 'landed') {")
+    expect(HTML).toContain('dronePos.y = 0')
+    expect(HTML).toContain('manVelX = 0')
+    expect(HTML).toContain('manVelY = 0')
+    expect(HTML).toContain('manVelZ = 0')
+    expect(HTML).toContain('landedStopTimer = 0')
+    expect(HTML).toContain('cscHoldTimer = 0')
+    expect(HTML).toContain('已返航落地並維持開機')
   })
 })

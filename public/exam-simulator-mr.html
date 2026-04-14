@@ -142,6 +142,25 @@ body{overflow:hidden;background:#0a0a1a;font-family:'Segoe UI',system-ui,sans-se
   cursor:pointer;line-height:34px;text-align:center;padding:0;
   touch-action:manipulation}
 
+/* ── Wind toggle ── */
+#wind-toggle{display:block;position:absolute;right:84px;top:8px;z-index:25;
+  width:34px;height:34px;border-radius:8px;background:rgba(0,0,0,.85);
+  border:1px solid rgba(255,255,255,.3);color:#fff;font-size:1rem;
+  cursor:pointer;line-height:34px;text-align:center;padding:0;
+  touch-action:manipulation}
+
+/* ── Wind panel ── */
+#wind-panel{position:absolute;right:8px;top:90px;z-index:20;display:none;
+  background:rgba(0,0,0,.82);border-radius:8px;padding:8px 10px;
+  font-size:.67rem;min-width:178px;line-height:1.6}
+#wind-panel b{color:#4fc3f7}
+#wind-panel label{display:block;color:#ddd;margin-bottom:1px}
+#wind-panel .val{color:#4fc3f7;font-weight:700}
+#wind-panel input[type="range"]{width:100%;margin:0 0 5px}
+#wind-panel select{background:rgba(0,0,0,.6);color:#fff;
+  border:1px solid rgba(255,255,255,.3);border-radius:4px;
+  padding:2px 4px;font-size:.64rem;width:100%;margin-bottom:5px}
+
 /* ── Small landscape (phone ≤ 500 px tall) ── */
 @media screen and (max-height:500px) and (orientation:landscape){
   /* Shift step panel below the toggle */
@@ -180,6 +199,29 @@ body{overflow:hidden;background:#0a0a1a;font-family:'Segoe UI',system-ui,sans-se
 <button id="steps-toggle" onclick="toggleSteps()" title="開啟/關閉流程面板">📋</button>
 <button id="hud-toggle" onclick="toggleHud()" title="開啟/關閉 HUD 面板">📊</button>
 <button id="audio-toggle" onclick="toggleAudio()" title="靜音/開聲">🔇</button>
+<button id="wind-toggle" onclick="toggleWindPanel()" title="風場設定">💨</button>
+
+<!-- Wind panel -->
+<div id="wind-panel">
+  <b>💨 風場設定</b><br><br>
+  <label>風速：<span class="val" id="windSpdVal">0.0</span> m/s</label>
+  <input id="windSpdSlider" type="range" min="0" max="10" step="0.5" value="0"
+    oninput="windSpeed=+this.value;document.getElementById('windSpdVal').textContent=windSpeed.toFixed(1)">
+  <label>風向（來自）：<span class="val" id="windDirVal">北</span></label>
+  <select id="windDirSelect" onchange="windDir=+this.value*Math.PI/180;updateWindDirLabel()">
+    <option value="0">北（N）→ 向南推</option>
+    <option value="45">東北（NE）</option>
+    <option value="90">東（E）→ 向西推</option>
+    <option value="135">東南（SE）</option>
+    <option value="180">南（S）→ 向北推</option>
+    <option value="225">西南（SW）</option>
+    <option value="270">西（W）→ 向東推</option>
+    <option value="315">西北（NW）</option>
+  </select>
+  <label>亂流：<span class="val" id="turbVal">無</span></label>
+  <input id="turbSlider" type="range" min="0" max="1" step="0.1" value="0"
+    oninput="windTurbulence=+this.value;document.getElementById('turbVal').textContent=windTurbulence>0?windTurbulence.toFixed(1)+'x':'無'">
+</div>
 
 <div id="steps">
   <div id="shdr">📋 術科測驗流程</div>
@@ -198,12 +240,15 @@ body{overflow:hidden;background:#0a0a1a;font-family:'Segoe UI',system-ui,sans-se
   <button class="cb"     id="cam-fpv" onclick="setMainCam('fpv')">🎥 無人機</button>
   <button class="cb"     id="cam-top" onclick="setMainCam('top')">🗺 上視圖</button>
   <button class="cb"     id="cam-all" onclick="setMainCam('all')">⊞ 三視圖</button>
+  <button class="cb"     id="fmode-btn" onclick="toggleFlightMode()">🎯 姿態模式</button>
+  <button class="cb"     id="rth-btn" onclick="toggleRTH()">🏠 返航</button>
 </div>
 
 <div id="right-panels">
   <div id="keyhint">
     <b>W/S</b> 上升／下降 &nbsp; <b>A/D</b> 偏航旋轉<br>
-    <b>↑/↓</b> 前進／後退 &nbsp; <b>←/→</b> 左右平移
+    <b>↑/↓</b> 前進／後退 &nbsp; <b>←/→</b> 左右平移<br>
+    <b>R</b> 返航(RTH) &nbsp; <b>F</b> 切換飛行模式
   </div>
   <div id="opcamctl">
     <label>操作者視角高度：<span class="val" id="opEyeVal">1.70</span> m</label>
@@ -215,7 +260,10 @@ body{overflow:hidden;background:#0a0a1a;font-family:'Segoe UI',system-ui,sans-se
     航向：<b id="sHdg">180</b>°<br>
     模式：<b id="sMode">手動</b><br>
     音訊：<b id="sAud">未啟用</b><br>
-    CSC：<b id="sCsc">示範模式</b>
+    CSC：<b id="sCsc">示範模式</b><br>
+    飛行模式：<b id="sFMode">ATTI</b><br>
+    風速：<b id="sWindSpd">0.0</b> m/s<br>
+    RTH：<b id="sRth">—</b>
   </div>
 </div>
 
@@ -1027,6 +1075,8 @@ const keys = {}
 window.addEventListener('keydown', e => {
   keys[e.code] = true
   if (e.code === 'Space') e.preventDefault()
+  if (e.code === 'KeyR' && mode === 'manual') toggleRTH()
+  if (e.code === 'KeyF' && mode === 'manual') toggleFlightMode()
 })
 window.addEventListener('keyup', e => { keys[e.code] = false })
 
@@ -1181,10 +1231,48 @@ let cscHoldTimer = 0
 let landedStopTimer = 0
 const CSC_AXIS_THRESHOLD = 0.55
 
+// RTH & Flight Mode constants
+const RTH_ALT = 5.0
+const RTH_HOME_RADIUS = 0.5
+const RTH_YAW_HOME = 0
+const GPS_KP = 0.6, GPS_KD = 0.25
+const RTH_HOR_KP = 1.2, RTH_HOR_KD = 0.5
+const RTH_ALT_KP = 1.5, RTH_ALT_KD = 2.5
+
+let flightMode = 'ATTI'   // 'ATTI' | 'POS'
+let holdPosX = 0, holdPosZ = 0
+
+let rthState = 'inactive' // 'inactive' | 'climbing' | 'navigating' | 'descending'
+
+let windSpeed = 0, windDir = 0, windTurbulence = 0, windNoiseT = 0
+
+function computeWindVelocity(speed, dir, turbulence, t) {
+  if (speed <= 0) return { x: 0, z: 0 }
+  // FROM direction: wind blowing FROM dir pushes drone in opposite direction
+  // FROM north (0) → pushes south (+Z): windZ = +cos(0)=+1 ✓
+  // FROM east  (π/2) → pushes west (-X): windX = -sin(π/2)=-1 ✓
+  let wx = -Math.sin(dir) * speed
+  let wz =  Math.cos(dir) * speed
+  if (turbulence > 0) {
+    // Sum of sines with distinct frequencies; zero-mean (no DC offset)
+    const amp = speed * turbulence * 0.85
+    const tx = amp * (Math.sin(t * 1.3) * 0.5 + Math.sin(t * 2.7) * 0.35 + Math.sin(t * 5.1) * 0.15)
+    const tz = amp * (Math.sin(t * 1.7) * 0.5 + Math.sin(t * 3.1) * 0.35 + Math.sin(t * 4.3) * 0.15)
+    wx += tx; wz += tz
+  }
+  return { x: wx, z: wz }
+}
+
 function startManualMotors() {
   if (mode !== 'manual' || powerState !== 'on' || motorState !== 'stopped') return
+  if (rthState !== 'inactive') {
+    rthState = 'inactive'
+    updateRthStatus()
+  }
   motorState = 'starting'
   motorStateTimer = 0
+  landedStopTimer = 0
+  cscHoldTimer = 0
   curThrInput = 0
   const callout = document.getElementById('callout')
   callout.textContent = '🌀 CSC 啟動馬達中… 葉槳怠速旋轉'
@@ -1193,13 +1281,19 @@ function startManualMotors() {
 
 function stopManualMotors(reason = 'landed') {
   if (mode !== 'manual' || (motorState !== 'running' && motorState !== 'starting')) return
+  if (reason === 'landed') {
+    dronePos.y = 0
+    manVelX = 0
+    manVelY = 0
+    manVelZ = 0
+  }
   motorState = 'stopping'
   motorStateTimer = 0
   curThrInput = -1
   const callout = document.getElementById('callout')
   callout.textContent = reason === 'csc'
     ? '🛑 CSC 停止馬達中…'
-    : '🛬 已落地，葉槳減速停止'
+    : '🛬 已返航落地，葉槳減速停止，機體仍維持開機待命'
   callout.classList.add('hi')
 }
 
@@ -1248,6 +1342,9 @@ function updateManual(dt) {
     return
   }
 
+  // Heading trig used throughout this function
+  const sinY = Math.sin(droneYaw), cosY = Math.cos(droneYaw)
+
   // --- Yaw (left stick X / A,D) ---
   let yawInput = 0
   if (keys['KeyA'])      yawInput -= 1   // CCW
@@ -1261,7 +1358,6 @@ function updateManual(dt) {
   thrInput = Math.max(-1, Math.min(1, thrInput - sticks.L.y))
 
   // --- Right stick → target pitch/roll (attitude mode) ---
-  // Horizontal input: combine keyboard + joystick
   let fwdCmd = 0, sideCmd = 0
   if (keys['ArrowUp'])    fwdCmd  += 1
   if (keys['ArrowDown'])  fwdCmd  -= 1
@@ -1285,8 +1381,76 @@ function updateManual(dt) {
     return
   }
 
+  // ── RTH: override all stick inputs ──────────────────────────────
+  if (rthState !== 'inactive') {
+    const errX = 0 - dronePos.x
+    const errZ = 0 - dronePos.z
+    const dist  = Math.sqrt(errX * errX + errZ * errZ)
+
+    // RTH altitude PD controller
+    let rthTargetAlt = RTH_ALT
+    if (rthState === 'descending') rthTargetAlt = 0
+    const altErr = rthTargetAlt - dronePos.y
+    thrInput = Math.max(-1, Math.min(1, altErr * RTH_ALT_KP - manVelY * RTH_ALT_KD))
+
+    if (rthState === 'climbing') {
+      // Hold XZ while climbing; once at altitude, start navigating
+      fwdCmd = 0; sideCmd = 0; yawInput = 0
+      if (dronePos.y >= RTH_ALT - 0.3) {
+        rthState = 'navigating'
+        updateRthStatus()
+      }
+    } else if (rthState === 'navigating') {
+      // Fly toward home (0,0) using stronger PD gains
+      const fwdVel   = manVelX * sinY - manVelZ * cosY
+      const sideVel  = manVelX * cosY + manVelZ * sinY
+      const fwdErr2  = errX * sinY - errZ * cosY
+      const sideErr2 = errX * cosY + errZ * sinY
+      fwdCmd  = Math.max(-1, Math.min(1, RTH_HOR_KP * fwdErr2  - RTH_HOR_KD * fwdVel))
+      sideCmd = Math.max(-1, Math.min(1, RTH_HOR_KP * sideErr2 - RTH_HOR_KD * sideVel))
+      yawInput = 0
+      if (dist < RTH_HOME_RADIUS) {
+        rthState = 'descending'
+        updateRthStatus()
+      }
+    } else if (rthState === 'descending') {
+      fwdCmd = 0; sideCmd = 0; yawInput = 0
+      if (dronePos.y <= 0.05 && Math.abs(manVelY) < 0.1 &&
+          Math.abs(manVelX) < 0.25 && Math.abs(manVelZ) < 0.25) {
+        rthState = 'inactive'
+        updateRthStatus()
+        stopManualMotors('landed')
+        return
+      }
+    }
+  }
+
+  // ── POS mode: GPS hold correction (adds to fwdCmd/sideCmd) ──────
+  if (flightMode === 'POS' && rthState === 'inactive') {
+    const stickMag = Math.sqrt(fwdCmd * fwdCmd + sideCmd * sideCmd)
+    if (stickMag > 0.08) {
+      // Stick active: track current position as hold point
+      holdPosX = dronePos.x
+      holdPosZ = dronePos.z
+    } else {
+      // Sticks neutral: apply PD correction toward holdPos
+      const errX = holdPosX - dronePos.x
+      const errZ = holdPosZ - dronePos.z
+      const fwdVel  = manVelX * sinY - manVelZ * cosY
+      const sideVel = manVelX * cosY + manVelZ * sinY
+      const fwdErr  = errX * sinY - errZ * cosY
+      const sideErr = errX * cosY + errZ * sinY
+      fwdCmd  = Math.max(-1, Math.min(1, GPS_KP * fwdErr  - GPS_KD * fwdVel))
+      sideCmd = Math.max(-1, Math.min(1, GPS_KP * sideErr - GPS_KD * sideVel))
+    }
+  }
+
   curThrInput = thrInput
-  droneYaw = lerpAngle(droneYaw, droneYaw + yawInput * MAN.yawSpd * dt, 1)
+  if (rthState !== 'inactive') {
+    droneYaw = lerpAngle(droneYaw, RTH_YAW_HOME, Math.min(1, dt * 2.5))
+  } else {
+    droneYaw = lerpAngle(droneYaw, droneYaw + yawInput * MAN.yawSpd * dt, 1)
+  }
   manVelY += thrInput * MAN.throttleSpd * dt
   manVelY *= Math.max(0, 1 - 3.5 * dt)   // vertical drag / hover damping
   dronePos.y += manVelY * dt
@@ -1301,19 +1465,18 @@ function updateManual(dt) {
   droneRoll  += (targetRoll  - droneRoll)  * tiltLerp
 
   // --- Horizontal physics: tilt angle → acceleration → velocity with drag ---
-  // horizontal_accel (local) = tilt_angle × gravity (small angle approx)
-  const accFwd_local  = -dronePitch * MAN.gravity   // nose down → forward thrust
-  const accSide_local = -droneRoll  * MAN.gravity   // right wing down → rightward thrust
+  const accFwd_local  = -dronePitch * MAN.gravity
+  const accSide_local = -droneRoll  * MAN.gravity
 
-  // Rotate local acceleration into world frame
-  const sinY = Math.sin(droneYaw), cosY = Math.cos(droneYaw)
   manVelX += (accFwd_local * sinY  + accSide_local * cosY) * dt
   manVelZ += (accFwd_local * (-cosY) + accSide_local * sinY) * dt
 
-  // Air drag (exponential decay)
+  // ── Wind drag model: velocity relaxes toward wind velocity ───────
+  windNoiseT += dt
+  const wv = computeWindVelocity(windSpeed, windDir, windTurbulence, windNoiseT)
   const hDrag = Math.max(0, 1 - MAN.drag * dt)
-  manVelX *= hDrag
-  manVelZ *= hDrag
+  manVelX = manVelX * hDrag + wv.x * (1 - hDrag)
+  manVelZ = manVelZ * hDrag + wv.z * (1 - hDrag)
 
   dronePos.x += manVelX * dt
   dronePos.z += manVelZ * dt
@@ -1329,8 +1492,77 @@ function updateManual(dt) {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════
-//  MULTI-VIEWPORT RENDER
+// ─── RTH / Flight Mode / Wind helpers ───────────────────────────────────────
+
+function updateRthStatus() {
+  const el = document.getElementById('sRth')
+  const callout = document.getElementById('callout')
+  const btn = document.getElementById('rth-btn')
+  if (!el) return
+  const labels = { inactive: '—', climbing: '爬升中', navigating: '導航中', descending: '降落中' }
+  el.textContent = labels[rthState] || '—'
+  if (btn) btn.textContent = rthState !== 'inactive' ? '🏠 取消返航' : '🏠 返航'
+  if (rthState !== 'inactive' && callout) {
+    const msgs = { climbing: '🏠 RTH：爬升至安全高度…', navigating: '🏠 RTH：導航返回 H 點…', descending: '🏠 RTH：降落中…' }
+    callout.textContent = msgs[rthState] || ''
+    callout.classList.add('hi')
+  }
+}
+
+function startRTH() {
+  if (mode !== 'manual' || motorState !== 'running') return
+  rthState = dronePos.y < RTH_ALT - 0.5 ? 'climbing' : 'navigating'
+  updateRthStatus()
+}
+
+function cancelRTH(reason) {
+  if (rthState === 'inactive') return
+  rthState = 'inactive'
+  updateRthStatus()
+  const callout = document.getElementById('callout')
+  if (callout && reason) {
+    callout.textContent = reason
+    callout.classList.add('hi')
+  }
+}
+
+function toggleRTH() {
+  if (mode !== 'manual' || motorState !== 'running') return
+  if (rthState !== 'inactive') cancelRTH('🏠 RTH 已取消')
+  else startRTH()
+}
+
+function toggleFlightMode() {
+  if (mode !== 'manual') return
+  flightMode = flightMode === 'ATTI' ? 'POS' : 'ATTI'
+  if (flightMode === 'POS') {
+    holdPosX = dronePos.x; holdPosZ = dronePos.z
+  }
+  const btn = document.getElementById('fmode-btn')
+  if (btn) btn.textContent = flightMode === 'POS' ? '🛰 定位模式' : '🎯 姿態模式'
+  const callout = document.getElementById('callout')
+  if (callout) {
+    callout.textContent = flightMode === 'POS' ? '🛰 已切換：定位模式（GPS Hold）' : '🎯 已切換：姿態模式（無 GPS 輔助）'
+    callout.classList.add('hi')
+  }
+}
+
+function updateWindDirLabel() {
+  const labels = { 0:'北', 45:'東北', 90:'東', 135:'東南', 180:'南', 225:'西南', 270:'西', 315:'西北' }
+  const deg = Math.round(windDir * 180 / Math.PI)
+  const el = document.getElementById('windDirVal')
+  if (el) el.textContent = labels[deg] || deg + '°'
+}
+
+let windPanelVisible = false
+function setWindPanelVisible(v) {
+  windPanelVisible = v
+  const panel = document.getElementById('wind-panel')
+  if (panel) panel.style.display = v ? 'block' : 'none'
+}
+function toggleWindPanel() { setWindPanelVisible(!windPanelVisible) }
+
+
 // ═══════════════════════════════════════════════════════════════
 const PIP_SZ = Math.round(Math.min(W, H) * 0.24)
 const MARGIN  = 10
@@ -1799,6 +2031,12 @@ function prepareManualLayout() {
   audBtn.style.left  = '8px'
   audBtn.style.top   = '92px'
 
+  const windBtn = document.getElementById('wind-toggle')
+  windBtn.style.right = 'auto'
+  windBtn.style.left  = '8px'
+  windBtn.style.top   = '134px'
+  setWindPanelVisible(false)
+
   setHudVisible(false)
 }
 
@@ -1818,6 +2056,12 @@ function prepareDemoLayout() {
   audBtn.style.left  = 'auto'
   audBtn.style.right = '46px'
   audBtn.style.top   = '8px'
+
+  const windBtn = document.getElementById('wind-toggle')
+  windBtn.style.left  = 'auto'
+  windBtn.style.right = '84px'
+  windBtn.style.top   = '8px'
+  setWindPanelVisible(false)
 
   setHudVisible(false)
   setStepsPanelVisible(true)
@@ -1851,12 +2095,18 @@ function startManualPowerOn() {
   powerTimer = 0
   pendingMode = null
 
+  // Reset hold position and RTH when powering on
+  holdPosX = 0; holdPosZ = 0
+  rthState = 'inactive'
+  updateRthStatus()
+
   const callout = document.getElementById('callout')
   callout.textContent = '🔴 無人機開機中… 系統上電、航燈亮起，葉槳保持停止'
   callout.classList.add('hi')
 }
 
 function finishDemoModeSwitch() {
+  cancelRTH('🔄 切換示範模式，RTH 已取消')
   mode = 'demo'
   prepareDemoLayout()
   resetModeButtonPrompt()
@@ -1873,6 +2123,7 @@ function finishDemoModeSwitch() {
 }
 
 function startManualPowerOff(nextMode = null) {
+  cancelRTH()
   pendingMode = nextMode
   clearPowerButtonTimers()
   powerButtonPrimed = false
@@ -1963,8 +2214,10 @@ function updatePowertrain(dt) {
       if (motorRpm < 0.02) {
         motorState = 'stopped'
         motorStateTimer = 0
+        landedStopTimer = 0
+        cscHoldTimer = 0
         const callout = document.getElementById('callout')
-        callout.textContent = '🔋 葉槳已停止：雙搖桿下內八或下外八可重新啟動'
+        callout.textContent = '🔋 已返航落地並維持開機：雙搖桿下內八或下外八可重新啟動葉槳'
         callout.classList.remove('hi')
       }
     } else {
@@ -2024,6 +2277,8 @@ function animate() {
   document.getElementById('sSpd').textContent = speed.toFixed(1)
   let hdgDeg = Math.round(((droneYaw / PI) * 180 + 360) % 360)
   document.getElementById('sHdg').textContent = hdgDeg
+  document.getElementById('sFMode').textContent = flightMode
+  document.getElementById('sWindSpd').textContent = windSpeed.toFixed(1)
 
   // Update drone audio — frequency tracks motorRpm, speed, and throttle input
   // In demo mode curThrInput stays 0 (smooth flight); manual mode sets it each frame
@@ -2151,6 +2406,8 @@ function toggleMode() {
     cscHoldTimer = 0
     landedStopTimer = 0
     curThrInput = 0
+    rthState = 'inactive'
+    updateRthStatus()
     resetModeButtonPrompt()
     resetPowerButtonPrompt()
     const callout = document.getElementById('callout')

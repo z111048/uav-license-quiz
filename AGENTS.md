@@ -30,6 +30,10 @@ For `public/exam-simulator-mr.html`, preserve these simulator-specific behaviors
 - Mobile CSC handling has been tuned for nipplejs touch input. Preserve the lower diagonal threshold (`CSC_AXIS_THRESHOLD = 0.55`) and the HUD debug line `#sCsc` unless the task explicitly changes mobile startup behavior.
 - Manual horizontal movement has already been retuned to feel faster on phones (`MAN.maxTilt = 0.42`, `MAN.drag = 1.8`, `MAN.tiltRate = 12`). Avoid silently reverting these values.
 - The H landing pad is expected to both receive shadows (`hPad.receiveShadow = true`) and show a visible geometric `H` marking.
+- **Wind field** uses a drag-relative-to-wind model: `vel = vel * hDrag + windVel * (1 - hDrag)`. Do NOT change to additive `vel += wind * dt` — that model is unbounded. FROM-direction convention: `windVelX = -sin(dir)*speed`, `windVelZ = cos(dir)*speed`.
+- **RTH** (`rthState`: `'inactive'|'climbing'|'navigating'|'descending'`) overrides all stick inputs inside `updateManual`. It must be cancelled on `startManualPowerOff` and `finishDemoModeSwitch`. Landing detection checks `y≤0.05 && |velY|<0.1 && |velXZ|<0.25` before calling `stopManualMotors`.
+- **POS mode** GPS hold uses a PD controller (`GPS_KP=0.6`, `GPS_KD=0.25`); `holdPosX/Z` is updated while sticks are active (magnitude >0.08) and frozen when sticks are neutral. Do not apply POS correction while RTH is active.
+- `sinY/cosY` (heading trig) is computed at the top of `updateManual()` and reused by all branches (RTH, POS hold, tilt physics). Do not move it back to mid-function.
 - If you change simulator behavior, update the static simulator tests in `src/test/exam-simulator-mr.test.ts` as part of the same change.
 
 ## Security & Configuration Tips

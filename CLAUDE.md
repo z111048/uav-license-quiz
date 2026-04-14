@@ -4,6 +4,25 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
+**Recent changes (2026-04-14)**
+
+- Added **自動返航 (RTH)**, **飛行模式 (ATTI/POS)**, and **風場干擾 (Wind Field)** to `public/exam-simulator-mr.html`:
+  - **Wind field** (`computeWindVelocity`): physically correct drag-relative-to-wind model — velocity relaxes toward wind velocity `vel = vel * hDrag + windVel * (1 - hDrag)` instead of additive acceleration. FROM-direction convention: `windVelX = -sin(dir)*speed`, `windVelZ = cos(dir)*speed` (FROM north=0 pushes south=+Z). Turbulence is sum-of-sines (3 frequencies, zero-mean, amplitude ≤ `speed*0.85`). 💨 button (demo: `right:84px`, manual: `left:8px top:134px`) toggles a wind panel with speed slider (0–10 m/s), direction select (8 compass directions), and turbulence slider (0–1×).
+  - **Flight modes** — `toggleFlightMode()` (F key or `#fmode-btn`) cycles `'ATTI'` ↔ `'POS'`:
+    - **ATTI (姿態模式)**: standard tilt-based control; wind causes uncorrected drift
+    - **POS (定位模式)**: GPS hold via PD controller (`GPS_KP=0.6`, `GPS_KD=0.25`). Sticks active (magnitude >0.08) → update `holdPosX/Z`; sticks neutral → apply correction `fwdCmd = clamp(GPS_KP*fwdErr - GPS_KD*fwdVel, -1, 1)`. Naturally opposes wind drift.
+  - **RTH (返航)** — `toggleRTH()` (R key or `#rth-btn`):
+    - Three-phase state machine: `'inactive' | 'climbing' | 'navigating' | 'descending'`
+    - Climbing: altitude PD (`RTH_ALT_KP=1.5`, `RTH_ALT_KD=2.5`) climbs to `RTH_ALT=5m`, GPS-holds XZ
+    - Navigating: fly toward home (0,0) with `RTH_HOR_KP=1.2`, `RTH_HOR_KD=0.5`; switch to descend when `dist < RTH_HOME_RADIUS=0.5m`
+    - Descending: land, call `stopManualMotors('landed')` when `y≤0.05 && |velY|<0.1 && |velXZ|<0.25`
+    - RTH cancelled on power-off (`startManualPowerOff`) and demo-mode switch (`finishDemoModeSwitch`, `toggleMode`)
+  - New HUD lines in `#stat`: 飛行模式 (`#sFMode`), 風速 (`#sWindSpd`), RTH (`#sRth`).
+  - New camera-bar buttons: `#fmode-btn` and `#rth-btn`.
+  - `sinY/cosY` moved to top of `updateManual()` (was mid-function) so RTH and POS branches can use heading trig.
+  - `windNoiseT` accumulates `dt` each frame for the turbulence time argument.
+  - 25 new Vitest tests added in `src/test/exam-simulator-mr.test.ts` (sections 11 & 12): `computeWindVelocity` direction correctness (all 4 cardinal directions), turbulence boundedness, zero-mean turbulence; plus HTML structure checks for RTH/mode constants, buttons, HUD elements, and key bindings.
+
 **Recent changes (2026-04-13)**
 
 - Added exam field ground markings to `public/exam-simulator-mr.html` per CAA spec (`ref/無人機場地細部尺寸.pdf`):
