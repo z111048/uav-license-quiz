@@ -218,6 +218,7 @@ export default function App() {
                 questions={bankData.questions}
                 whitelist={bankData.answer_option_whitelist}
                 chapterNote={bankData.chapter_note}
+                sourceUpdated={bankData.source_updated}
                 currentBankId={currentBankId}
                 onStart={handleStart}
                 onReadingMode={handleReadingMode}

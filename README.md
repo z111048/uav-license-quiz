@@ -1,5 +1,13 @@
 # 無人機學科線上練習系統 (UAV License Quiz)
 
+近期更新（2026-04-22）
+
+- **題庫版本資訊顯示**：練習設定頁右上角新增灰色小字「共 N 題　題庫版本：YYYY/MM/DD」，讓使用者確認題庫是否最新
+- **屆期換證 / 屆期換證（簡易）題庫更新**至 2026/04/07 官網版本（題數不變，內容為格式調整）
+- `update_question_bank.py` 改進：
+  - 新增 `--banks` 參數，可指定只更新特定題庫：`uv run update_question_bank.py --banks renewal renewal_basic`
+  - SHA-256 雜湊比對取代舊版 Content-Length 比對，精確偵測官網是否有更新；hash 與更新日期一併寫入 JSON
+
 近期更新（2026-04-14）
 
 - 術科測驗模擬器（`public/exam-simulator-mr.html`）新增自動返航（RTH）、飛行模式切換、風場干擾：
@@ -62,7 +70,7 @@
 
 ## 功能特色
 
-- **四種題庫版本**：普通操作證、專業操作證、屆期換證、屆期換證（簡易），可即時切換
+- **四種題庫版本**：普通操作證、專業操作證、屆期換證、屆期換證（簡易），可即時切換；設定頁顯示題庫版本日期
 - **計時測驗**：提供每題作答時間下拉選單，預設 10 秒倒數，模擬考試壓力
 - **閱讀模式**：直接瀏覽題目與答案，適合考前快速複習
 - **錯題回顧 + 再練一次**：練習結束後自動整理答錯題目，正確顯示您的答案與正確答案；可直接點擊「再練一次錯題」按鈕，立即針對本輪錯題重新練習（全部答對後按鈕自動消失）
@@ -96,14 +104,15 @@ npm run dev
 從 CAA 官方網站自動下載最新 PDF 並重新處理所有版本：
 
 ```bash
-uv run update_question_bank.py
+uv run update_question_bank.py                              # 更新全部四個題庫
+uv run update_question_bank.py --banks renewal renewal_basic  # 只更新指定題庫
 ```
 
 執行後會：
-1. 爬取 [CAA 題庫頁面](https://www.caa.gov.tw/Article.aspx?a=3833&lang=1) 取得最新 PDF 連結
-2. 下載四個版本的 PDF 至 `ref/`（已存在且大小相符則跳過）
+1. 爬取 [CAA 題庫頁面](https://www.caa.gov.tw/Article.aspx?a=3833&lang=1) 取得最新 PDF 連結與 SHA-256 雜湊值
+2. 比對官網 SHA-256 與本地 PDF；完全相符則跳過下載（比舊版 Content-Length 比對更精確）
 3. 解析 PDF 題目與答案，自動過濾頁碼等排版雜訊，計算白名單
-4. 輸出至 `public/data/*.json`
+4. 輸出至 `public/data/*.json`（含 `source_updated` 日期與 `source_sha256`）
 
 ### 生成 AI 學習輔助（專業操作證）
 

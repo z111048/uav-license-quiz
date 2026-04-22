@@ -13,6 +13,8 @@ export interface BankData {
   questions: Question[]
   answer_option_whitelist: string[]
   chapter_note?: string
+  source_updated?: string
+  source_sha256?: string
 }
 
 export interface BankConfig {

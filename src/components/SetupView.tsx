@@ -6,6 +6,7 @@ interface Props {
   whitelist: string[]
   currentBankId: string
   chapterNote?: string
+  sourceUpdated?: string
   onStart: (settings: QuizSettings) => void
   onReadingMode: (chapters: string[]) => void
   onWhitelist: () => void
@@ -15,7 +16,7 @@ interface Props {
   onSimulator: () => void
 }
 
-export default function SetupView({ questions, onStart, onReadingMode, onWhitelist, onAllAbove, onStudyMode, onAdvisor, onSimulator, currentBankId, chapterNote }: Props) {
+export default function SetupView({ questions, onStart, onReadingMode, onWhitelist, onAllAbove, onStudyMode, onAdvisor, onSimulator, currentBankId, chapterNote, sourceUpdated }: Props) {
   const chapters = [...new Set(questions.map((q) => q.chapter))]
   const [selectedChapters, setSelectedChapters] = useState<string[]>([])
   const [count, setCount] = useState<number | 'all'>(50)
@@ -53,7 +54,13 @@ export default function SetupView({ questions, onStart, onReadingMode, onWhiteli
 
   return (
     <div className="bg-white rounded-xl shadow-lg p-6 md:p-8">
-      <h2 className="text-xl font-semibold mb-4 border-b pb-2">練習設定</h2>
+      <div className="flex items-baseline justify-between border-b pb-2 mb-4">
+        <h2 className="text-xl font-semibold">練習設定</h2>
+        <span className="text-xs text-gray-400">
+          共 {questions.length} 題
+          {sourceUpdated && <>　題庫版本：{sourceUpdated}</>}
+        </span>
+      </div>
 
       {/* 章節選擇 */}
       <fieldset className="mb-6">

@@ -4,6 +4,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
+**Recent changes (2026-04-22)**
+
+- Updated 屆期換證 and 屆期換證（簡易）question banks to the 2026/04/07 CAA release (both 324 / 120 questions unchanged in count; edits were pure formatting — spaces removed around numbers in question text).
+- `update_question_bank.py` improvements:
+  - **`--banks` CLI argument**: `uv run update_question_bank.py --banks renewal renewal_basic` updates only the specified banks; omitting updates all four.
+  - **SHA-256 hash comparison** replaces the old Content-Length check. `scrape_hash_links(url)` parses all `FileHashValue.aspx` links from the CAA page (same match/exclude/require logic as PDF links, applied to the URL-decoded `fn` parameter). `fetch_remote_sha256(hash_page_url)` fetches the hash page and extracts the SHA-256 for the `.pdf` row. `sha256_of_file(path)` computes the local file hash. If `local_sha256 == remote_sha256` and the JSON already records the same hash in `source_sha256`, the bank is skipped entirely (no download, no re-parse).
+  - **`_roc_date_to_ad(fn_decoded)`**: extracts the ROC date (`【YYY.M.D更新】`) from the hash-link `fn` parameter and converts to `YYYY/MM/DD` (ROC year + 1911). Returns `None` if pattern not found.
+  - **`scrape_hash_links` return type** changed from `dict[str, str]` to `dict[str, dict]` — each value is `{"url": ..., "updated": "YYYY/MM/DD" | None}`.
+  - **`_merge_chapters(new_questions, old_json_path)`**: merges chapter classifications from the previous JSON into freshly parsed questions. Two-pass strategy: ① exact question-text match (safe for any bank); ② ID-based fallback when total count is unchanged (handles pure formatting changes like spacing). Added to BANK_CONFIGS entries for `renewal`/`renewal_basic` via `chapter_note` presence check.
+  - Output JSON now includes `source_sha256` (SHA-256 of the downloaded PDF) and `source_updated` (date as `YYYY/MM/DD`).
+- `src/types.ts` — `BankData` interface: added `source_updated?: string` and `source_sha256?: string`.
+- `src/App.tsx` — passes `sourceUpdated={bankData.source_updated}` to `SetupView`.
+- `src/components/SetupView.tsx` — header row now shows `共 N 題　題庫版本：YYYY/MM/DD` right-aligned in `text-xs text-gray-400` beside the `練習設定` heading. Prop: `sourceUpdated?: string`.
+
 **Recent changes (2026-04-14)**
 
 - Added **自動返航 (RTH)**, **飛行模式 (ATTI/POS)**, and **風場干擾 (Wind Field)** to `public/exam-simulator-mr.html`:
@@ -109,8 +123,10 @@ npm run test:watch # 執行測試（watch 模式）
 
 **Update question bank data** (auto-download latest PDFs from CAA and regenerate all 4 JSON files):
 ```bash
-uv run update_question_bank.py
+uv run update_question_bank.py                         # 更新全部四個題庫
+uv run update_question_bank.py --banks renewal renewal_basic  # 只更新指定題庫
 ```
+Uses SHA-256 from `FileHashValue.aspx` to skip unchanged banks. Output JSON includes `source_sha256` and `source_updated` (AD date).
 
 **Generate AI study aids for professional bank** (requires `ANTHROPIC_API_KEY`; outputs `public/data/professional_study_aids.json`):
 ```bash
@@ -271,6 +287,8 @@ Uses `grid grid-cols-2 sm:grid-cols-4 gap-2` so the four bank buttons form a **2
 - `OptionKey = 'A' | 'B' | 'C' | 'D'` — used for `Question.answer`, `UserRecord.correctAnswer`/`userAnswer`, `StudyAid.wrong_options`. Eliminates `as 'A'|'B'|'C'|'D'` casts throughout the codebase.
 - `Question`, `BankData`, `UserRecord`, `StudyAid`, `StudyAids`, `ImageMap`, `ViewType`, `QuizSettings`, `BankConfig`, `BANK_CONFIGS`
 - `BankData.chapter_note?: string` — optional top-level field; when present, `SetupView` displays it as an amber warning below the chapter selector (used by `renewal` / `renewal_basic` to note AI-assisted classification)
+- `BankData.source_updated?: string` — `YYYY/MM/DD` date of the CAA PDF this bank was generated from; displayed in `SetupView` header as `題庫版本：YYYY/MM/DD`
+- `BankData.source_sha256?: string` — SHA-256 of the source PDF (uppercase hex); used by `update_question_bank.py` to skip re-download/re-parse when unchanged
 
 ### Utilities
 
@@ -285,7 +303,9 @@ Uses `grid grid-cols-2 sm:grid-cols-4 gap-2` so the four bank buttons form a **2
 {
   "questions": [{ "id": 1, "question": "...", "options": {"A": "...", "B": "..."}, "answer": "A", "chapter": "...", "can_memorize_directly": true }],
   "answer_option_whitelist": ["唯一正確選項文字", ...],
-  "chapter_note": "(optional) shown to user in SetupView as amber warning"
+  "chapter_note": "(optional) shown to user in SetupView as amber warning",
+  "source_updated": "2026/04/07",
+  "source_sha256": "A92FD334..."
 }
 ```
 
