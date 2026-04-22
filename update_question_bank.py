@@ -2,12 +2,16 @@
 update_question_bank.py
 自動從 CAA 官方網站爬取最新 PDF，解析題目，並產出四個版本的 JSON。
 
-執行方式：uv run update_question_bank.py
+執行方式：
+  uv run update_question_bank.py                         # 更新全部
+  uv run update_question_bank.py --banks renewal renewal_basic  # 指定題庫
 """
+import argparse
+import hashlib
 import json
 import os
 import re
-from urllib.parse import urljoin
+from urllib.parse import parse_qs, unquote, urljoin, urlparse
 
 import pdfplumber
 import requests
@@ -42,6 +46,7 @@ BANK_CONFIGS = [
         "match": "屆期換證學科測驗題庫",
         "exclude": ["簡易"],
         "require": [],
+        "chapter_note": "章節由 AI 協助分類，僅供參考",
     },
     {
         "id": "renewal_basic",
@@ -49,6 +54,7 @@ BANK_CONFIGS = [
         "match": "屆期換證學科測驗題庫",
         "exclude": [],
         "require": ["簡易"],
+        "chapter_note": "章節由 AI 協助分類，僅供參考",
     },
 ]
 
@@ -109,24 +115,91 @@ def scrape_pdf_links(url: str) -> dict[str, str]:
 
 
 # ==========================================
-# 函式二：下載 PDF（已存在且大小相符則跳過）
+# 函式二：Hash 相關工具
+# ==========================================
+
+def _roc_date_to_ad(fn_decoded: str) -> str | None:
+    """從 fn 參數字串提取民國日期（如「115.4.7更新」）並轉為西元 YYYY/MM/DD。"""
+    m = re.search(r"【(\d+)\.(\d+)\.(\d+)更新】", fn_decoded)
+    if not m:
+        return None
+    year = int(m.group(1)) + 1911
+    month = int(m.group(2))
+    day = int(m.group(3))
+    return f"{year}/{month:02d}/{day:02d}"
+
+
+def scrape_hash_links(url: str) -> dict[str, dict]:
+    """
+    從 CAA 官方頁面解析雜湊值驗證頁連結。
+    回傳 {config_id: {"url": ..., "updated": "YYYY/MM/DD" | None}}
+    """
+    response = requests.get(url, timeout=30)
+    response.raise_for_status()
+    response.encoding = "utf-8"
+    soup = BeautifulSoup(response.text, "html.parser")
+
+    anchors = [a for a in soup.find_all("a", href=True) if "FileHashValue.aspx" in a["href"]]
+
+    result: dict[str, dict] = {}
+    for config in BANK_CONFIGS:
+        for anchor in anchors:
+            href = anchor["href"]
+            parsed = urlparse(urljoin(url, href))
+            fn = parse_qs(parsed.query).get("fn", [""])[0]
+            fn_decoded = unquote(fn)
+
+            if config["match"] not in fn_decoded:
+                continue
+            if any(kw not in fn_decoded for kw in config["require"]):
+                continue
+            if any(kw in fn_decoded for kw in config["exclude"]):
+                continue
+
+            result[config["id"]] = {
+                "url": urljoin(url, href),
+                "updated": _roc_date_to_ad(fn_decoded),
+            }
+            break
+
+    return result
+
+
+def fetch_remote_sha256(hash_page_url: str) -> str | None:
+    """
+    從 CAA 雜湊值頁面（FileHashValue.aspx）取得 PDF 的 SHA-256。
+    """
+    try:
+        response = requests.get(hash_page_url, timeout=30)
+        response.raise_for_status()
+        response.encoding = "utf-8"
+        soup = BeautifulSoup(response.text, "html.parser")
+        for row in soup.find_all("tr"):
+            cells = row.find_all("td")
+            if len(cells) >= 3:
+                filename = cells[1].get_text(strip=True)
+                hash_value = cells[2].get_text(strip=True)
+                if filename.lower().endswith(".pdf") and len(hash_value) == 64:
+                    return hash_value.upper()
+    except Exception as e:
+        print(f"  警告：無法取得雜湊值頁面：{e}")
+    return None
+
+
+def sha256_of_file(path: str) -> str:
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(65536), b""):
+            h.update(chunk)
+    return h.hexdigest().upper()
+
+
+# ==========================================
+# 函式三：下載 PDF
 # ==========================================
 
 def download_pdf(url: str, dest_path: str) -> None:
-    """
-    下載 PDF 到指定路徑。
-    若檔案已存在且 Content-Length 相符則跳過下載。
-    """
-    # 先取得 Content-Length
-    head = requests.head(url, timeout=30, allow_redirects=True)
-    remote_size = int(head.headers.get("Content-Length", -1))
-
-    if os.path.exists(dest_path):
-        local_size = os.path.getsize(dest_path)
-        if remote_size != -1 and local_size == remote_size:
-            print(f"  跳過下載（已是最新）：{dest_path}")
-            return
-
+    """下載 PDF 到指定路徑。"""
     print(f"  正在下載：{dest_path} ...")
     with requests.get(url, stream=True, timeout=60) as r:
         r.raise_for_status()
@@ -136,11 +209,11 @@ def download_pdf(url: str, dest_path: str) -> None:
                 if chunk:
                     f.write(chunk)
                     downloaded += len(chunk)
-            print(f"  下載完成：{downloaded:,} bytes")
+    print(f"  下載完成：{downloaded:,} bytes")
 
 
 # ==========================================
-# 函式三：解析 PDF 為題目列表
+# 函式四：解析 PDF 為題目列表
 # ==========================================
 
 def parse_pdf_to_questions(pdf_path: str) -> list[dict]:
@@ -255,7 +328,7 @@ def parse_pdf_to_questions(pdf_path: str) -> list[dict]:
 
 
 # ==========================================
-# 函式四：計算白名單並標註題目
+# 函式五：計算白名單並標註題目
 # ==========================================
 
 def process_whitelist(questions: list[dict]) -> dict:
@@ -305,16 +378,80 @@ def process_whitelist(questions: list[dict]) -> dict:
 # 主程式
 # ==========================================
 
+def _merge_chapters(new_questions: list[dict], old_json_path: str) -> None:
+    """
+    將舊 JSON 的 chapter 欄位合併進新題目。
+    策略：
+      1. 先用題目文字精確比對（安全）
+      2. 若題數相同，剩餘「未知章節」再用 ID 對應（處理純格式變動，如數字空格）
+    用於屆期換證題庫：AI 章節分類只做一次，不因重新解析而消失。
+    """
+    if not os.path.exists(old_json_path):
+        return
+    try:
+        with open(old_json_path, encoding="utf-8") as f:
+            old_data = json.load(f)
+        old_questions = old_data.get("questions", [])
+    except Exception:
+        return
+
+    old_by_text = {q["question"]: q.get("chapter", "未知章節") for q in old_questions}
+    old_by_id = {q["id"]: q.get("chapter", "未知章節") for q in old_questions}
+
+    text_preserved = id_preserved = unknown = 0
+
+    for q in new_questions:
+        chapter = old_by_text.get(q["question"], "未知章節")
+        if chapter != "未知章節":
+            q["chapter"] = chapter
+            text_preserved += 1
+            continue
+
+        # 題數相同時，用 ID 作 fallback（處理純格式差異）
+        if len(new_questions) == len(old_questions):
+            id_chapter = old_by_id.get(q["id"], "未知章節")
+            if id_chapter != "未知章節":
+                q["chapter"] = id_chapter
+                id_preserved += 1
+                continue
+
+        unknown += 1
+
+    parts = []
+    if text_preserved:
+        parts.append(f"文字比對 {text_preserved} 題")
+    if id_preserved:
+        parts.append(f"ID fallback {id_preserved} 題（格式差異）")
+    if unknown:
+        parts.append(f"未知章節 {unknown} 題")
+    print(f"  章節合併：{', '.join(parts)}")
+
+
 def main():
+    parser = argparse.ArgumentParser(description="UAV 題庫自動更新腳本")
+    parser.add_argument(
+        "--banks",
+        nargs="+",
+        choices=[c["id"] for c in BANK_CONFIGS],
+        metavar="BANK_ID",
+        help=f"指定要更新的題庫（可多選）。可用值：{', '.join(c['id'] for c in BANK_CONFIGS)}",
+    )
+    args = parser.parse_args()
+
+    target_ids = set(args.banks) if args.banks else {c["id"] for c in BANK_CONFIGS}
+    target_configs = [c for c in BANK_CONFIGS if c["id"] in target_ids]
+
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     os.makedirs("ref", exist_ok=True)
 
     print("=" * 50)
     print("UAV 題庫自動更新腳本")
+    if args.banks:
+        print(f"指定題庫：{', '.join(args.banks)}")
     print("=" * 50)
 
-    # 爬取 PDF 連結
     links = scrape_pdf_links(CAA_URL)
+    hash_links = scrape_hash_links(CAA_URL)
 
     if not links:
         print("錯誤：未能取得任何 PDF 連結，請檢查網路或網站結構是否有變動。")
@@ -322,10 +459,11 @@ def main():
 
     print()
 
-    # 逐版本處理
-    for config in BANK_CONFIGS:
+    for config in target_configs:
         config_id = config["id"]
         label = config["label"]
+        output_path = f"{OUTPUT_DIR}/{config_id}.json"
+        pdf_path = f"ref/{label}.pdf"
 
         print(f"[{label}]")
 
@@ -333,23 +471,57 @@ def main():
             print(f"  跳過：找不到對應的 PDF 連結\n")
             continue
 
-        pdf_path = f"ref/{label}.pdf"
-        download_pdf(links[config_id], pdf_path)
+        # --- SHA-256 比對 ---
+        remote_sha256: str | None = None
+        source_updated: str | None = None
+        if config_id in hash_links:
+            hash_meta = hash_links[config_id]
+            remote_sha256 = fetch_remote_sha256(hash_meta["url"])
+            source_updated = hash_meta.get("updated")
+            if remote_sha256:
+                date_str = f"  更新日期：{source_updated}" if source_updated else ""
+                print(f"  官網 SHA-256：{remote_sha256}{date_str}")
+
+        if remote_sha256 and os.path.exists(pdf_path):
+            local_sha256 = sha256_of_file(pdf_path)
+            if local_sha256 == remote_sha256:
+                # PDF 未變動；若 JSON 也已記錄同一 hash，跳過
+                if os.path.exists(output_path):
+                    with open(output_path, encoding="utf-8") as f:
+                        existing = json.load(f)
+                    if existing.get("source_sha256") == remote_sha256:
+                        print(f"  跳過（SHA-256 相符，已是最新）\n")
+                        continue
+                print(f"  PDF 未變動，但 JSON 缺少 hash 記錄，重新解析")
+            else:
+                print(f"  SHA-256 不符，下載新版 PDF")
+                download_pdf(links[config_id], pdf_path)
+        else:
+            download_pdf(links[config_id], pdf_path)
 
         if not os.path.exists(pdf_path):
             print(f"  跳過：PDF 檔案不存在 {pdf_path}\n")
             continue
 
         questions = parse_pdf_to_questions(pdf_path)
+
+        # 有 chapter_note 的題庫（屆期換證）：合併舊章節分類
+        if config.get("chapter_note"):
+            _merge_chapters(questions, output_path)
+
         output = process_whitelist(questions)
 
-        output_path = f"{OUTPUT_DIR}/{config_id}.json"
+        if remote_sha256:
+            output["source_sha256"] = remote_sha256
+        if source_updated:
+            output["source_updated"] = source_updated
+        if config.get("chapter_note"):
+            output["chapter_note"] = config["chapter_note"]
+
         with open(output_path, "w", encoding="utf-8") as f:
             json.dump(output, f, ensure_ascii=False, indent=2)
 
-        print(
-            f"  完成：{len(questions)} 題，白名單 {len(output['answer_option_whitelist'])} 項"
-        )
+        print(f"  完成：{len(questions)} 題，白名單 {len(output['answer_option_whitelist'])} 項")
         print(f"  輸出至：{output_path}\n")
 
     print("=" * 50)
