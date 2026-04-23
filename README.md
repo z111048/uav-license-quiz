@@ -1,5 +1,16 @@
 # 無人機學科線上練習系統 (UAV License Quiz)
 
+近期更新（2026-04-23）
+
+- **SEO 全面優化**：`index.html` 補充術科相關 SEO 標籤，讓 Google 正確辨識網站同時涵蓋學科 + 術科兩大功能：
+  - `meta description`、Open Graph、Twitter Card 一律加入「多旋翼機術科測驗 3D 飛行模擬器」描述
+  - `meta keywords` 新增 `術科測驗`、`無人機術科`、`飛行測驗`、`術科模擬器`、`多旋翼機術科`、`無人機飛行測驗` 六組關鍵字
+  - JSON-LD WebApplication `featureList` 補充術科模擬器、RTH、ATTI/POS 飛行模式、風場模擬
+  - JSON-LD `dateModified` 更新至 `2026-04-22`
+  - FAQPage 新增第 7 題「無人機術科測驗要考什麼？如何準備？」
+  - `<noscript>` 備用文字新增術科測驗準備段落（給 Bing 等非 JS 爬蟲）
+  - `public/sitemap.xml` `<lastmod>` 更新至 `2026-04-22`
+
 近期更新（2026-04-22）
 
 - **題庫版本資訊顯示**：練習設定頁右上角新增灰色小字「共 N 題　題庫版本：YYYY/MM/DD」，讓使用者確認題庫是否最新

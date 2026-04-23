@@ -36,5 +36,15 @@ For `public/exam-simulator-mr.html`, preserve these simulator-specific behaviors
 - `sinY/cosY` (heading trig) is computed at the top of `updateManual()` and reused by all branches (RTH, POS hold, tilt physics). Do not move it back to mid-function.
 - If you change simulator behavior, update the static simulator tests in `src/test/exam-simulator-mr.test.ts` as part of the same change.
 
+## SEO Metadata Maintenance
+When adding a significant new user-facing feature, update `index.html` to keep SEO tags accurate:
+- `meta description` and `og:description` / `twitter:description` — keep all three in sync
+- `meta keywords` — append relevant search terms
+- JSON-LD WebApplication `featureList` — add the new feature
+- JSON-LD `dateModified` — update to the current date (`YYYY-MM-DD`)
+- FAQPage mainEntity — add a Q&A if the feature introduces a new user question
+- `<noscript>` block — mirror any new feature descriptions for non-JS crawlers
+- `public/sitemap.xml` `<lastmod>` — update to match `dateModified`
+
 ## Security & Configuration Tips
 Never commit `.env`, Firebase credentials, downloaded PDFs in `ref/*.pdf`, or generated image artifacts ignored by `.gitignore`. Treat files in `public/data/` as build inputs: regenerate them intentionally and review diffs before committing.

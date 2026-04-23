@@ -4,6 +4,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
+**Recent changes (2026-04-23)**
+
+- SEO improvements to `index.html` to reflect both 學科 and 術科 content:
+  - `meta description` updated to include 多旋翼機術科測驗 3D 飛行模擬器
+  - `meta keywords` expanded with six 術科-related terms: `術科測驗`, `無人機術科`, `飛行測驗`, `術科模擬器`, `多旋翼機術科`, `無人機飛行測驗`
+  - Open Graph `og:description` and Twitter `twitter:description` updated to match
+  - JSON-LD WebApplication `featureList` — added: 術科測驗 3D 飛行模擬器（多旋翼機基本級）, RTH 自動返航模擬, ATTI / POS 飛行模式切換, 風場干擾模擬
+  - JSON-LD `dateModified` updated to `2026-04-22`
+  - FAQPage: added 7th Q&A — 「無人機術科測驗要考什麼？如何準備？」
+  - `<noscript>` fallback: added `<h2>術科測驗準備</h2>` section listing simulator capabilities
+- `public/sitemap.xml` — `<lastmod>` updated to `2026-04-22`
+
 **Recent changes (2026-04-22)**
 
 - Updated 屆期換證 and 屆期換證（簡易）question banks to the 2026/04/07 CAA release (both 324 / 120 questions unchanged in count; edits were pure formatting — spaces removed around numbers in question text).
