@@ -28,8 +28,6 @@ jobs:
       - run: npm ci
 
       - run: npm run build
-        env:
-          VITE_BASE: /uav-license-quiz/
 
       - uses: actions/upload-pages-artifact@v3
         with:

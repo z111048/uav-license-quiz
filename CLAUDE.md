@@ -352,7 +352,7 @@ Three problems occur on mobile when the "Next question" button appears condition
 
 ### SEO / AEO configuration
 
-All SEO assets target `https://z111048.github.io/uav-license-quiz/` (GitHub Pages).
+All SEO assets target `https://uav.coding-8bit.com/` (custom domain on GitHub Pages).
 
 **`index.html`** contains:
 - `<title>` and `<meta name="description/keywords">` — primary on-page signals
@@ -366,7 +366,7 @@ All SEO assets target `https://z111048.github.io/uav-license-quiz/` (GitHub Page
 - `<noscript>` block — fallback text content (h1, h2, ul) visible to crawlers that don't execute JavaScript (Bing, Baidu, etc.), ensuring the page is not seen as blank by non-JS bots
 - The manifest href uses `/site.webmanifest`; Vite substitutes the correct base path at build time.
 
-**`public/robots.txt`** — `Allow: /uav-license-quiz/` + `Sitemap:` directive pointing to the full sitemap URL.
+**`public/robots.txt`** — `Allow: /` + `Sitemap:` directive pointing to the full sitemap URL.
 
 **`public/sitemap.xml`** — single `<url>` entry for the root. Update `<lastmod>` whenever the question bank data is refreshed. Currently set to `2026-02-26`.
 
