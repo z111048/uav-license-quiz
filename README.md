@@ -1,5 +1,15 @@
 # 無人機學科線上練習系統 (UAV License Quiz)
 
+近期更新（2026-04-25）
+
+- **首頁 UX 與 SEO 優化**：
+  - `SetupView` 頂部新增功能徽章列（完全免費 / 無需登入 / AI 諧音記憶 / 術科 3D 模擬器 / 即時更新），第一時間傳達產品價值
+  - 術科測驗模擬器由底部小文字連結升級為獨立卡片，含功能說明與明顯的「進入模擬器 →」按鈕
+  - `SetupView` 底部新增可折疊「常見問題」區塊（3 題），與 FAQPage JSON-LD 內容對應，讓 Google 在頁面文字中看到一致答案（AEO 強化）
+  - `index.html` WebApplication schema 補充 `audience`（EducationalAudience / student）
+  - `index.html` 新增 `HowTo` schema（4 步驟：選題庫 → 章節篩選 → 計時練習 → 錯題回顧），供 Google SGE 顯示操作流程
+  - `dateModified` 更新至 `2026-04-25`；`public/sitemap.xml` `<lastmod>` 同步更新
+
 近期更新（2026-04-23）
 
 - **SEO 全面優化**：`index.html` 補充術科相關 SEO 標籤，讓 Google 正確辨識網站同時涵蓋學科 + 術科兩大功能：
@@ -199,7 +209,7 @@ npm run build
 | `public/sitemap.xml` | 告知 Google / Bing 正式 URL 與更新頻率 |
 | `public/site.webmanifest` | PWA 宣告，含 icons 陣列（192 + 512）與 scope，改善「加入主畫面」體驗 |
 
-**AEO（Answer Engine Optimization）**：`index.html` 內含 `FAQPage` JSON-LD，提供 6 組問答，使 Google SGE、ChatGPT Search、Perplexity 等 AI 搜尋引擎可直接引用本站內容作為答案來源。
+**AEO（Answer Engine Optimization）**：`index.html` 內含 `FAQPage` JSON-LD（7 組問答）與 `HowTo` schema（4 步驟），使 Google SGE、ChatGPT Search、Perplexity 等 AI 搜尋引擎可直接引用本站內容作為答案來源。`SetupView` 底部可見的 FAQ 區塊與 JSON-LD 內容保持一致，強化 AEO 信號。
 
 **Google Search Console**：已設定 `google-site-verification` meta tag。首次部署後需至 [Google Search Console](https://search.google.com/search-console) 完成驗證並提交 sitemap。
 

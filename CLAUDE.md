@@ -4,6 +4,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
+**Recent changes (2026-04-25)**
+
+- SEO & homepage optimisation:
+  - `index.html` — `dateModified` updated to `2026-04-25`; WebApplication schema: added `audience` (`EducationalAudience / student`); new `HowTo` schema (4 steps: choose bank → filter chapters → timed practice → review wrongs) for Google SGE step display
+  - `public/sitemap.xml` — `<lastmod>` updated to `2026-04-25`
+  - `src/components/SetupView.tsx`:
+    - Feature pill row added at the top of the card: 完全免費 / 無需登入 / AI 諧音記憶 / 術科 3D 模擬器 / 即時更新
+    - 術科模擬器 promoted from a small text link to a standalone teal card with description and "進入模擬器 →" button
+    - Collapsible `<details>` FAQ section added at the bottom (3 Q&As matching FAQPage JSON-LD content), so Google sees consistent visible text alongside the schema
+
 **Recent changes (2026-04-23)**
 
 - SEO improvements to `index.html` to reflect both 學科 and 術科 content:

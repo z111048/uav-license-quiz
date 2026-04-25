@@ -54,6 +54,15 @@ export default function SetupView({ questions, onStart, onReadingMode, onWhiteli
 
   return (
     <div className="bg-white rounded-xl shadow-lg p-6 md:p-8">
+      {/* Feature pills */}
+      <div className="flex flex-wrap gap-2 mb-5">
+        {['完全免費', '無需登入', 'AI 諧音記憶', '術科 3D 模擬器', '即時更新'].map((label) => (
+          <span key={label} className="text-xs px-2.5 py-1 bg-gray-100 text-gray-600 rounded-full">
+            {label}
+          </span>
+        ))}
+      </div>
+
       <div className="flex items-baseline justify-between border-b pb-2 mb-4">
         <h2 className="text-xl font-semibold">練習設定</h2>
         <span className="text-xs text-gray-400">
@@ -197,15 +206,45 @@ export default function SetupView({ questions, onStart, onReadingMode, onWhiteli
             🪁 不確定要考哪種證？重新診斷
           </button>
         </div>
-        <div>
-          <button
-            onClick={onSimulator}
-            className="text-teal-600 hover:text-teal-800 underline text-sm font-medium"
-          >
-            🚁 術科測驗模擬器（無人多旋翼機基本級）
-          </button>
-        </div>
       </div>
+
+      {/* Simulator card */}
+      <div className="mt-6 rounded-xl border border-teal-200 bg-teal-50 p-4">
+        <div className="flex items-start gap-3">
+          <span className="text-2xl">🚁</span>
+          <div className="flex-1 min-w-0">
+            <p className="font-semibold text-teal-800 text-sm">術科測驗 3D 飛行模擬器（多旋翼機）</p>
+            <p className="text-xs text-teal-700 mt-0.5">瀏覽器內模擬真實考場場地，支援 RTH 自動返航、ATTI／POS 模式切換、風場干擾，桌面鍵盤與手機觸控搖桿均可操作。</p>
+          </div>
+        </div>
+        <button
+          onClick={onSimulator}
+          className="mt-3 w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold py-2 rounded-lg transition duration-200"
+        >
+          進入模擬器 →
+        </button>
+      </div>
+
+      {/* Visible FAQ — matches FAQPage JSON-LD schema, also useful for users */}
+      <details className="mt-6 group">
+        <summary className="cursor-pointer text-sm font-semibold text-gray-500 hover:text-gray-700 list-none flex items-center gap-1">
+          <span className="transition-transform group-open:rotate-90">▶</span> 常見問題
+        </summary>
+        <dl className="mt-3 space-y-4 text-sm text-gray-700">
+          <div>
+            <dt className="font-semibold">普通操作證和專業操作證有什麼差別？</dt>
+            <dd className="mt-1 text-gray-600">普通操作證適用於休閒娛樂飛行；專業操作證用於商業用途（空拍、農業噴灑、測量等），題庫範圍較廣。兩套題庫均可在本網站免費練習。</dd>
+          </div>
+          <div>
+            <dt className="font-semibold">無人機操作證筆試考幾題？幾分及格？</dt>
+            <dd className="mt-1 text-gray-600">依民航局規定，學科（筆試）每科 20 題單選，滿分 100 分，60 分及格。</dd>
+          </div>
+          <div>
+            <dt className="font-semibold">這個網站免費嗎？需要登入嗎？</dt>
+            <dd className="mt-1 text-gray-600">完全免費，無需註冊帳號。四套完整題庫與術科模擬器均可直接使用，題庫跟隨民航局最新公告自動更新。</dd>
+          </div>
+        </dl>
+      </details>
     </div>
   )
 }

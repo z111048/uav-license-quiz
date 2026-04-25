@@ -42,9 +42,11 @@ When adding a significant new user-facing feature, update `index.html` to keep S
 - `meta keywords` — append relevant search terms
 - JSON-LD WebApplication `featureList` — add the new feature
 - JSON-LD `dateModified` — update to the current date (`YYYY-MM-DD`)
-- FAQPage mainEntity — add a Q&A if the feature introduces a new user question
+- JSON-LD `HowTo` steps — update if the core usage flow changes (currently 4 steps: choose bank → filter chapters → timed practice → review wrongs)
+- FAQPage mainEntity — add a Q&A if the feature introduces a new user question (currently 7 Q&As)
 - `<noscript>` block — mirror any new feature descriptions for non-JS crawlers
 - `public/sitemap.xml` `<lastmod>` — update to match `dateModified`
+- `SetupView` FAQ section (`<details>`) — keep visible Q&As consistent with FAQPage JSON-LD for AEO coherence
 
 ## Security & Configuration Tips
 Never commit `.env`, Firebase credentials, downloaded PDFs in `ref/*.pdf`, or generated image artifacts ignored by `.gitignore`. Treat files in `public/data/` as build inputs: regenerate them intentionally and review diffs before committing.
