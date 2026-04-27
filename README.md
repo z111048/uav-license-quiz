@@ -1,5 +1,9 @@
 # 無人機學科線上練習系統 (UAV License Quiz)
 
+近期更新（2026-04-28）
+
+- **ChatGPT 題目示意圖 pipeline**：使用 Claude Sonnet 重新嚴格審核全部 588 題（只有「圖片是理解必要條件」才生成），篩選出 139 題（23.6%），取代原本 Gemini 寬鬆標準的 371 題（63%）。新增以 gpt-image-2 Batch API（5 折）生圖腳本，`convert_and_upload.py` 與 `generate_image_manifest.py` 新增 `--source chatgpt` 參數支援雙軌 pipeline。
+
 近期更新（2026-04-25）
 
 - **首頁 UX 與 SEO 優化**：
@@ -101,7 +105,7 @@
 - **無腦背白名單**：演算法分析題庫，篩選出「只要看到該選項就一定是正確答案」的唯一解，並在閱讀模式標記 ⚡ 可無腦背
 - **「以上皆是」策略分析**：自動分類含「以上皆是」選項的題目，區分可直接背（答案就是以上皆是）與陷阱題（以上皆是是錯誤選項），並附統計數字
 - **AI 學習模式**（專業操作證）：透過 Claude Haiku API 為每題生成關鍵字提示、諧音口訣、概念解析、錯誤選項說明，支援章節篩選與關鍵字搜尋
-- **題目示意圖**（專業操作證）：Gemini AI 為 371 道需要視覺輔助的題目（tier 1/2）生成 3D 技術示意圖，顯示於測驗、閱讀與 AI 學習模式；圖片托管於 Firebase Storage CDN。圖片均標註「AI 產製，僅供參考」免責說明
+- **題目示意圖**（專業操作證）：AI 為需要視覺輔助的題目生成教學示意圖，顯示於測驗、閱讀與 AI 學習模式；圖片托管於 Firebase Storage CDN。圖片均標註「AI 產製，僅供參考」免責說明。目前以 Gemini 生成（371 題），ChatGPT gpt-image-2 版（139 題，Claude 嚴格審核）待 OpenAI 組織驗證後產出
 - **術科測驗模擬器**（無人多旋翼機基本級）：獨立 3D 互動模擬器，可體驗懸停、起降、航點飛行等術科測驗流程；支援自動導航與手動兩種模式、多視角切換。DJI Phantom 風格無人機模型，具備獨立模式鍵 / 電源鍵、DJI 風格通電流程、地面 CSC 啟槳、落地後持續下拉油門停槳、航行燈閃爍、槳葉慣性拖尾、移動傾斜、起落架、Three.js 陰影、`H` 點字樣與降落區陰影等真實視覺效果。桌機鍵位為左搖桿 `W/S` 升降、`A/D` 偏航，右搖桿 `↑/↓/←/→` 平移；`R` 鍵觸發自動返航（RTH），`F` 鍵切換姿態/定位飛行模式；CSC 可用 `S + D + ↓ + ←`（內八）或 `S + A + ↓ + →`（外八），手機虛擬搖桿也支援下內八 / 下外八啟槳，HUD 會即時顯示 CSC 狀態。並搭載 **Web Audio 音效引擎**：馬達嗡鳴聲隨轉速變化音調，停機時有音高下滑效果，飛行時有氣流風噪，音量可靜音切換。**RTH**（自動返航）：一鍵爬升至安全高度後 GPS 導航回 H 點落地。**飛行模式**：姿態模式（無 GPS 輔助）或定位模式（GPS Hold 自動保位）。**風場模擬**：可設定風速、來風方向與亂流，測試姿態 vs 定位模式的抗風差異。iPhone / iPad 為避免旋轉後非全螢幕顯示，方向改變時會自動重新載入頁面。於學科練習的設定頁底部入口開啟
 
 ## 開發
@@ -150,29 +154,37 @@ uv run generate_study_aids.py
 
 ### 生成題目示意圖（專業操作證，選用）
 
-為 371 道題目（tier 1/2）生成 3D 示意圖並托管至 Firebase Storage：
+兩套 pipeline 並行，共用 Firebase Storage 與 `convert_and_upload.py` / `generate_image_manifest.py`。
 
+**Gemini pipeline**（需 `GEMINI_API_KEY` + Firebase，371 張，費用約 NT$800）：
 ```bash
-# 前置：設定 API 金鑰與 Firebase 憑證
 export GEMINI_API_KEY=AIza...
 export FIREBASE_CREDENTIALS=~/.firebase/serviceAccountKey.json
 export FIREBASE_BUCKET=your-project-id.firebasestorage.app
 
-# ① 分析題目（只需執行一次，結果已納入版控）
-uv run scripts/images/analyze_questions_gemini.py
-
-# ② 生成圖片（371 張，費用約 NT$800；腳本預設預算 NT$300 約可生成 140 張，支援斷點續傳）
-uv run scripts/images/generate_images_v2.py
-
-# ③ 轉換 WebP + 上傳 Firebase
-uv run scripts/images/convert_and_upload.py
-
-# ④ 產生前端讀取的 URL manifest（納入版控）
-uv run scripts/images/generate_image_manifest.py
+uv run scripts/images/analyze_questions_gemini.py   # ① 分析（結果已納入版控）
+uv run scripts/images/generate_images_v2.py          # ② 生圖（支援斷點續傳、預算保護）
+uv run scripts/images/convert_and_upload.py          # ③ WebP + Firebase 上傳
+uv run scripts/images/generate_image_manifest.py     # ④ 產生 professional_images.json
 ```
 
-- 圖片原檔（PNG / WebP）與 `webp_urls.json` 均已加入 `.gitignore`，不納入版控
-- 只有 `public/data/professional_images.json`（CDN URL 對應表）需要 commit
+**ChatGPT pipeline**（需 `OPENAI_API_KEY` + OpenAI 組織驗證 + Firebase，139 張，費用約 NT$118）：
+```bash
+export OPENAI_API_KEY=sk-proj-...
+export FIREBASE_CREDENTIALS=~/.firebase/serviceAccountKey.json
+export FIREBASE_BUCKET=your-project-id.firebasestorage.app
+
+# ① 分析（已執行完畢，結果 professional_image_analysis_v2.json 已納入版控）
+# uv run scripts/images/analyze_questions_claude.py
+
+uv run scripts/images/generate_images_chatgpt_batch.py --dry-run   # ② 估費用
+uv run scripts/images/generate_images_chatgpt_batch.py --quality medium  # ② 生圖
+uv run scripts/images/convert_and_upload.py --source chatgpt        # ③ WebP + Firebase 上傳
+uv run scripts/images/generate_image_manifest.py --source chatgpt   # ④ 產生 professional_images_chatgpt.json
+```
+
+- 圖片原檔（PNG / WebP）與 `webp_urls*.json` 均已加入 `.gitignore`，不納入版控
+- 只有 `public/data/professional_images.json` 和 `professional_images_chatgpt.json` 需要 commit
 
 ### 測試
 
@@ -229,8 +241,10 @@ public/data/
 ├── professional.json               專業操作證
 ├── renewal.json                    屆期換證（章節由 AI 協助分類）
 ├── renewal_basic.json              屆期換證（簡易）（章節由 AI 協助分類）
-├── professional_study_aids.json    AI 學習輔助（選用）  ← generate_study_aids.py（Claude Haiku）
-└── professional_images.json        圖片 CDN URL 對應表  ← scripts/images/ 流程（Gemini + Firebase）
+├── professional_study_aids.json         AI 學習輔助（選用）← generate_study_aids.py（Claude Haiku）
+├── professional_images.json             Gemini 圖片 CDN URL 對應表  ← Gemini pipeline
+├── professional_images_chatgpt.json     ChatGPT 圖片 CDN URL 對應表 ← ChatGPT pipeline（待驗證後產出）
+└── professional_image_analysis_v2.json  Claude 嚴格審核結果（139 題需圖）
     │
     ▼
 Vite + React + TypeScript  (Tailwind CSS v4)
@@ -277,12 +291,15 @@ uav-license-quiz/
 ├── update_question_bank.py    # 自動更新題庫腳本
 ├── generate_study_aids.py     # AI 學習輔助生成腳本（需 ANTHROPIC_API_KEY）
 ├── scripts/
-│   └── images/                # 題目示意圖生成流程（依序執行 ①→④）
-│       ├── analyze_questions_gemini.py   # ① 題目分析，決定生圖優先級
-│       ├── generate_images_v2.py         # ② Gemini 生圖（PNG，斷點續傳，預算保護）
-│       ├── convert_and_upload.py         # ③ PNG→WebP + Firebase Storage 上傳
-│       ├── generate_image_manifest.py    # ④ 產生 professional_images.json
-│       └── preview_images.py             # 預覽工具（開發用）
+│   └── images/                # 題目示意圖生成流程（雙軌 pipeline）
+│       ├── analyze_questions_gemini.py        # Gemini ① 分析 → professional_image_analysis.json
+│       ├── analyze_questions_claude.py        # ChatGPT ① 分析（Claude Sonnet 嚴格標準）→ v2.json + image_review.html
+│       ├── generate_images_v2.py              # Gemini ② 生圖（PNG，斷點續傳，預算保護）
+│       ├── generate_images_chatgpt_batch.py   # ChatGPT ② 生圖（gpt-image-2 Batch API，5 折）
+│       ├── generate_images_chatgpt.py         # ChatGPT ② 生圖（同步版備用）
+│       ├── convert_and_upload.py              # ③ PNG→WebP + Firebase（--source gemini|chatgpt）
+│       ├── generate_image_manifest.py         # ④ 產生 CDN URL manifest（--source gemini|chatgpt）
+│       └── preview_images.py                  # 預覽工具（開發用）
 ├── pyproject.toml             # uv Python 環境
 └── .github/workflows/
     └── deploy.yml             # GitHub Pages 自動部署

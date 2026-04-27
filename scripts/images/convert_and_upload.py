@@ -1,8 +1,7 @@
 """
 convert_and_upload.py
 
-Converts PNG images in public/data/images/professional/ to WebP (quality=85),
-then uploads them to Firebase Storage.
+Converts PNG images to WebP (quality=85), then uploads them to Firebase Storage.
 
 Prerequisites:
   - A Firebase project with Storage enabled
@@ -13,14 +12,17 @@ Prerequisites:
 Usage:
     export FIREBASE_CREDENTIALS=/path/to/serviceAccountKey.json
     export FIREBASE_BUCKET=your-project-id.appspot.com
-    uv run convert_and_upload.py
+    uv run scripts/images/convert_and_upload.py                  # Gemini images (default)
+    uv run scripts/images/convert_and_upload.py --source chatgpt # ChatGPT images
 
 Output:
-    webp_urls.json  — mapping { "idx": "https://..." }
+    webp_urls.json         (Gemini)
+    webp_urls_chatgpt.json (ChatGPT)
 
-Resume-friendly: already-uploaded indices in webp_urls.json are skipped.
+Resume-friendly: already-uploaded indices are skipped.
 """
 
+import argparse
 import json
 import os
 import sys
@@ -43,15 +45,20 @@ except ImportError:
     print("Error: firebase-admin not found. Run: uv sync", file=sys.stderr)
     sys.exit(1)
 
-# ---------------------------------------------------------------------------
-# Config
-# ---------------------------------------------------------------------------
-
-IMAGE_DIR = Path("public/data/images/professional")
-WEBP_DIR = IMAGE_DIR / "webp"
-URLS_FILE = Path("webp_urls.json")
-STORAGE_PREFIX = "professional"   # folder name inside the Firebase bucket
 WEBP_QUALITY = 85
+
+SOURCE_CONFIGS = {
+    "gemini": {
+        "image_dir": Path("public/data/images/professional"),
+        "storage_prefix": "professional",
+        "urls_file": Path("webp_urls.json"),
+    },
+    "chatgpt": {
+        "image_dir": Path("public/data/images/professional_chatgpt"),
+        "storage_prefix": "professional_chatgpt",
+        "urls_file": Path("webp_urls_chatgpt.json"),
+    },
+}
 
 # ---------------------------------------------------------------------------
 # Init Firebase
@@ -88,14 +95,14 @@ def public_url(bucket_name: str, blob_name: str) -> str:
     )
 
 
-def load_urls() -> dict[str, str]:
-    if URLS_FILE.exists():
-        return json.loads(URLS_FILE.read_text(encoding="utf-8"))
+def load_urls(urls_file: Path) -> dict[str, str]:
+    if urls_file.exists():
+        return json.loads(urls_file.read_text(encoding="utf-8"))
     return {}
 
 
-def save_urls(urls: dict[str, str]) -> None:
-    URLS_FILE.write_text(
+def save_urls(urls: dict[str, str], urls_file: Path) -> None:
+    urls_file.write_text(
         json.dumps(urls, ensure_ascii=False, indent=2), encoding="utf-8"
     )
 
@@ -105,15 +112,28 @@ def save_urls(urls: dict[str, str]) -> None:
 # ---------------------------------------------------------------------------
 
 def main() -> None:
-    WEBP_DIR.mkdir(parents=True, exist_ok=True)
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--source", choices=["gemini", "chatgpt"], default="gemini",
+        help="圖片來源（預設：gemini）",
+    )
+    args = parser.parse_args()
 
-    png_files = sorted(IMAGE_DIR.glob("*.png"), key=lambda p: int(p.stem))
+    cfg = SOURCE_CONFIGS[args.source]
+    image_dir: Path = cfg["image_dir"]
+    storage_prefix: str = cfg["storage_prefix"]
+    urls_file: Path = cfg["urls_file"]
+    webp_dir = image_dir / "webp"
+
+    webp_dir.mkdir(parents=True, exist_ok=True)
+
+    png_files = sorted(image_dir.glob("*.png"), key=lambda p: int(p.stem))
     if not png_files:
-        print(f"No PNG files found in {IMAGE_DIR}. Run generate_images_v2.py first.")
+        print(f"No PNG files found in {image_dir}.")
         sys.exit(0)
 
     bucket = init_firebase()
-    urls = load_urls()
+    urls = load_urls(urls_file)
 
     total = len(png_files)
     skipped = 0
@@ -127,7 +147,7 @@ def main() -> None:
             skipped += 1
             continue
 
-        webp_path = WEBP_DIR / f"{idx}.webp"
+        webp_path = webp_dir / f"{idx}.webp"
 
         # -- Convert PNG → WebP --
         try:
@@ -139,7 +159,7 @@ def main() -> None:
             continue
 
         # -- Upload WebP to Firebase Storage --
-        blob_name = f"{STORAGE_PREFIX}/{idx}.webp"
+        blob_name = f"{storage_prefix}/{idx}.webp"
         try:
             blob = bucket.blob(blob_name)
             blob.upload_from_filename(str(webp_path), content_type="image/webp")
@@ -147,7 +167,7 @@ def main() -> None:
 
             url = public_url(bucket.name, blob_name)
             urls[idx] = url
-            save_urls(urls)  # checkpoint after each successful upload
+            save_urls(urls, urls_file)  # checkpoint after each successful upload
             uploaded += 1
             print(f"  [{uploaded:>3}/{total}] Uploaded {idx}.webp")
         except Exception as exc:

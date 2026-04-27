@@ -3,6 +3,10 @@
 ## Project Structure & Module Organization
 `src/` contains the Vite + React + TypeScript app. Keep shared state in `src/App.tsx`, reusable types in `src/types.ts`, helpers in `src/utils.ts`, and screen components in `src/components/`. Put frontend tests in `src/test/`. Static assets live in `public/`; versioned question banks and AI-generated manifests are under `public/data/`. Python maintenance scripts sit at the repo root (`update_question_bank.py`, `generate_study_aids.py`) and in `scripts/images/` for image-analysis and upload workflows.
 
+`scripts/images/` contains two parallel image pipelines:
+- **Gemini pipeline**: `analyze_questions_gemini.py` → `generate_images_v2.py` → `convert_and_upload.py` → `generate_image_manifest.py`. Produces `professional_images.json`.
+- **ChatGPT pipeline**: `analyze_questions_claude.py` (strict re-analysis with Claude Sonnet, outputs `professional_image_analysis_v2.json`) → `generate_images_chatgpt_batch.py` (gpt-image-2 via Batch API, 50% discount) → `convert_and_upload.py --source chatgpt` → `generate_image_manifest.py --source chatgpt`. Produces `professional_images_chatgpt.json`. Requires OpenAI org verification before gpt-image-2 can be used. Use `output_format` parameter, not `response_format` (unsupported by gpt-image-2).
+
 ## Build, Test, and Development Commands
 Run `npm install` once, then `npm run dev` to start the local app on port `5173`. Use `npm run build` to type-check and create the production bundle in `dist/`. Run `npm test` for a single Vitest pass and `npm run test:watch` during active frontend work. For data refreshes, use `uv run update_question_bank.py` to download and rebuild `public/data/*.json` (add `--banks <id>...` to update only specific banks, e.g. `--banks renewal renewal_basic`). The script compares SHA-256 from the CAA `FileHashValue.aspx` page and skips unchanged banks automatically. AI content scripts also run through `uv`, for example `uv run generate_study_aids.py`.
 

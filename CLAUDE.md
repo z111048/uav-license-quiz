@@ -4,6 +4,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
+**Recent changes (2026-04-28)**
+
+- ChatGPT image pipeline added alongside existing Gemini pipeline:
+  - **`scripts/images/analyze_questions_claude.py`** — re-analyzes all 588 professional questions with Claude Sonnet to determine which truly need images (strict standard: "essential for understanding", not just "helpful"). Outputs `professional_image_analysis_v2.json` + `image_review.html` for human review. Replaced original Gemini analysis (`gemini-3-flash-preview`, tier 1/2/3 system, 63% selected) with a binary `need_image: true/false` decision (23.6% selected = 139 questions). Cost: ~$1.55 USD for 588 questions.
+  - **`scripts/images/generate_images_chatgpt_batch.py`** — generates images via OpenAI gpt-image-2 using the Batch API (50% discount). Reads `professional_image_analysis_v2.json`. Parameters: `output_format: "png"` (not `response_format`—unsupported by gpt-image-2). Saves PNG to `public/data/images/professional_chatgpt/`. State file `.batch_state.json` stores `batch_id` for recovery if interrupted; `--collect` flag retrieves results from an already-submitted batch. Polls every 60 minutes. Cost: ~$3.68 USD for 139 images at medium quality.
+  - **`scripts/images/generate_images_chatgpt.py`** — synchronous fallback (non-batch) using `AsyncOpenAI`; reads same v2 analysis; same style prefix as batch version.
+  - **`scripts/images/convert_and_upload.py`** — added `--source gemini|chatgpt` flag; ChatGPT path reads from `public/data/images/professional_chatgpt/` and uploads to Firebase `professional_chatgpt/` prefix, writing `webp_urls_chatgpt.json`.
+  - **`scripts/images/generate_image_manifest.py`** — added `--source gemini|chatgpt` flag; ChatGPT path writes `public/data/professional_images_chatgpt.json`.
+  - **Image style**: ChatGPT images use flat/semi-flat 2D educational diagram style (vs Gemini's isometric 3D), white background, Traditional Chinese labels.
+  - **Prerequisite**: gpt-image-2 requires OpenAI organization verification at https://platform.openai.com/settings/organization/general before use.
+- `.env` now includes `OPENAI_API_KEY` (alongside existing `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, Firebase vars).
+
 **Recent changes (2026-04-25)**
 
 - SEO & homepage optimisation:
@@ -161,23 +173,43 @@ uv run generate_study_aids.py
 python process_question_bank.py
 ```
 
-**Generate professional question images** (requires `GEMINI_API_KEY` + Firebase setup; scripts in `scripts/images/`):
+**Generate professional question images — Gemini pipeline** (requires `GEMINI_API_KEY` + Firebase):
 ```bash
-# ① 分析題目，決定每題要不要生圖（輸出 professional_image_analysis.json）
+# ① 分析題目（Gemini Flash，寬鬆標準，輸出 professional_image_analysis.json）
 uv run scripts/images/analyze_questions_gemini.py
 
-# ② 生成 PNG（tier 1 & 2，斷點續傳，預算保護）
+# ② 生成 PNG（斷點續傳、預算保護）
 uv run scripts/images/generate_images_v2.py
 uv run scripts/images/generate_images_v2.py --indices 240 411  # 指定重跑特定題號
 
-# ③ 轉換 WebP + 上傳 Firebase Storage（需設定 FIREBASE_CREDENTIALS / FIREBASE_BUCKET）
-uv run scripts/images/convert_and_upload.py
+# ③ 轉換 WebP + 上傳 Firebase Storage
+uv run scripts/images/convert_and_upload.py                    # 預設 --source gemini
 
-# ④ 產生前端讀取的 URL manifest
-uv run scripts/images/generate_image_manifest.py
+# ④ 產生前端 URL manifest
+uv run scripts/images/generate_image_manifest.py               # 預設 --source gemini
 
 # 預覽生成結果（開發用）
 uv run scripts/images/preview_images.py
+```
+
+**Generate professional question images — ChatGPT pipeline** (requires `OPENAI_API_KEY` + org verification + Firebase):
+```bash
+# ① 用 Claude Sonnet 重新分析，嚴格標準（輸出 professional_image_analysis_v2.json + image_review.html）
+uv run scripts/images/analyze_questions_claude.py
+uv run scripts/images/analyze_questions_claude.py --resume     # 斷點續傳
+
+# ② 審核：用瀏覽器開啟 public/data/image_review.html 確認結果
+
+# ③ 生圖：Batch API（50% 折扣，非同步，每小時輪詢一次）
+uv run scripts/images/generate_images_chatgpt_batch.py --dry-run          # 先估費用
+uv run scripts/images/generate_images_chatgpt_batch.py --quality medium   # 送出
+uv run scripts/images/generate_images_chatgpt_batch.py --collect          # 中斷後收結果
+
+# ④ 轉換 WebP + 上傳 Firebase Storage（寫入 professional_chatgpt/ 前綴）
+uv run scripts/images/convert_and_upload.py --source chatgpt
+
+# ⑤ 產生前端 URL manifest（輸出 professional_images_chatgpt.json）
+uv run scripts/images/generate_image_manifest.py --source chatgpt
 ```
 
 ## Architecture
@@ -269,12 +301,15 @@ uav-license-quiz/
 ├── update_question_bank.py    # Auto-download and process all banks
 ├── generate_study_aids.py     # Batch-generate AI study aids via Claude Haiku API
 ├── scripts/
-│   └── images/                # 圖片生成流程（依序執行 ①→④）
-│       ├── analyze_questions_gemini.py   # ① 題目分析 → professional_image_analysis.json
-│       ├── generate_images_v2.py         # ② Gemini 生圖 → PNG（斷點續傳、預算保護）
-│       ├── convert_and_upload.py         # ③ PNG→WebP + Firebase Storage 上傳
-│       ├── generate_image_manifest.py    # ④ 產生 professional_images.json（CDN URL map）
-│       └── preview_images.py             # 預覽工具（開發用）
+│   └── images/                # 圖片生成流程
+│       ├── analyze_questions_gemini.py        # Gemini ① 分析 → professional_image_analysis.json
+│       ├── analyze_questions_claude.py        # ChatGPT ① 分析（嚴格標準）→ professional_image_analysis_v2.json + image_review.html
+│       ├── generate_images_v2.py              # Gemini ② 生圖 → public/data/images/professional/
+│       ├── generate_images_chatgpt.py         # ChatGPT ② 生圖（同步）→ public/data/images/professional_chatgpt/
+│       ├── generate_images_chatgpt_batch.py   # ChatGPT ② 生圖（Batch API, 50% off）→ 同上
+│       ├── convert_and_upload.py              # ③ PNG→WebP + Firebase Storage（--source gemini|chatgpt）
+│       ├── generate_image_manifest.py         # ④ 產生 CDN URL manifest（--source gemini|chatgpt）
+│       └── preview_images.py                  # 預覽工具（開發用）
 └── # Legacy files (kept for backwards compatibility)
     ├── process_question_bank.py
     ├── question_bank.json

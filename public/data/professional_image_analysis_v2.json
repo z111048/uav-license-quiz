@@ -1,0 +1,3530 @@
+{
+  "0": {
+    "index": 0,
+    "need_image": false,
+    "reason": "純法規概念題，列舉無人機違法/失控的後果，文字即可完整表達，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "1": {
+    "index": 1,
+    "need_image": false,
+    "reason": "購買注意事項的行政/消費知識題，純文字選項即可判斷，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "2": {
+    "index": 2,
+    "need_image": false,
+    "reason": "法規目的說明的定義/政策題，文字描述已充分，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "3": {
+    "index": 3,
+    "need_image": false,
+    "reason": "考照目的與適用階段的法規概念題，純文字即可理解與判斷。",
+    "image_prompt": ""
+  },
+  "4": {
+    "index": 4,
+    "need_image": false,
+    "reason": "行政程序題，涉及外國人向民航局申請認可的法規規定，純文字即可作答。",
+    "image_prompt": ""
+  },
+  "5": {
+    "index": 5,
+    "need_image": false,
+    "reason": "操作安全觀念題，題意直接，讀題即可判斷答案，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "6": {
+    "index": 6,
+    "need_image": false,
+    "reason": "法規禁止行為定義題，選項為對立概念（合法/非法），文字已完全自明。",
+    "image_prompt": ""
+  },
+  "7": {
+    "index": 7,
+    "need_image": false,
+    "reason": "列舉隱私侵害行為的法規條文題，純文字即可理解，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "8": {
+    "index": 8,
+    "need_image": false,
+    "reason": "未經同意竊錄行為的法規列舉題，文字描述清晰，不需圖片輔助。",
+    "image_prompt": ""
+  },
+  "9": {
+    "index": 9,
+    "need_image": false,
+    "reason": "禁止飛航場所的法規列舉題，場所皆為日常熟知空間，文字即可理解。",
+    "image_prompt": ""
+  },
+  "10": {
+    "index": 10,
+    "need_image": false,
+    "reason": "純概念性選擇題，考生閱讀文字即可直接判斷答案，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "11": {
+    "index": 11,
+    "need_image": false,
+    "reason": "純法規目的與行政概念題，閱讀選項即可作答，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "12": {
+    "index": 12,
+    "need_image": false,
+    "reason": "純法規條文理解題，涉及罰鍰衡量因素，文字敘述即可完整理解。",
+    "image_prompt": ""
+  },
+  "13": {
+    "index": 13,
+    "need_image": false,
+    "reason": "純法規政策概念題，考的是管理方式分類，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "14": {
+    "index": 14,
+    "need_image": false,
+    "reason": "純法規條文記憶題，考強制保險種類，圖片無助於理解。",
+    "image_prompt": ""
+  },
+  "15": {
+    "index": 15,
+    "need_image": false,
+    "reason": "定義題，考遙控無人機的法規定義，純文字即可理解與作答。",
+    "image_prompt": ""
+  },
+  "16": {
+    "index": 16,
+    "need_image": false,
+    "reason": "法規程序題，考業務操作人須通過學術科測驗之規定，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "17": {
+    "index": 17,
+    "need_image": false,
+    "reason": "法規適用範圍題，以「建築物內/外」區分即可直接判斷，不需圖片輔助。",
+    "image_prompt": ""
+  },
+  "18": {
+    "index": 18,
+    "need_image": false,
+    "reason": "純法規責任條文題，列舉責任種類，閱讀選項即可作答。",
+    "image_prompt": ""
+  },
+  "19": {
+    "index": 19,
+    "need_image": false,
+    "reason": "純法規條文題，考禁航區與限航區之規定，文字敘述即可完整理解與作答。",
+    "image_prompt": ""
+  },
+  "20": {
+    "index": 20,
+    "need_image": false,
+    "reason": "純法規行政程序題，詢問公告機關為何者，閱讀文字即可作答。",
+    "image_prompt": ""
+  },
+  "21": {
+    "index": 21,
+    "need_image": false,
+    "reason": "純法規條文內容記憶題，列舉公告項目，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "22": {
+    "index": 22,
+    "need_image": false,
+    "reason": "純行政程序題，詢問提請公告之機關，文字即可直接判斷。",
+    "image_prompt": ""
+  },
+  "23": {
+    "index": 23,
+    "need_image": false,
+    "reason": "純法規行政程序題，詢問申請會商機關為何者，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "24": {
+    "index": 24,
+    "need_image": false,
+    "reason": "純法規行政程序題，詢問申請會商機關，閱讀文字即可作答。",
+    "image_prompt": ""
+  },
+  "25": {
+    "index": 25,
+    "need_image": false,
+    "reason": "純法規條文題，詢問制止或排除之執行主體，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "26": {
+    "index": 26,
+    "need_image": false,
+    "reason": "純法規行政程序題，詢問取締時會同之機關，文字即可直接判斷。",
+    "image_prompt": ""
+  },
+  "27": {
+    "index": 27,
+    "need_image": false,
+    "reason": "純法規條文題，詢問取締執行機關，閱讀文字即可作答。",
+    "image_prompt": ""
+  },
+  "28": {
+    "index": 28,
+    "need_image": false,
+    "reason": "數值記憶題，詢問飛航高度上限數字，屬限制數值記憶，不需圖片。",
+    "image_prompt": ""
+  },
+  "29": {
+    "index": 29,
+    "need_image": false,
+    "reason": "純法規條文題，詢問需經民航局核准之行為項目，閱讀選項即可判斷。",
+    "image_prompt": ""
+  },
+  "30": {
+    "index": 30,
+    "need_image": false,
+    "reason": "純法規條文記憶題，考生閱讀選項即可判斷，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "31": {
+    "index": 31,
+    "need_image": false,
+    "reason": "行政機關職權分工的定義題，純文字記憶即可作答。",
+    "image_prompt": ""
+  },
+  "32": {
+    "index": 32,
+    "need_image": false,
+    "reason": "法規限制區域的條文記憶題，文字描述清晰，無需圖示輔助。",
+    "image_prompt": ""
+  },
+  "33": {
+    "index": 33,
+    "need_image": false,
+    "reason": "時間限制的數值記憶題，純法規條文，不需圖片。",
+    "image_prompt": ""
+  },
+  "34": {
+    "index": 34,
+    "need_image": false,
+    "reason": "數值記憶題（同時控制架數上限），閱讀文字即可直接作答。",
+    "image_prompt": ""
+  },
+  "35": {
+    "index": 35,
+    "need_image": false,
+    "reason": "操作注意事項的概念題，圖片幫助有限，文字選項已足夠清晰。",
+    "image_prompt": ""
+  },
+  "36": {
+    "index": 36,
+    "need_image": false,
+    "reason": "法規條文記憶題，列舉應避免碰撞對象，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "37": {
+    "index": 37,
+    "need_image": false,
+    "reason": "行政申請程序題，純法規條文，閱讀文字即可判斷答案。",
+    "image_prompt": ""
+  },
+  "38": {
+    "index": 38,
+    "need_image": false,
+    "reason": "行政程序與機關同意層級的法規條文題，不需圖片輔助。",
+    "image_prompt": ""
+  },
+  "39": {
+    "index": 39,
+    "need_image": false,
+    "reason": "賠償責任的法規條文記憶題，純文字即可直接判斷。",
+    "image_prompt": ""
+  },
+  "40": {
+    "index": 40,
+    "need_image": false,
+    "reason": "純法規條文題，涉及連帶賠償責任的法律關係，閱讀文字即可直接判斷，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "41": {
+    "index": 41,
+    "need_image": false,
+    "reason": "純法規依據題，考查責任保險規定來源於哪部法律，屬行政程序知識，文字即可作答。",
+    "image_prompt": ""
+  },
+  "42": {
+    "index": 42,
+    "need_image": false,
+    "reason": "純罰則數字記憶題，考查特定違規行為的罰鍰金額範圍，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "43": {
+    "index": 43,
+    "need_image": false,
+    "reason": "純罰則數字記憶題，考查超高度飛行違規的罰鍰金額範圍，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "44": {
+    "index": 44,
+    "need_image": false,
+    "reason": "純罰則數字記憶題，考查未領操作證違規的罰鍰金額範圍，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "45": {
+    "index": 45,
+    "need_image": false,
+    "reason": "純罰則數字記憶題，考查未投保責任保險違規的罰鍰金額範圍，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "46": {
+    "index": 46,
+    "need_image": false,
+    "reason": "純罰則數字記憶題，考查未完成註冊或未標示註冊號碼違規的罰鍰金額範圍，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "47": {
+    "index": 47,
+    "need_image": false,
+    "reason": "純罰則數字記憶題，考查違反地方政府公告規定的罰鍰金額範圍，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "48": {
+    "index": 48,
+    "need_image": false,
+    "reason": "純罰則數字記憶題，考查違反飛航活動應遵守規定的罰鍰金額範圍，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "49": {
+    "index": 49,
+    "need_image": false,
+    "reason": "純罰則數字記憶題，考查多項技術規定違規的罰鍰金額範圍，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "50": {
+    "index": 50,
+    "need_image": false,
+    "reason": "純定義題，說明「通訊及控制信號鏈路」的名稱，閱讀文字即可直接選出答案。",
+    "image_prompt": ""
+  },
+  "51": {
+    "index": 51,
+    "need_image": false,
+    "reason": "純定義／列舉題，考的是MTOW計算範圍的記憶，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "52": {
+    "index": 52,
+    "need_image": false,
+    "reason": "純定義題，說明「遙控無人機操作人」的法規定義，文字即可判斷。",
+    "image_prompt": ""
+  },
+  "53": {
+    "index": 53,
+    "need_image": false,
+    "reason": "純定義題，說明「目視觀察員」的法規定義，閱讀文字即可作答。",
+    "image_prompt": ""
+  },
+  "54": {
+    "index": 54,
+    "need_image": true,
+    "reason": "題目列舉三種無人機構造分類，搭配各類型外觀示意圖有助考生區分機型特徵。",
+    "image_prompt": "Educational flat diagram on white background showing three types of UAV: 無人飛機 (fixed-wing drone), 無人直昇機 (single-rotor helicopter drone), 無人多旋翼機 (multi-rotor drone). Each type labeled in Traditional Chinese with simple side-view illustration, clean print style."
+  },
+  "55": {
+    "index": 55,
+    "need_image": true,
+    "reason": "題目涉及多旋翼機「垂直傳動軸數量」的構造概念，圖示可直觀呈現旋翼軸的空間分布。",
+    "image_prompt": "Educational flat diagram on white background showing a multi-rotor drone top-view with rotor arms and vertical drive shafts labeled 垂直傳動軸 in Traditional Chinese. Highlight that there are 3 or more shafts. Clean, print-ready illustration style."
+  },
+  "56": {
+    "index": 56,
+    "need_image": false,
+    "reason": "法規責任歸屬題，純文字閱讀即可判斷，不涉及視覺空間概念。",
+    "image_prompt": ""
+  },
+  "57": {
+    "index": 57,
+    "need_image": false,
+    "reason": "法規行政程序題，考多人操作時指定決定權人之規定，文字即可作答。",
+    "image_prompt": ""
+  },
+  "58": {
+    "index": 58,
+    "need_image": true,
+    "reason": "題目考查註冊號碼標明位置，涉及機身各部位空間關係，圖示可清楚標示各選項位置。",
+    "image_prompt": "Educational flat diagram on white background showing a drone (multi-rotor) with labeled parts in Traditional Chinese: 起落架, 螺旋槳面, 機身平整面, 電池蓋. Arrow highlights 機身未遮蔽之平整面 as the correct placement area for registration number. Clean, print-ready style."
+  },
+  "59": {
+    "index": 59,
+    "need_image": false,
+    "reason": "純法規條文記憶題，列舉註冊號碼標示要求，閱讀文字即可直接選出答案。",
+    "image_prompt": ""
+  },
+  "60": {
+    "index": 60,
+    "need_image": false,
+    "reason": "純法規條文，題目文字已明確描述「固定結構外部」的法規規定，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "61": {
+    "index": 61,
+    "need_image": false,
+    "reason": "純法規條文，關於顏色辨識的文字規定，閱讀選項即可直接判斷。",
+    "image_prompt": ""
+  },
+  "62": {
+    "index": 62,
+    "need_image": false,
+    "reason": "純法規條文，考查禁止行為（偽造、變造、矇領），屬條文記憶題。",
+    "image_prompt": ""
+  },
+  "63": {
+    "index": 63,
+    "need_image": false,
+    "reason": "純法規條文，考查註冊號碼使用限制，閱讀文字即可判斷。",
+    "image_prompt": ""
+  },
+  "64": {
+    "index": 64,
+    "need_image": false,
+    "reason": "行政程序題，考查公告機關為何，屬純文字記憶題。",
+    "image_prompt": ""
+  },
+  "65": {
+    "index": 65,
+    "need_image": false,
+    "reason": "行政程序題，考查型式檢驗申請資格，屬純法規條文記憶。",
+    "image_prompt": ""
+  },
+  "66": {
+    "index": 66,
+    "need_image": false,
+    "reason": "行政程序題，考查申請型式檢驗的機關，屬純法規條文記憶。",
+    "image_prompt": ""
+  },
+  "67": {
+    "index": 67,
+    "need_image": false,
+    "reason": "行政程序題，考查進口無人機型式檢驗申請人，屬純法規條文記憶。",
+    "image_prompt": ""
+  },
+  "68": {
+    "index": 68,
+    "need_image": false,
+    "reason": "行政程序題，考查試飛申請機關，屬純法規條文記憶。",
+    "image_prompt": ""
+  },
+  "69": {
+    "index": 69,
+    "need_image": false,
+    "reason": "行政程序題，考查實體檢驗申請人為所有人，屬純法規條文記憶。",
+    "image_prompt": ""
+  },
+  "70": {
+    "index": 70,
+    "need_image": false,
+    "reason": "純行政程序題，詢問申請機關，閱讀文字即可作答。",
+    "image_prompt": ""
+  },
+  "71": {
+    "index": 71,
+    "need_image": false,
+    "reason": "純法規條文題，詢問申請人身分，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "72": {
+    "index": 72,
+    "need_image": false,
+    "reason": "純行政程序題，詢問申請機關，閱讀文字即可作答。",
+    "image_prompt": ""
+  },
+  "73": {
+    "index": 73,
+    "need_image": false,
+    "reason": "純法規條文與數值記憶題，詢問換發期限與申請人，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "74": {
+    "index": 74,
+    "need_image": false,
+    "reason": "純法規行政程序題，詢問登錄時機，閱讀文字即可判斷。",
+    "image_prompt": ""
+  },
+  "75": {
+    "index": 75,
+    "need_image": false,
+    "reason": "純行政程序題，詢問申請機關，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "76": {
+    "index": 76,
+    "need_image": false,
+    "reason": "純法規責任歸屬題，閱讀文字即可直接判斷答案。",
+    "image_prompt": ""
+  },
+  "77": {
+    "index": 77,
+    "need_image": false,
+    "reason": "純法規定義與證照分類題，閱讀文字即可作答。",
+    "image_prompt": ""
+  },
+  "78": {
+    "index": 78,
+    "need_image": false,
+    "reason": "純法規定義題，詢問操作證分類，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "79": {
+    "index": 79,
+    "need_image": false,
+    "reason": "純法規數值記憶與考照規定題，閱讀文字即可比對選項作答。",
+    "image_prompt": ""
+  },
+  "80": {
+    "index": 80,
+    "need_image": false,
+    "reason": "純數值記憶題，考生只需記住術科測驗期限（1年），無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "81": {
+    "index": 81,
+    "need_image": false,
+    "reason": "純程序性規定題（飛航前執行檢查），閱讀文字即可直接判斷，無需圖片。",
+    "image_prompt": ""
+  },
+  "82": {
+    "index": 82,
+    "need_image": false,
+    "reason": "考生直接判斷「操作者家庭狀況」與飛航無關即可作答，屬常識判斷題，圖片無助益。",
+    "image_prompt": ""
+  },
+  "83": {
+    "index": 83,
+    "need_image": false,
+    "reason": "純法規條文理解題，判斷移動中航空器上操作是否合法，文字說明已足夠。",
+    "image_prompt": ""
+  },
+  "84": {
+    "index": 84,
+    "need_image": false,
+    "reason": "純行政程序題，列舉需申請核准的單位類型，閱讀選項即可作答。",
+    "image_prompt": ""
+  },
+  "85": {
+    "index": 85,
+    "need_image": false,
+    "reason": "純數值記憶題（15日前提出申請），無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "86": {
+    "index": 86,
+    "need_image": false,
+    "reason": "純數值記憶題（24小時內通報），屬行政程序規定，圖片無助益。",
+    "image_prompt": ""
+  },
+  "87": {
+    "index": 87,
+    "need_image": false,
+    "reason": "純數值記憶題（24小時內通報），與index=86同類型，無需圖片。",
+    "image_prompt": ""
+  },
+  "88": {
+    "index": 88,
+    "need_image": false,
+    "reason": "純法規條文題，考查民航局權限（得逕為暫停），閱讀選項文字即可判斷。",
+    "image_prompt": ""
+  },
+  "89": {
+    "index": 89,
+    "need_image": false,
+    "reason": "純行政程序題，考查申請通報作業使用的資訊系統單位，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "90": {
+    "index": 90,
+    "need_image": false,
+    "reason": "純法規行政程序題，文字即可直接判斷是否需定期檢驗，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "91": {
+    "index": 91,
+    "need_image": false,
+    "reason": "純法規責任歸屬題，閱讀文字選項即可作答，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "92": {
+    "index": 92,
+    "need_image": false,
+    "reason": "法規定義與飛航範圍限制，屬文字敘述型規則記憶題，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "93": {
+    "index": 93,
+    "need_image": false,
+    "reason": "純行政程序題（飛航任務申請時程），閱讀選項即可直接作答。",
+    "image_prompt": ""
+  },
+  "94": {
+    "index": 94,
+    "need_image": false,
+    "reason": "延伸視距飛航之定義辨非題，屬法規條文記憶，文字敘述已足夠清楚。",
+    "image_prompt": ""
+  },
+  "95": {
+    "index": 95,
+    "need_image": true,
+    "reason": "延伸視距最大範圍涉及以操作人為中心的水平半徑與垂直高度的空間關係，示意圖能大幅幫助考生建立正確的三維空間概念。",
+    "image_prompt": "Flat educational diagram on white background. Top view circle showing drone operator at center, radius 900m labeled '半徑900公尺'. Side view shows altitude limit below 400ft labeled '相對地面高度低於400呎'. Labels in Traditional Chinese. Clean, print-ready style."
+  },
+  "96": {
+    "index": 96,
+    "need_image": false,
+    "reason": "純數值記憶題（重量門檻250公克），閱讀文字即可作答。",
+    "image_prompt": ""
+  },
+  "97": {
+    "index": 97,
+    "need_image": false,
+    "reason": "純行政程序與期限數值記憶題，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "98": {
+    "index": 98,
+    "need_image": false,
+    "reason": "純數值記憶題（註冊號碼有效年限），閱讀文字即可作答。",
+    "image_prompt": ""
+  },
+  "99": {
+    "index": 99,
+    "need_image": false,
+    "reason": "純數值記憶題（重量門檻與設備規定），閱讀文字即可作答。",
+    "image_prompt": ""
+  },
+  "100": {
+    "index": 100,
+    "need_image": false,
+    "reason": "純法規數值記憶題，閱讀文字即可直接作答，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "101": {
+    "index": 101,
+    "need_image": false,
+    "reason": "法規條文定義題，考重量級距與操作證對應關係，純文字即可判斷。",
+    "image_prompt": ""
+  },
+  "102": {
+    "index": 102,
+    "need_image": false,
+    "reason": "數值記憶題，考普通與專業操作證的重量界線，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "103": {
+    "index": 103,
+    "need_image": false,
+    "reason": "法規條文判斷題，考學習操作證規定內容，閱讀選項即可作答。",
+    "image_prompt": ""
+  },
+  "104": {
+    "index": 104,
+    "need_image": false,
+    "reason": "法規條文判斷題，考專業操作證規定內容，閱讀選項即可作答。",
+    "image_prompt": ""
+  },
+  "105": {
+    "index": 105,
+    "need_image": false,
+    "reason": "純法規時限數值記憶題，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "106": {
+    "index": 106,
+    "need_image": false,
+    "reason": "純法規數值記憶題，考酒精濃度上限，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "107": {
+    "index": 107,
+    "need_image": false,
+    "reason": "純法規數值記憶題，考最大飛行速度限制，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "108": {
+    "index": 108,
+    "need_image": false,
+    "reason": "純法規行政程序與時限記憶題，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "109": {
+    "index": 109,
+    "need_image": false,
+    "reason": "純法規行政程序與時限記憶題，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "110": {
+    "index": 110,
+    "need_image": false,
+    "reason": "純法規行政程序題，閱讀文字即可直接判斷答案，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "111": {
+    "index": 111,
+    "need_image": false,
+    "reason": "純法規條文題，詢問指揮調度權責單位，文字敘述即可作答。",
+    "image_prompt": ""
+  },
+  "112": {
+    "index": 112,
+    "need_image": false,
+    "reason": "數值記憶題（保存年限），屬純法規數字記憶，不需圖片。",
+    "image_prompt": ""
+  },
+  "113": {
+    "index": 113,
+    "need_image": false,
+    "reason": "純法規適用對象定義題，閱讀文字即可判斷，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "114": {
+    "index": 114,
+    "need_image": false,
+    "reason": "法規合規判斷題，核心概念（目視視線接觸規範）文字已充分說明，不需圖片。",
+    "image_prompt": ""
+  },
+  "115": {
+    "index": 115,
+    "need_image": false,
+    "reason": "法規高度限制數值記憶題，屬純規範條文，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "116": {
+    "index": 116,
+    "need_image": false,
+    "reason": "法規合規認知題，涉及活動許可與操作證申請程序，純文字即可判斷。",
+    "image_prompt": ""
+  },
+  "117": {
+    "index": 117,
+    "need_image": false,
+    "reason": "法規合規判斷題，詢問裝載危險物品之規定，純文字敘述即可作答。",
+    "image_prompt": ""
+  },
+  "118": {
+    "index": 118,
+    "need_image": false,
+    "reason": "操作認知概念題，考核操作人監視義務認知，文字表述清晰無需圖片輔助。",
+    "image_prompt": ""
+  },
+  "119": {
+    "index": 119,
+    "need_image": false,
+    "reason": "飛行安全觀念題，純文字即可理解操作人應有之正確態度，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "120": {
+    "index": 120,
+    "need_image": false,
+    "reason": "純法規情境題，考生閱讀文字即可判斷正確法規規定，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "121": {
+    "index": 121,
+    "need_image": false,
+    "reason": "純法規條文應用題，涉及限航區規定，文字描述已足夠判斷，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "122": {
+    "index": 122,
+    "need_image": false,
+    "reason": "純行政程序與資格認可規定題，閱讀文字即可直接作答。",
+    "image_prompt": ""
+  },
+  "123": {
+    "index": 123,
+    "need_image": false,
+    "reason": "法規數值記憶與行政規定題，文字敘述完整，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "124": {
+    "index": 124,
+    "need_image": false,
+    "reason": "純法規適用範圍定義題，室內/室外規範爭議可由文字直接判斷。",
+    "image_prompt": ""
+  },
+  "125": {
+    "index": 125,
+    "need_image": false,
+    "reason": "職業倫理與安全決策情境題，無需視覺概念輔助即可判斷。",
+    "image_prompt": ""
+  },
+  "126": {
+    "index": 126,
+    "need_image": false,
+    "reason": "純法規條文記憶題（無人機註冊門檻），數值記憶型，不需圖片。",
+    "image_prompt": ""
+  },
+  "127": {
+    "index": 127,
+    "need_image": false,
+    "reason": "法規行政規定題，考查註冊號碼標註位置規範，文字已足以判斷，無需示意圖。",
+    "image_prompt": ""
+  },
+  "128": {
+    "index": 128,
+    "need_image": false,
+    "reason": "純法規條文題，考查註冊號碼不得借用之規定，閱讀文字即可直接作答。",
+    "image_prompt": ""
+  },
+  "129": {
+    "index": 129,
+    "need_image": false,
+    "reason": "純行政申請程序題，考查改裝後型式檢驗規定，文字敘述已足夠，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "130": {
+    "index": 130,
+    "need_image": false,
+    "reason": "純法規情境題，考生閱讀文字即可判斷正確作為，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "131": {
+    "index": 131,
+    "need_image": false,
+    "reason": "純法規條文應用題，涉及距離數值記憶，閱讀文字即可直接選答，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "132": {
+    "index": 132,
+    "need_image": false,
+    "reason": "純法規行政程序題，考生依文字即可判斷正確認知，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "133": {
+    "index": 133,
+    "need_image": false,
+    "reason": "純法規申請程序題，閱讀選項文字即可直接判斷，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "134": {
+    "index": 134,
+    "need_image": false,
+    "reason": "純法規規範題，考查紀錄保存義務，閱讀文字即可選答，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "135": {
+    "index": 135,
+    "need_image": false,
+    "reason": "純法規通報程序及數值記憶題，閱讀文字即可判斷正確作為，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "136": {
+    "index": 136,
+    "need_image": false,
+    "reason": "純法規申請許可及資格審查題，閱讀文字即可直接選答，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "137": {
+    "index": 137,
+    "need_image": false,
+    "reason": "純法規申請許可程序題，閱讀文字即可判斷正確認知，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "138": {
+    "index": 138,
+    "need_image": false,
+    "reason": "純法規日落飛航限制題，數值記憶型，閱讀文字即可選答，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "139": {
+    "index": 139,
+    "need_image": false,
+    "reason": "純數值判讀題，各暮光時間已列於題目文字中，考生直接比對即可選答，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "140": {
+    "index": 140,
+    "need_image": false,
+    "reason": "純法規概念題，閱讀選項文字即可判斷，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "141": {
+    "index": 141,
+    "need_image": false,
+    "reason": "純法規責任條文題，考生閱讀文字即可直接作答，圖片無助益。",
+    "image_prompt": ""
+  },
+  "142": {
+    "index": 142,
+    "need_image": false,
+    "reason": "純行政程序與法規遵循題，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "143": {
+    "index": 143,
+    "need_image": false,
+    "reason": "涉及註冊號碼與檢驗合格證之行政處置程序，純文字法規題，不需圖片。",
+    "image_prompt": ""
+  },
+  "144": {
+    "index": 144,
+    "need_image": false,
+    "reason": "行政申請程序與多機關核准流程，純文字敘述即可理解，不需圖片。",
+    "image_prompt": ""
+  },
+  "145": {
+    "index": 145,
+    "need_image": false,
+    "reason": "數值記憶型距離限制題，雖提及空間距離但答案直接由數字判斷，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "146": {
+    "index": 146,
+    "need_image": false,
+    "reason": "系統組成定義題，列舉次系統名稱，純文字即可理解，不需圖片。",
+    "image_prompt": ""
+  },
+  "147": {
+    "index": 147,
+    "need_image": true,
+    "reason": "題目涉及無人機系統飛行載具的組成結構，示意圖能清楚呈現機體、電池、負載設備與酬載之層次關係，有助考生建立正確架構概念。",
+    "image_prompt": "White background, flat educational diagram of a drone (UAV) flight vehicle system composition. Show labeled components in Traditional Chinese: 機體 (airframe), 燃料或電池 (fuel/battery), 負載設備 (payload equipment), 酬載 (payload). Use arrows or brackets to group components clearly. Clean, print-ready illustration style."
+  },
+  "148": {
+    "index": 148,
+    "need_image": false,
+    "reason": "地面控制站硬體設備為列舉定義題，純文字即可作答，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "149": {
+    "index": 149,
+    "need_image": true,
+    "reason": "題目涉及固定翼無人機三種起飛方式（火箭助推、彈射軌道、人力拋擲），各方式具有不同物理動作與空間關係，示意圖能幫助考生直觀區分。",
+    "image_prompt": "White background, flat educational diagram showing three fixed-wing UAV launch methods side by side, labeled in Traditional Chinese: 火箭助推 (rocket-assisted takeoff), 彈射軌道發射 (catapult rail launch), 人力拋擲 (hand launch). Each method illustrated with simple aircraft silhouette and motion arrows. Clean, print-ready style."
+  },
+  "150": {
+    "index": 150,
+    "need_image": true,
+    "reason": "攔截網、纜線勾鎖、降落傘三種降落方式涉及不同的物理機制與空間配置，圖示能幫助考生清楚區分各方式的運作樣態。",
+    "image_prompt": "Educational diagram on white background showing three UAV landing methods side by side: (1) net capture system labeled '攔截網' with drone flying into a stretched net, (2) cable hook-lock system labeled '纜線勾鎖' with drone catching a horizontal cable, (3) parachute landing labeled '降落傘' with drone descending under an open parachute. Flat instructional illustration style, Traditional Chinese labels, print-ready."
+  },
+  "151": {
+    "index": 151,
+    "need_image": false,
+    "reason": "純概念題，詢問人為因素的重要性，閱讀文字即可直接選出答案，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "152": {
+    "index": 152,
+    "need_image": true,
+    "reason": "飛控系統由感測器、機載計算機、伺服器組成，以架構方塊圖呈現各元件關係能大幅幫助考生理解整體結構。",
+    "image_prompt": "Educational block diagram on white background showing a complete UAV flight control system. Three labeled blocks: '感測器'（input）, '機載計算機'（processing）, '伺服器'（output）, connected by arrows showing data flow. Flat instructional style, Traditional Chinese labels, print-ready."
+  },
+  "153": {
+    "index": 153,
+    "need_image": false,
+    "reason": "列舉飛控系統功能的概念題，純文字描述即可理解，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "154": {
+    "index": 154,
+    "need_image": false,
+    "reason": "考查感測器作為輸入裝置的定義性知識，屬定義辨識題，文字即可判斷，不需圖片。",
+    "image_prompt": ""
+  },
+  "155": {
+    "index": 155,
+    "need_image": false,
+    "reason": "列舉導航系統提供資訊種類，純記憶概念題，閱讀選項即可直接作答。",
+    "image_prompt": ""
+  },
+  "156": {
+    "index": 156,
+    "need_image": true,
+    "reason": "GPS（非自主）與慣性導航（自主）兩種導航系統的原理與訊號來源不同，示意圖能清楚呈現兩者運作差異。",
+    "image_prompt": "Educational side-by-side diagram on white background comparing two UAV navigation systems. Left: '非自主導航（GPS）' showing a drone receiving signals from satellites. Right: '自主導航（慣性導航）' showing a drone with internal IMU sensor and motion arrows. Flat instructional style, Traditional Chinese labels, print-ready."
+  },
+  "157": {
+    "index": 157,
+    "need_image": false,
+    "reason": "考查GPS導航缺點（易受干擾），屬單一知識點記憶題，文字描述已足夠，不需圖片。",
+    "image_prompt": ""
+  },
+  "158": {
+    "index": 158,
+    "need_image": false,
+    "reason": "考查慣性導航缺點（誤差積累），屬單一知識點記憶題，文字描述已足夠，不需圖片。",
+    "image_prompt": ""
+  },
+  "159": {
+    "index": 159,
+    "need_image": false,
+    "reason": "詢問無人機未來發展方向，屬概念記憶題，純文字即可理解與作答。",
+    "image_prompt": ""
+  },
+  "160": {
+    "index": 160,
+    "need_image": false,
+    "reason": "純概念列舉題，閱讀選項即可判斷，圖片對理解幫助有限。",
+    "image_prompt": ""
+  },
+  "161": {
+    "index": 161,
+    "need_image": false,
+    "reason": "純概念方向題，屬於知識記憶，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "162": {
+    "index": 162,
+    "need_image": false,
+    "reason": "列舉能量來源種類，屬純知識記憶題，文字即可理解。",
+    "image_prompt": ""
+  },
+  "163": {
+    "index": 163,
+    "need_image": false,
+    "reason": "系統功能定義題，閱讀文字即可直接對應答案。",
+    "image_prompt": ""
+  },
+  "164": {
+    "index": 164,
+    "need_image": false,
+    "reason": "純技術術語辨別題，屬定義/概念記憶，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "165": {
+    "index": 165,
+    "need_image": false,
+    "reason": "傳輸形態分類題，屬純知識記憶，文字描述已足夠清楚。",
+    "image_prompt": ""
+  },
+  "166": {
+    "index": 166,
+    "need_image": false,
+    "reason": "通訊技術發展方向題，純概念列舉，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "167": {
+    "index": 167,
+    "need_image": false,
+    "reason": "純概念邏輯推理題，閱讀題目即可直接作答，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "168": {
+    "index": 168,
+    "need_image": true,
+    "reason": "「空氣反作用力使航空器飛行」涉及物理機制與力的方向，示意圖能幫助考生理解升力來源與反作用力概念。",
+    "image_prompt": "White background, flat educational diagram showing an aircraft wing cross-section with airflow arrows illustrating lift as reaction force (反作用力) against air, labels in Traditional Chinese: 升力、反作用力、氣流方向. Physics-accurate, print-ready, simple style."
+  },
+  "169": {
+    "index": 169,
+    "need_image": false,
+    "reason": "題目說明無人機比空氣重需要能量飛行，屬概念記憶題，文字已足夠表達，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "170": {
+    "index": 170,
+    "need_image": false,
+    "reason": "題目問的是升力的概念定義，文字描述已足夠，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "171": {
+    "index": 171,
+    "need_image": false,
+    "reason": "題目為不同無人機種類特性的文字描述比較，閱讀選項即可判斷，不需圖片。",
+    "image_prompt": ""
+  },
+  "172": {
+    "index": 172,
+    "need_image": false,
+    "reason": "題目為遙控無人飛機需要跑道長度的純知識記憶題，文字即可理解。",
+    "image_prompt": ""
+  },
+  "173": {
+    "index": 173,
+    "need_image": false,
+    "reason": "題目為無人直昇機定義描述題，文字已清楚說明旋翼功能，不需圖片。",
+    "image_prompt": ""
+  },
+  "174": {
+    "index": 174,
+    "need_image": false,
+    "reason": "題目列舉無人直昇機可執行動作，純知識記憶，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "175": {
+    "index": 175,
+    "need_image": true,
+    "reason": "題目涉及多旋翼機透過三個以上垂直旋翼協調控制姿態的空間機制，示意圖能清楚呈現旋翼配置與力矩關係。",
+    "image_prompt": "White background, flat educational diagram of a multirotor UAV (top view), showing 4+ vertical rotors with rotation direction arrows, lift force arrows pointing upward, labeled in Traditional Chinese: 旋翼、升力、旋轉方向、機體中心. Clean, print-ready style."
+  },
+  "176": {
+    "index": 176,
+    "need_image": false,
+    "reason": "題目為操控桿力與飛機方向速度關係的概念題，純文字描述即可理解，不需圖片。",
+    "image_prompt": ""
+  },
+  "177": {
+    "index": 177,
+    "need_image": false,
+    "reason": "牛頓慣性定律為純物理概念定義題，文字描述已足夠，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "178": {
+    "index": 178,
+    "need_image": false,
+    "reason": "牛頓慣性定律應用於直線飛行的概念題，純文字即可理解，不需圖片。",
+    "image_prompt": ""
+  },
+  "179": {
+    "index": 179,
+    "need_image": true,
+    "reason": "題目涉及頂風飛行時空速與地面速度的向量關係，示意圖能清楚呈現風速、空速、地速三者的空間加減關係。",
+    "image_prompt": "White background, flat educational vector diagram showing an UAV flying into headwind. Three horizontal arrows labeled in Traditional Chinese: 空速（飛機→右）、風速（←左）、地面速度（結果向量，較短→右）. Clean, print-ready style with clear arrowheads and measurements."
+  },
+  "180": {
+    "index": 180,
+    "need_image": false,
+    "reason": "題目描述風向對航向的影響，屬於概念理解題，閱讀文字即可判斷答案，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "181": {
+    "index": 181,
+    "need_image": false,
+    "reason": "題目描述牛頓第三定律的作用力與反作用力概念，為定義/原理記憶題，文字已足夠清晰。",
+    "image_prompt": ""
+  },
+  "182": {
+    "index": 182,
+    "need_image": true,
+    "reason": "題目涉及飛行中升力、推力、阻力、重力四力交互作用的空間關係，示意圖能清楚呈現各力方向。",
+    "image_prompt": "White background, flat educational diagram of a drone in level flight showing four forces with arrows: 升力 (upward), 重力 (downward), 推力 (forward), 阻力 (backward). Labels in Traditional Chinese, clean print style, physically accurate."
+  },
+  "183": {
+    "index": 183,
+    "need_image": false,
+    "reason": "題目詢問推力由哪個組件提供，為零件定義記憶題，閱讀選項即可作答。",
+    "image_prompt": ""
+  },
+  "184": {
+    "index": 184,
+    "need_image": false,
+    "reason": "題目詢問阻力由何項目產生，為概念定義題，文字描述已足夠，不需圖片輔助。",
+    "image_prompt": ""
+  },
+  "185": {
+    "index": 185,
+    "need_image": false,
+    "reason": "題目詢問升力由哪個項目提供，為零件定義記憶題，閱讀選項即可作答。",
+    "image_prompt": ""
+  },
+  "186": {
+    "index": 186,
+    "need_image": false,
+    "reason": "題目詢問重力由何產生，為純定義題，文字即可直接判斷答案。",
+    "image_prompt": ""
+  },
+  "187": {
+    "index": 187,
+    "need_image": true,
+    "reason": "題目涉及縱軸(X軸)、橫軸(Y軸)、垂直軸(Z軸)三維座標系與力的方向關係，示意圖能大幅降低空間理解難度。",
+    "image_prompt": "White background, flat educational diagram of an aircraft in straight level flight with a 3D axis system: 縱軸X軸 (longitudinal), 橫軸Y軸 (lateral), 垂直軸Z軸 (vertical). Show 推力 and 阻力 arrows along X-axis equal and opposite. Labels in Traditional Chinese, clean print style."
+  },
+  "188": {
+    "index": 188,
+    "need_image": true,
+    "reason": "題目涉及垂直軸(Z軸)升力與重力的方向平衡及三軸座標空間關係，示意圖有助考生建立正確的空間力學概念。",
+    "image_prompt": "White background, flat educational diagram of an aircraft in level flight with a 3D axis system: 縱軸X軸, 橫軸Y軸, 垂直軸Z軸. Show 升力 and 重力 arrows along Z-axis equal and opposite, aircraft maintaining altitude. Labels in Traditional Chinese, clean print style."
+  },
+  "189": {
+    "index": 189,
+    "need_image": true,
+    "reason": "連續性定理涉及管道截面積與流速的物理關係，截面變化導致流速變化的示意圖能直觀呈現此空間機制。",
+    "image_prompt": "White background, flat educational diagram illustrating the continuity theorem: a horizontal pipe narrowing in the middle, arrows showing 流速 increasing where 管道切面 decreases. Labels 寬管(低流速) and 窄管(高流速) in Traditional Chinese, clean print style, physically accurate."
+  },
+  "190": {
+    "index": 190,
+    "need_image": false,
+    "reason": "題目考查連續性定理的概念關係，閱讀文字即可直接判斷，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "191": {
+    "index": 191,
+    "need_image": true,
+    "reason": "柏努利定律涉及流速與壓力的空間對應關係，示意圖能直觀呈現管道截面流速與壓力變化，大幅降低理解難度。",
+    "image_prompt": "White background, flat educational diagram of Bernoulli's principle: a horizontal pipe narrowing in the middle, arrows showing faster airflow (標註：流速大) in narrow section with lower pressure (標註：壓力小), slower airflow (標註：流速小) in wide section with higher pressure (標註：壓力大), Traditional Chinese labels, print-ready."
+  },
+  "192": {
+    "index": 192,
+    "need_image": false,
+    "reason": "題目直接詢問柏努利定律描述哪兩個項目的關係，屬於定義記憶題，不需圖片輔助。",
+    "image_prompt": ""
+  },
+  "193": {
+    "index": 193,
+    "need_image": false,
+    "reason": "題目考查柏努利定律中流速與壓力的單一對應關係，文字敘述清晰，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "194": {
+    "index": 194,
+    "need_image": false,
+    "reason": "題目詢問機翼或旋翼產生哪種外力，屬於概念定義題，閱讀文字即可作答。",
+    "image_prompt": ""
+  },
+  "195": {
+    "index": 195,
+    "need_image": true,
+    "reason": "機翼上下表面的壓力差涉及空間結構與氣流分布，示意圖能清楚呈現上下表面流速差異與壓力差的形成機制。",
+    "image_prompt": "White background, flat educational cross-section diagram of an airfoil: air flowing faster over curved upper surface (標註：上表面流速快、壓力小), slower under flat lower surface (標註：下表面流速慢、壓力大), upward arrow indicating lift (標註：升力), Traditional Chinese labels, print-ready."
+  },
+  "196": {
+    "index": 196,
+    "need_image": true,
+    "reason": "「垂直於相對氣流方向的壓力差」涉及方向性空間概念，示意圖能清楚標示氣流方向、壓力差方向與升力方向的幾何關係。",
+    "image_prompt": "White background, flat educational diagram of an airfoil cross-section: horizontal arrow showing relative airflow (標註：相對氣流), pressure difference arrows perpendicular to airflow direction on upper and lower surfaces (標註：壓力差), resultant upward arrow (標註：升力), Traditional Chinese labels, print-ready."
+  },
+  "197": {
+    "index": 197,
+    "need_image": true,
+    "reason": "螺旋槳推力的產生涉及攻角設計與轉速的物理機制，示意圖能直觀呈現槳葉攻角與氣流推力的關係。",
+    "image_prompt": "White background, flat educational diagram of a propeller blade cross-section: blade with attack angle (標註：攻角), arrows showing incoming airflow (標註：來流), generated thrust direction arrow (標註：推力), rotational direction indicated, Traditional Chinese labels, print-ready."
+  },
+  "198": {
+    "index": 198,
+    "need_image": false,
+    "reason": "題目考查轉速的單位表示方式，屬於數值定義記憶題，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "199": {
+    "index": 199,
+    "need_image": true,
+    "reason": "槳葉不同位置的攻角分布涉及空間結構，示意圖能直觀呈現根部、中段、葉尖的攻角大小差異。",
+    "image_prompt": "White background, flat educational diagram of a propeller blade from root to tip: three cross-sections at root (標註：根部，攻角最大), mid-span (標註：中段), and tip (標註：葉尖，攻角最小), each showing pitch angle with chord line and airflow arrow, Traditional Chinese labels, print-ready."
+  },
+  "200": {
+    "index": 200,
+    "need_image": false,
+    "reason": "題目詢問螺旋槳設計依據的特性參數（轉速與空速），屬於概念記憶題，閱讀文字即可作答。",
+    "image_prompt": ""
+  },
+  "201": {
+    "index": 201,
+    "need_image": false,
+    "reason": "題目詢問飛行中存在哪種外力，屬於定義/概念選擇題，文字即可判斷。",
+    "image_prompt": ""
+  },
+  "202": {
+    "index": 202,
+    "need_image": true,
+    "reason": "題目涉及飛機四個飛行力（升力、阻力、重力、推力）的方向關係，示意圖可清楚呈現各力方向，有助理解「與運動方向相反」的空間概念。",
+    "image_prompt": "Flat educational diagram on white background showing an aircraft in level flight with four labeled force arrows: 升力 (upward), 重力 (downward), 推力 (forward), 阻力 (backward, highlighted in red). Traditional Chinese labels, clean print style, physically accurate."
+  },
+  "203": {
+    "index": 203,
+    "need_image": true,
+    "reason": "寄生阻力的三種分類（摩擦、形狀、干擾）屬於結構性知識，分類示意圖能幫助考生建立清晰的知識架構。",
+    "image_prompt": "Flat educational diagram on white background showing a hierarchy chart of 寄生阻力 branching into three types: 摩擦阻力, 形狀阻力, 干擾阻力, each with a small illustrative icon of an airfoil. Traditional Chinese labels, clean print style."
+  },
+  "204": {
+    "index": 204,
+    "need_image": true,
+    "reason": "震波阻力涉及高速飛行時氣流壓縮與激波產生的物理機制，圖示能直觀呈現激波位置，純文字難以建立正確畫面。",
+    "image_prompt": "Flat educational diagram on white background showing a high-speed aircraft with a visible shock wave (震波) forming at the nose and wings, labeled 震波阻力. Airflow lines compressed at shock front. Traditional Chinese labels, clean print style, physically accurate."
+  },
+  "205": {
+    "index": 205,
+    "need_image": false,
+    "reason": "題目詢問空氣產生摩擦力的主要物理特性（粘性），屬於單一概念記憶題，文字即可直接作答。",
+    "image_prompt": ""
+  },
+  "206": {
+    "index": 206,
+    "need_image": false,
+    "reason": "題目對摩擦阻力的定義已在題幹中完整描述，屬於定義對應題，無需圖片輔助。",
+    "image_prompt": ""
+  },
+  "207": {
+    "index": 207,
+    "need_image": false,
+    "reason": "題目詢問摩擦阻力大小的決定因素，列舉三項特性，屬於多因素記憶題，文字即可判斷。",
+    "image_prompt": ""
+  },
+  "208": {
+    "index": 208,
+    "need_image": false,
+    "reason": "題目為空氣粘性與摩擦阻力的正向關係，屬於簡單邏輯推理題，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "209": {
+    "index": 209,
+    "need_image": false,
+    "reason": "題目為表面粗糙度與摩擦阻力的正向關係，屬於簡單邏輯推理題，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "210": {
+    "index": 210,
+    "need_image": false,
+    "reason": "純概念因果關係題，文字已清楚說明表面積與摩擦阻力的正比關係，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "211": {
+    "index": 211,
+    "need_image": true,
+    "reason": "「前後壓力差形成阻力」涉及氣流繞物體流動的壓力分布空間概念，示意圖能幫助考生理解形狀阻力的成因。",
+    "image_prompt": "Flat educational diagram on white background showing airflow around a blunt body (side view). Arrows indicate high pressure zone at front and low pressure (wake) zone at rear. Label '高壓區' at front, '低壓區（尾流）' at rear, '形狀阻力' with arrow pointing left. Traditional Chinese labels, clean print style."
+  },
+  "212": {
+    "index": 212,
+    "need_image": false,
+    "reason": "題目以逆風行走的生活情境直接說明形狀阻力，閱讀文字即可理解，不需圖片輔助。",
+    "image_prompt": ""
+  },
+  "213": {
+    "index": 213,
+    "need_image": true,
+    "reason": "機身與尾翼接合部位的氣流交互干擾是空間結構概念，示意圖能清楚標示干擾阻力的發生位置。",
+    "image_prompt": "Flat educational side-view diagram of a fixed-wing UAV on white background. Highlight the junction between fuselage and tail with swirling airflow arrows indicating interference. Label '機身與尾翼接合處' and '干擾阻力' with an arrow. Traditional Chinese labels, clean print style."
+  },
+  "214": {
+    "index": 214,
+    "need_image": true,
+    "reason": "翼尖渦流與誘導阻力的形成是三維空間動態概念，示意圖能幫助考生建立渦流產生阻力的正確畫面。",
+    "image_prompt": "Flat educational rear-view diagram of a UAV wing on white background. Show lift force arrow pointing upward, wingtip vortices as swirling arrows at both wing tips, and an induced drag arrow pointing rearward. Label '升力', '翼尖渦流', '誘導阻力'. Traditional Chinese labels, clean print style."
+  },
+  "215": {
+    "index": 215,
+    "need_image": false,
+    "reason": "定義記憶題，考生只需記住誘導阻力與升力的對應關係，文字已充分表達，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "216": {
+    "index": 216,
+    "need_image": false,
+    "reason": "定義題，直接說明干擾阻力的成因是「氣流相互干擾」，閱讀選項即可作答，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "217": {
+    "index": 217,
+    "need_image": false,
+    "reason": "列舉題，考生只需記憶干擾阻力發生的組件組合，純文字即可判斷，不需圖片。",
+    "image_prompt": ""
+  },
+  "218": {
+    "index": 218,
+    "need_image": false,
+    "reason": "純定義題，重力等於質量受地心引力作用，閱讀文字直接可答，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "219": {
+    "index": 219,
+    "need_image": false,
+    "reason": "純概念應用題，考查輕質材料與重力的關係，文字敘述清晰，不需圖片輔助。",
+    "image_prompt": ""
+  },
+  "220": {
+    "index": 220,
+    "need_image": false,
+    "reason": "題目考的是升力與阻力產生機制的概念選擇，閱讀文字即可判斷，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "221": {
+    "index": 221,
+    "need_image": false,
+    "reason": "題目列舉影響升力與阻力的因素，屬於知識點羅列，純文字即可理解。",
+    "image_prompt": ""
+  },
+  "222": {
+    "index": 222,
+    "need_image": true,
+    "reason": "攻角定義涉及相對氣流方向與翼弦夾角的空間關係，示意圖能清楚標示兩條線及夾角，大幅降低理解難度。",
+    "image_prompt": "Flat educational diagram on white background showing an airfoil cross-section in side view. Draw the chord line and the relative airflow direction arrow, mark the angle between them with a clear arc labeled '攻角（迎角）' in Traditional Chinese. Add labels '翼弦' and '相對氣流方向'. Clean, print-ready style."
+  },
+  "223": {
+    "index": 223,
+    "need_image": true,
+    "reason": "臨界攻角是升力曲線的特定轉折點，搭配攻角-升力關係示意圖能直觀呈現「最大升力點」概念。",
+    "image_prompt": "Flat educational diagram on white background showing a lift coefficient vs. angle-of-attack curve. Mark the peak point as '臨界攻角（最大升力攻角）' in Traditional Chinese with a dashed vertical line. X-axis labeled '攻角', Y-axis labeled '升力係數'. Clean, print-ready teaching chart style."
+  },
+  "224": {
+    "index": 224,
+    "need_image": false,
+    "reason": "題目直接說明小於臨界攻角時增大攻角的結果，文字敘述清晰，不需圖片輔助。",
+    "image_prompt": ""
+  },
+  "225": {
+    "index": 225,
+    "need_image": false,
+    "reason": "題目考查空氣密度與氣流速度對升力阻力影響的定性關係，屬於數值/趨勢記憶題，不需圖片。",
+    "image_prompt": ""
+  },
+  "226": {
+    "index": 226,
+    "need_image": false,
+    "reason": "題目考查機翼面積與升力阻力的正比關係，屬於概念記憶題，文字足以理解。",
+    "image_prompt": ""
+  },
+  "227": {
+    "index": 227,
+    "need_image": false,
+    "reason": "題目直接考升力阻力與機翼面積的比例關係，是純數值/比例定義題，不需圖片。",
+    "image_prompt": ""
+  },
+  "228": {
+    "index": 228,
+    "need_image": false,
+    "reason": "題目考查機翼形狀影響的對象，選項明確，閱讀文字即可直接選答，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "229": {
+    "index": 229,
+    "need_image": true,
+    "reason": "題目涉及翼切面相對厚度、最大厚度位置、平面形狀、前緣翼縫等多項構造細節，示意圖能清楚標注各部位位置，降低理解難度。",
+    "image_prompt": "Flat educational diagram on white background with two parts: (1) airfoil cross-section side view labeling '相對厚度', '最大厚度位置', '前緣翼縫' in Traditional Chinese; (2) top-down wing planform view labeling '機翼平面形狀' and '襟翼位置'. Clean arrows and labels, print-ready teaching illustration style."
+  },
+  "230": {
+    "index": 230,
+    "need_image": false,
+    "reason": "純概念定義題，考生只需知道摩擦阻力與表面光滑度相關，文字即可直接判斷，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "231": {
+    "index": 231,
+    "need_image": false,
+    "reason": "純概念推理題，表面光滑與阻力大小的關係可直接由文字理解，無需圖示。",
+    "image_prompt": ""
+  },
+  "232": {
+    "index": 232,
+    "need_image": false,
+    "reason": "考的是記憶性列舉（機翼、機身、尾翼等），閱讀文字即可作答，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "233": {
+    "index": 233,
+    "need_image": false,
+    "reason": "機翼產生升力為基本定義，文字即可直接回答，無需圖示。",
+    "image_prompt": ""
+  },
+  "234": {
+    "index": 234,
+    "need_image": false,
+    "reason": "機翼穩定與操控功用屬概念記憶，選項差異明顯，文字即可判斷。",
+    "image_prompt": ""
+  },
+  "235": {
+    "index": 235,
+    "need_image": true,
+    "reason": "副翼與襟翼在機翼上的安裝位置屬空間構造概念，圖示能幫助考生建立正確的部件位置印象。",
+    "image_prompt": "Technical diagram of a fixed-wing UAV wing on white background, flat illustration style. Label in Traditional Chinese: 副翼 (aileron) near wingtip, 襟翼 (flap) near wing root, arrows indicating their positions. Clear, print-ready."
+  },
+  "236": {
+    "index": 236,
+    "need_image": true,
+    "reason": "副翼操縱產生滾轉的動態空間關係，圖示能清楚呈現左右副翼差動偏轉與飛機滾轉的對應關係，純文字難以建立畫面。",
+    "image_prompt": "Technical diagram on white background showing a fixed-wing UAV front view. Left aileron up, right aileron down, aircraft rolling to the left. Arrows indicate control surface deflection and roll direction. Labels in Traditional Chinese: 左副翼上偏、右副翼下偏、滾轉方向. Flat educational illustration style."
+  },
+  "237": {
+    "index": 237,
+    "need_image": false,
+    "reason": "列舉機翼可安裝的物件（發動機、起落架、外掛載），屬記憶性題目，文字即可判斷答案。",
+    "image_prompt": ""
+  },
+  "238": {
+    "index": 238,
+    "need_image": false,
+    "reason": "機身裝載功用的列舉題，純文字即可作答，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "239": {
+    "index": 239,
+    "need_image": true,
+    "reason": "水平尾翼與垂直尾翼的空間位置關係需視覺輔助，圖示能幫助考生區分兩者的方向與配置。",
+    "image_prompt": "Technical diagram of a fixed-wing UAV tail section on white background, flat illustration style, side and rear perspective. Label in Traditional Chinese: 水平尾翼 (horizontal stabilizer) and 垂直尾翼 (vertical stabilizer), with arrows pointing to each component. Clear, print-ready educational illustration."
+  },
+  "240": {
+    "index": 240,
+    "need_image": true,
+    "reason": "水平尾翼的構造（固定水平安定面＋可動升降舵）屬設備構造與空間關係，圖示能清楚標示兩者位置與可動/固定的差異。",
+    "image_prompt": "Technical diagram of an unmanned aircraft horizontal tail, white background, flat educational illustration style. Label in Traditional Chinese: 水平安定面 (fixed, grey shading) and 升降舵 (movable, highlighted with arrow showing rotation). Clear boundary between fixed and movable parts. Side and rear perspective views shown."
+  },
+  "241": {
+    "index": 241,
+    "need_image": true,
+    "reason": "垂直尾翼構造（固定垂直安定面＋可動方向舵）與上題類似，圖示能清楚呈現兩元件的位置與可動關係。",
+    "image_prompt": "Technical diagram of an unmanned aircraft vertical tail, white background, flat educational illustration style. Label in Traditional Chinese: 垂直安定面 (fixed, grey shading) and 方向舵 (movable, highlighted with rotation arrow). Rear/side view showing clear separation between fixed and movable surfaces."
+  },
+  "242": {
+    "index": 242,
+    "need_image": true,
+    "reason": "起落架由減震支柱與機輪組成，屬設備構造題，圖示能具體標示各零件名稱與位置。",
+    "image_prompt": "Technical diagram of unmanned aircraft landing gear, white background, flat educational illustration. Label in Traditional Chinese: 減震支柱 (shock strut, vertical component) and 機輪 (wheel, bottom). Clear arrows pointing to each part. Front view and side view shown side by side."
+  },
+  "243": {
+    "index": 243,
+    "need_image": false,
+    "reason": "題目詢問起落架在哪些時機支撐飛機，屬純文字描述的情境選擇題，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "244": {
+    "index": 244,
+    "need_image": false,
+    "reason": "題目詢問動力系統產生哪種力，屬概念定義題，讀題文字即可判斷答案，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "245": {
+    "index": 245,
+    "need_image": false,
+    "reason": "題目列舉各種動力系統類型，屬純知識記憶題，閱讀選項即可作答，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "246": {
+    "index": 246,
+    "need_image": false,
+    "reason": "題目詢問無人飛機通常不安裝哪種設備，屬純知識記憶與常識判斷題，不需圖片輔助。",
+    "image_prompt": ""
+  },
+  "247": {
+    "index": 247,
+    "need_image": false,
+    "reason": "題目詢問操控油門和操縱桿的目的，屬純概念理解題，選項文字明確，不需圖片。",
+    "image_prompt": ""
+  },
+  "248": {
+    "index": 248,
+    "need_image": true,
+    "reason": "航空器三軸（縱軸/橫軸/垂直軸）屬空間關係概念，三維軸向示意圖能大幅幫助考生建立正確的空間方位畫面。",
+    "image_prompt": "Educational 3D axis diagram of an aircraft, white background, flat semi-3D illustration style. Show aircraft outline with three labeled axes in Traditional Chinese: 縱軸X軸 (front-to-back, red arrow), 橫軸Y軸 (wing-tip to wing-tip, blue arrow), 垂直軸Z軸 (top-to-bottom, green arrow). Axes intersect at aircraft center of gravity."
+  },
+  "249": {
+    "index": 249,
+    "need_image": true,
+    "reason": "題目涉及副翼之外影響滾轉的操縱面，屬飛行動態與設備空間關係，圖示能標示方向舵對滾轉產生影響的機制（偏航耦合滾轉）。",
+    "image_prompt": "Educational aircraft control surface diagram, white background, flat illustration. Show rear view of aircraft with 副翼 (ailerons) and 方向舵 (rudder) labeled in Traditional Chinese. Use curved arrows to indicate rolling motion caused by rudder deflection (adverse yaw coupling to roll). Clear and simple."
+  },
+  "250": {
+    "index": 250,
+    "need_image": true,
+    "reason": "題目描述「上下兩面垂直地穿過航空器」的空間軸向概念，需示意圖幫助考生建立三軸空間方位的正確畫面。",
+    "image_prompt": "Educational diagram on white background showing a drone (multirotor) with three labeled axes: 縱軸 X軸 (longitudinal, front-back), 橫軸 Y軸 (lateral, left-right), and 垂直軸 Z軸 (vertical, up-down) passing through the aircraft center. Arrows indicate each axis direction. Flat technical illustration style, Traditional Chinese labels, suitable for printing."
+  },
+  "251": {
+    "index": 251,
+    "need_image": false,
+    "reason": "題目考查概念名詞選擇（平衡性、穩定性、操縱性），純文字即可理解，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "252": {
+    "index": 252,
+    "need_image": false,
+    "reason": "題目為平衡狀態的定義題，文字描述「速度大小和方向不變」已足夠，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "253": {
+    "index": 253,
+    "need_image": true,
+    "reason": "「擺動衰減時間、幅度、次數」涉及振盪衰減的動態過程，示意圖能清楚呈現衰減曲線幫助理解。",
+    "image_prompt": "Educational diagram on white background showing drone stability oscillation: a time-series graph with labeled axes (時間, 擺動幅度), depicting a damped oscillation curve. Annotations point to 擺動幅度, 衰減時間, and 擺動次數. Flat technical illustration style, Traditional Chinese labels, suitable for printing."
+  },
+  "254": {
+    "index": 254,
+    "need_image": false,
+    "reason": "題目為概念記憶題，「穩定性強→衰減快、幅度小、次數少」可直接由文字推理，無需圖片輔助。",
+    "image_prompt": ""
+  },
+  "255": {
+    "index": 255,
+    "need_image": false,
+    "reason": "題目考查穩定性影響因素，屬概念列舉題，純文字即可判斷，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "256": {
+    "index": 256,
+    "need_image": true,
+    "reason": "題目涉及升降舵、方向舵、副翼對應俯仰、方向、橫向三種運動的空間對應關係，需示意圖建立正確空間對應畫面。",
+    "image_prompt": "Educational diagram on white background showing a fixed-wing drone with three control surfaces labeled: 升降舵 (elevator) controlling 俯仰 (pitch), 方向舵 (rudder) controlling 偏航方向 (yaw), 副翼 (aileron) controlling 橫向滾轉 (roll). Curved arrows indicate each motion direction. Flat technical illustration style, Traditional Chinese labels, suitable for printing."
+  },
+  "257": {
+    "index": 257,
+    "need_image": false,
+    "reason": "題目考查操縱性好的表現，屬定義／概念選擇題，閱讀選項即可作答，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "258": {
+    "index": 258,
+    "need_image": false,
+    "reason": "題目考查四大基本動作的名稱記憶，純文字列舉即可判斷，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "259": {
+    "index": 259,
+    "need_image": true,
+    "reason": "「副翼右上左下」對應機體向右滾轉的空間關係，需示意圖呈現副翼偏轉方向與機體滾轉動作的對應關係。",
+    "image_prompt": "Educational diagram on white background showing a rear-view drone with right aileron deflected up and left aileron deflected down, labeled 右副翼上偏 and 左副翼下偏. A curved arrow around the fuselage indicates 右滾 (roll right). Flat technical illustration style, Traditional Chinese labels, suitable for printing."
+  },
+  "260": {
+    "index": 260,
+    "need_image": true,
+    "reason": "副翼「右下左上」與「左滾」的空間對應關係，需要示意圖才能清楚呈現翼面偏轉方向與機體滾轉軸的關係。",
+    "image_prompt": "Flat educational diagram on white background: front-view of a fixed-wing UAV showing aileron control 'right aileron down, left aileron up', aircraft rolling left around longitudinal axis. Arrows indicate aileron deflection directions and roll direction. Labels in Traditional Chinese: 右副翼下偏、左副翼上偏、左滾、縱軸. Physically accurate, print-ready."
+  },
+  "261": {
+    "index": 261,
+    "need_image": true,
+    "reason": "方向舵往右導致右偏航，需要俯視示意圖清楚呈現方向舵偏轉方向與機體偏航軸旋轉關係。",
+    "image_prompt": "Flat educational diagram on white background: top-view of a fixed-wing UAV showing rudder deflected to the right, aircraft yawing right around vertical axis. Arrows indicate rudder direction and yaw rotation. Labels in Traditional Chinese: 方向舵右偏、右偏航、垂直軸. Physically accurate, print-ready."
+  },
+  "262": {
+    "index": 262,
+    "need_image": true,
+    "reason": "方向舵往左導致左偏航，與index=261同類型空間關係題，俯視示意圖可降低混淆。",
+    "image_prompt": "Flat educational diagram on white background: top-view of a fixed-wing UAV showing rudder deflected to the left, aircraft yawing left around vertical axis. Arrows indicate rudder direction and yaw rotation. Labels in Traditional Chinese: 方向舵左偏、左偏航、垂直軸. Physically accurate, print-ready."
+  },
+  "263": {
+    "index": 263,
+    "need_image": false,
+    "reason": "題目考的是操作概念（以機體中心為基準思考方向），純文字閱讀即可理解與作答，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "264": {
+    "index": 264,
+    "need_image": false,
+    "reason": "主旋翼產生向上升力為基本定義性概念，文字敘述即可直接判斷，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "265": {
+    "index": 265,
+    "need_image": false,
+    "reason": "題目詢問類比概念（旋翼升力原理類似機翼/螺旋槳），屬概念比較題，文字閱讀可直接作答。",
+    "image_prompt": ""
+  },
+  "266": {
+    "index": 266,
+    "need_image": true,
+    "reason": "旋翼面保持水平時合力方向垂直向上，需要側視力向量示意圖才能清楚呈現旋轉面角度與合力方向的空間關係。",
+    "image_prompt": "Flat educational diagram on white background: side-view of a helicopter rotor disc held horizontal, with a bold upward vertical arrow representing total lift force perpendicular to the rotor plane. Labels in Traditional Chinese: 旋翼旋轉面（水平）、升力方向（垂直向上）. Physically accurate, print-ready."
+  },
+  "267": {
+    "index": 267,
+    "need_image": false,
+    "reason": "題目列舉起飛、爬升、懸停等動作，屬應用知識記憶題，文字敘述即可作答，不需圖片輔助。",
+    "image_prompt": ""
+  },
+  "268": {
+    "index": 268,
+    "need_image": true,
+    "reason": "升力與推力大於重力與阻力時的運動方向，需要四力向量示意圖才能正確呈現合力方向為垂直向上的空間關係。",
+    "image_prompt": "Flat educational diagram on white background: front-view of a UAV with four force arrows — lift (up, longer), thrust (forward, longer), gravity (down, shorter), drag (backward, shorter). Net resultant arrow pointing straight up. Labels in Traditional Chinese: 升力、推力、重力、阻力、合力方向（垂直向上）. Physically accurate, print-ready."
+  },
+  "269": {
+    "index": 269,
+    "need_image": true,
+    "reason": "槳葉俯仰角增大同時影響升力與扭力兩個物理量，需剖面示意圖呈現槳距角與氣動力變化的機制關係。",
+    "image_prompt": "Flat educational diagram on white background: cross-section of a helicopter rotor blade showing increased pitch angle (俯仰角), with arrows indicating greater lift force (升力) upward and greater torque (扭力) in rotation direction. Labels in Traditional Chinese: 槳葉剖面、俯仰角增大、升力增大、扭力增大. Physically accurate, print-ready."
+  },
+  "270": {
+    "index": 270,
+    "need_image": true,
+    "reason": "尾旋翼抵消主旋翼扭力的物理機制涉及旋轉力矩與空間方向，示意圖能清楚呈現扭力與反扭力的方向關係。",
+    "image_prompt": "Flat educational diagram on white background showing a helicopter top-down and rear view. Main rotor spinning direction shown with curved arrow, torque reaction arrow on fuselage, tail rotor thrust arrow canceling torque. Labels in Traditional Chinese: 主旋翼旋轉方向、機身扭力、尾旋翼推力、抵消扭力。Clean, print-ready illustration style."
+  },
+  "271": {
+    "index": 271,
+    "need_image": false,
+    "reason": "列舉基本飛行動作（平直飛行、轉彎、爬升下降），純文字即可理解，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "272": {
+    "index": 272,
+    "need_image": false,
+    "reason": "題目描述垂直起飛懸停定義，考生閱讀文字即可判斷「航向不變」，不需圖片輔助。",
+    "image_prompt": ""
+  },
+  "273": {
+    "index": 273,
+    "need_image": false,
+    "reason": "懸停轉彎的定義題，核心考點為「相對地面位置不變」，純文字即可理解選項差異。",
+    "image_prompt": ""
+  },
+  "274": {
+    "index": 274,
+    "need_image": false,
+    "reason": "懸停轉彎需保持高度、轉彎率、轉速不變，屬定義記憶題，文字描述充分。",
+    "image_prompt": ""
+  },
+  "275": {
+    "index": 275,
+    "need_image": false,
+    "reason": "向前懸停飛行的名稱定義題，閱讀選項即可直接作答，不需圖片。",
+    "image_prompt": ""
+  },
+  "276": {
+    "index": 276,
+    "need_image": false,
+    "reason": "向前懸停飛行需保持地面速度、高度、航向不變，屬定義記憶題，文字描述充分。",
+    "image_prompt": ""
+  },
+  "277": {
+    "index": 277,
+    "need_image": true,
+    "reason": "題目涉及無法向前飛行時改用側向或向後懸停飛行的情境判斷，示意圖可清楚呈現三種移動方向的空間關係，幫助考生區分應用場景。",
+    "image_prompt": "Flat educational top-down diagram on white background showing a helicopter in center with three directional arrows: forward (blocked with X mark), leftward and rightward (highlighted as alternative). Labels in Traditional Chinese: 向前飛行（受阻）、側向懸停飛行、向後懸停飛行。Clean, print-ready illustration style."
+  },
+  "278": {
+    "index": 278,
+    "need_image": false,
+    "reason": "側向懸停飛行需保持地面速度、高度、航向不變，屬定義記憶題，文字描述充分。",
+    "image_prompt": ""
+  },
+  "279": {
+    "index": 279,
+    "need_image": false,
+    "reason": "向後懸停飛行的應用情境為純文字邏輯判斷題，閱讀選項即可直接作答。",
+    "image_prompt": ""
+  },
+  "280": {
+    "index": 280,
+    "need_image": false,
+    "reason": "題目為飛行狀態定義題，閱讀文字即可理解「向後懸停飛行」保持地面速度、高度、航向不變，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "281": {
+    "index": 281,
+    "need_image": false,
+    "reason": "「平直飛行」為定義型題目，考生可直接從文字選項判斷高度與航向不變的組合，不需圖片輔助。",
+    "image_prompt": ""
+  },
+  "282": {
+    "index": 282,
+    "need_image": true,
+    "reason": "「傾斜轉彎」涉及機體傾斜姿態與高度、航向變化的空間關係，示意圖可清晰呈現向左/右傾斜但高度不變、航向改變的飛行軌跡。",
+    "image_prompt": "Educational flat diagram on white background showing a helicopter in banked turn: aircraft tilting left/right at constant altitude while changing heading, top-down and side-view comparison, curved flight path arrow, labeled in Traditional Chinese: 傾斜轉彎、高度不變、航向改變."
+  },
+  "283": {
+    "index": 283,
+    "need_image": true,
+    "reason": "「偏航」涉及尾旋翼推力方向與機頭航向改變的物理機制，示意圖可幫助考生理解尾旋翼如何帶動機身繞垂直軸旋轉。",
+    "image_prompt": "Educational flat diagram on white background showing a helicopter top-down view: tail rotor thrust arrow causing yaw rotation around vertical axis, nose direction changing left/right, labeled in Traditional Chinese: 尾旋翼推力、偏航、航向改變."
+  },
+  "284": {
+    "index": 284,
+    "need_image": false,
+    "reason": "題目詢問多旋翼機分類方式，為概念記憶題，文字選項已完整表達，無需圖片。",
+    "image_prompt": ""
+  },
+  "285": {
+    "index": 285,
+    "need_image": false,
+    "reason": "題目考查多旋翼機能垂直穩定執行的動作，為定義性知識，閱讀選項即可判斷，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "286": {
+    "index": 286,
+    "need_image": false,
+    "reason": "題目為比較優勢的記憶題，純文字描述能力特點，不涉及需要視覺呈現的空間或機制概念。",
+    "image_prompt": ""
+  },
+  "287": {
+    "index": 287,
+    "need_image": true,
+    "reason": "「對稱旋翼設計」涉及多旋翼機旋翼配置的空間分布，示意圖可直觀呈現對稱排列如何使操控簡單，純文字較難建立正確畫面。",
+    "image_prompt": "Educational flat diagram on white background showing top-down view of a quadrotor drone with symmetrical rotor layout, equal arms and rotor positions highlighted, compared to asymmetrical layout, labeled in Traditional Chinese: 對稱配置、操控簡單、非對稱配置."
+  },
+  "288": {
+    "index": 288,
+    "need_image": false,
+    "reason": "題目考查定距槳多旋翼機相較直昇機的優勢，為比較性概念記憶題，無需圖片輔助理解。",
+    "image_prompt": ""
+  },
+  "289": {
+    "index": 289,
+    "need_image": false,
+    "reason": "題目詢問多旋翼機對飛行操控影響，為概念判斷題，文字已足夠清晰表達，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "290": {
+    "index": 290,
+    "need_image": true,
+    "reason": "多旋翼機同時增減各旋翼升力產生垂直升降的機制，涉及多個旋翼的力學空間關係，示意圖能清楚呈現各旋翼均等出力的物理概念。",
+    "image_prompt": "A flat educational diagram on white background showing a top-down and side view of a quadcopter drone. All four rotors are marked with equal upward arrows indicating simultaneous equal thrust increase, resulting in vertical ascent. Labels in Traditional Chinese: 四旋翼均等增加升力, 垂直上升. Clean, print-ready style."
+  },
+  "291": {
+    "index": 291,
+    "need_image": false,
+    "reason": "題目詢問影響飛行性能與安全的因素，屬於概念選擇題，閱讀文字即可作答，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "292": {
+    "index": 292,
+    "need_image": false,
+    "reason": "屬於飛行前檢查項目的概念記憶題，純文字即可理解，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "293": {
+    "index": 293,
+    "need_image": false,
+    "reason": "題目列舉高海拔、高溫、高濕度等環境因素，屬於條列式概念記憶，文字表達已足夠清晰。",
+    "image_prompt": ""
+  },
+  "294": {
+    "index": 294,
+    "need_image": false,
+    "reason": "定義題，詢問重力著力點的名稱，閱讀選項即可直接判斷，不需圖片輔助。",
+    "image_prompt": ""
+  },
+  "295": {
+    "index": 295,
+    "need_image": false,
+    "reason": "題目詢問與穩定性關聯最大的項目，屬於概念選擇題，文字已足以作答。",
+    "image_prompt": ""
+  },
+  "296": {
+    "index": 296,
+    "need_image": true,
+    "reason": "重心位置超出允許範圍導致不穩定的概念，涉及空間位置與飛行姿態的物理關係，示意圖能直觀呈現重心偏移對飛行姿態的影響。",
+    "image_prompt": "A flat educational side-view diagram on white background showing three quadcopter drones: one with center of gravity (重心) within allowed range flying stable, one with CG shifted forward causing nose-down tilt, one with CG shifted backward causing tail-down tilt. Labels in Traditional Chinese: 重心正常, 重心前移, 重心後移, 允許範圍. Print-ready style."
+  },
+  "297": {
+    "index": 297,
+    "need_image": false,
+    "reason": "題目描述飛行時升力與重量的大小關係，屬於數值概念比較，文字描述已足以理解，不需圖片。",
+    "image_prompt": ""
+  },
+  "298": {
+    "index": 298,
+    "need_image": true,
+    "reason": "無人機轉彎時向心力與離心力的動態平衡涉及空間力學，示意圖能清楚呈現轉彎時各力的方向關係，幫助考生建立正確畫面。",
+    "image_prompt": "A flat educational top-down diagram on white background showing a drone making a circular turn. Arrows indicate centripetal force (向心力) pointing inward toward turn center and centrifugal force (離心力) pointing outward. Labels in Traditional Chinese: 轉彎方向, 向心力, 離心力, 飛行路徑. Clean, physics-accurate, print-ready style."
+  },
+  "299": {
+    "index": 299,
+    "need_image": true,
+    "reason": "轉彎時升力不足需增加攻角的補償機制，涉及飛行姿態角度與升力向量的空間關係，示意圖能有效呈現轉彎坡度與攻角增加的物理機制。",
+    "image_prompt": "A flat educational side-view and front-view diagram on white background showing a drone in a banked turn. Front view shows tilted drone with lift vector decomposed into vertical and horizontal components. Side view shows increased angle of attack (攻角增加) to compensate reduced vertical lift. Labels in Traditional Chinese: 升力, 水平分力, 垂直分力, 攻角增加, 轉彎補償. Print-ready style."
+  },
+  "300": {
+    "index": 300,
+    "need_image": true,
+    "reason": "重心靠前時尾翼力矩平衡的空間關係與力的方向，需示意圖才能清楚呈現俯仰平衡機制。",
+    "image_prompt": "Flat educational diagram on white background. Side view of a fixed-wing UAV with center of gravity (重心) marked forward (靠前). Show lift force arrow (升力↑) at wing, downward force arrow (向下升力↓) at tail, and pivot moment arrows illustrating pitch balance. Label: 重心、升力、尾翼向下升力、力矩平衡. Traditional Chinese labels, print-ready."
+  },
+  "301": {
+    "index": 301,
+    "need_image": false,
+    "reason": "題目文字已明確說明重心靠前導致機頭較重，閱讀文字即可判斷起飛困難，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "302": {
+    "index": 302,
+    "need_image": true,
+    "reason": "誘導阻力的產生機制涉及翼尖渦流與攻角的物理關係，需示意圖幫助考生建立正確的空氣動力畫面。",
+    "image_prompt": "Flat educational diagram on white background. Side view of a fixed-wing UAV with center of gravity (重心) shifted forward, showing increased angle of attack (攻角增大) and induced drag arrows (誘導阻力↑) at wingtip vortex region. Label: 重心靠前、攻角增大、誘導阻力增加. Traditional Chinese labels, print-ready."
+  },
+  "303": {
+    "index": 303,
+    "need_image": false,
+    "reason": "題目為重心靠前導致的油耗與航程結果，屬概念推論題，文字描述足以理解，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "304": {
+    "index": 304,
+    "need_image": false,
+    "reason": "題目考查重心靠前對進場風險的影響，屬純概念判斷題，閱讀文字即可作答。",
+    "image_prompt": ""
+  },
+  "305": {
+    "index": 305,
+    "need_image": true,
+    "reason": "重心後移導致起飛時提前仰轉涉及飛機姿態動態變化，需示意圖呈現仰轉時機與重心位置的空間關係。",
+    "image_prompt": "Flat educational diagram on white background. Side view sequence (left→right) of a fixed-wing UAV during takeoff roll: left shows normal rotation, right shows early nose-up rotation (提前仰轉) with center of gravity (重心) marked aft (靠後). Arrows indicate pitch-up moment. Label: 重心後移、提前仰轉、力矩. Traditional Chinese labels, print-ready."
+  },
+  "306": {
+    "index": 306,
+    "need_image": true,
+    "reason": "重心後移導致仰角過大、失速及機尾擦地涉及具體飛行姿態與危險情境，示意圖能清楚呈現機尾擦地的空間關係。",
+    "image_prompt": "Flat educational diagram on white background. Side view of a fixed-wing UAV during climbout with excessive nose-up attitude (仰角過大), center of gravity (重心) marked aft. Show tail-strike scenario (機尾擦地) with ground contact at tail, stall warning arrows near wing. Label: 重心後移、仰角過大、失速、機尾擦地. Traditional Chinese labels, print-ready."
+  },
+  "307": {
+    "index": 307,
+    "need_image": false,
+    "reason": "題目考查重心後移對油耗、續航與失速速度的綜合影響，屬知識記憶題，文字即可直接判斷。",
+    "image_prompt": ""
+  },
+  "308": {
+    "index": 308,
+    "need_image": true,
+    "reason": "無人直升機重心靠後影響高速前飛性能及穩定性，涉及旋翼傾斜角與機身姿態的空間關係，需示意圖輔助理解。",
+    "image_prompt": "Flat educational diagram on white background. Side view of a UAV helicopter in high-speed forward flight with center of gravity (重心) shifted aft. Show rotor disk tilt angle, nose-up pitch tendency arrow (機頭上仰), and instability indication. Label: 重心靠後、旋翼傾斜、高速前飛不穩定. Traditional Chinese labels, print-ready."
+  },
+  "309": {
+    "index": 309,
+    "need_image": false,
+    "reason": "多旋翼機重心移動導致操控困難屬概念判斷題，文字描述已足夠，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "310": {
+    "index": 310,
+    "need_image": false,
+    "reason": "題目考查重量與起飛速度的因果關係，屬於物理原理記憶題，文字描述足以理解，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "311": {
+    "index": 311,
+    "need_image": false,
+    "reason": "題目考查重量與滑行距離的因果關係，屬於物理原理記憶題，閱讀文字即可直接作答。",
+    "image_prompt": ""
+  },
+  "312": {
+    "index": 312,
+    "need_image": false,
+    "reason": "題目考查重量對爬升率與爬升角的影響，屬於概念記憶題，文字描述清晰足以理解，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "313": {
+    "index": 313,
+    "need_image": false,
+    "reason": "題目考查重量對最高飛航高度的影響，屬於物理原理記憶題，文字即可直接判斷，無需圖片。",
+    "image_prompt": ""
+  },
+  "314": {
+    "index": 314,
+    "need_image": false,
+    "reason": "題目考查重量對操作性能的影響，屬於概念記憶題，閱讀文字即可作答，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "315": {
+    "index": 315,
+    "need_image": false,
+    "reason": "題目考查重量對進場及降落速度的影響，屬於物理原理記憶題，文字描述足以理解。",
+    "image_prompt": ""
+  },
+  "316": {
+    "index": 316,
+    "need_image": false,
+    "reason": "題目考查重量對降落滾行距離的影響，屬於物理原理記憶題，文字即可直接作答，無需圖片。",
+    "image_prompt": ""
+  },
+  "317": {
+    "index": 317,
+    "need_image": false,
+    "reason": "題目考查飛行安全確認項目，屬於知識記憶與常識判斷題，閱讀選項即可作答，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "318": {
+    "index": 318,
+    "need_image": true,
+    "reason": "題目涉及多種發動機的類型與構造特性，圖示能幫助考生辨別往復式活塞發動機的外觀與結構，降低理解難度。",
+    "image_prompt": "Educational diagram on white background showing four UAV engine types side by side: 往復式（活塞）發動機, 無刷電動馬達, 渦輪螺旋槳發動機, 渦輪發動機. Each with a simple cross-section illustration and Traditional Chinese label. Flat instructional style, print-ready."
+  },
+  "319": {
+    "index": 319,
+    "need_image": false,
+    "reason": "題目考查渦輪發動機的特性（高推重比、壽命短），屬於定義記憶題，文字描述已足夠清晰，無需圖片輔助。",
+    "image_prompt": ""
+  },
+  "320": {
+    "index": 320,
+    "need_image": false,
+    "reason": "純粹是發動機種類與機型的對應知識，閱讀文字即可判斷，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "321": {
+    "index": 321,
+    "need_image": false,
+    "reason": "純粹是發動機種類與機型的對應知識，閱讀文字即可判斷，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "322": {
+    "index": 322,
+    "need_image": false,
+    "reason": "屬於趨勢判斷的知識性題目，文字描述已清楚，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "323": {
+    "index": 323,
+    "need_image": false,
+    "reason": "純粹是頻段數值記憶題，閱讀選項即可直接作答，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "324": {
+    "index": 324,
+    "need_image": true,
+    "reason": "上行／下行鏈路方向性概念涉及空間方向與訊號流向，示意圖能幫助考生建立正確的通訊架構畫面。",
+    "image_prompt": "White background, flat educational diagram showing drone communication links. Drone in the air on the left, ground controller on the right. Upward arrow from controller to drone labeled 繁體中文：上行控制鏈路 2.4GHz；downward arrow from drone to controller labeled 下行圖傳鏈路 5.8GHz. Clean, print-ready style."
+  },
+  "325": {
+    "index": 325,
+    "need_image": false,
+    "reason": "與 index=324 共用同一通訊架構概念，且本題文字描述已明確指向下行鏈路，不需額外圖片。",
+    "image_prompt": ""
+  },
+  "326": {
+    "index": 326,
+    "need_image": false,
+    "reason": "牛頓第一定律為純文字定義描述，閱讀選項即可判斷，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "327": {
+    "index": 327,
+    "need_image": false,
+    "reason": "牛頓第二定律為純文字定義描述，閱讀選項即可判斷，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "328": {
+    "index": 328,
+    "need_image": true,
+    "reason": "加速度與質量成反比的物理關係涉及量化比例概念，示意圖能直觀呈現同樣力作用於不同質量物體時加速度的差異。",
+    "image_prompt": "White background, flat educational diagram illustrating Newton's second law. Two scenarios side by side: left shows small mass block with large acceleration arrow under force F; right shows large mass block with small acceleration arrow under same force F. Labels in Traditional Chinese: 質量小／加速度大, 質量大／加速度小, 公式 a = F/m. Print-ready style."
+  },
+  "329": {
+    "index": 329,
+    "need_image": false,
+    "reason": "加速度與力成正比為純數值比例關係，文字敘述已足夠清楚，且與前題圖片概念重疊，不需額外圖片。",
+    "image_prompt": ""
+  },
+  "330": {
+    "index": 330,
+    "need_image": false,
+    "reason": "純定義題，考生只需記憶牛頓三大定律名稱，文字描述已足夠。",
+    "image_prompt": ""
+  },
+  "331": {
+    "index": 331,
+    "need_image": false,
+    "reason": "考的是理論名稱的選擇，屬於概念記憶題，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "332": {
+    "index": 332,
+    "need_image": true,
+    "reason": "流體連續性涉及截面積與流量的空間關係，示意圖能直觀呈現流入/流出截面與質量守恆的對應關係。",
+    "image_prompt": "Flat educational diagram on white background showing fluid continuity principle: a horizontal pipe narrowing in the middle, arrows indicating fluid flow direction, cross-section areas labeled 截面A1 and 截面A2, mass flow labels 質量流量相等, Traditional Chinese annotations, print-ready style."
+  },
+  "333": {
+    "index": 333,
+    "need_image": false,
+    "reason": "考的是牛頓第三定律的應用，屬定義與概念記憶，文字即可作答。",
+    "image_prompt": ""
+  },
+  "334": {
+    "index": 334,
+    "need_image": true,
+    "reason": "螺旋槳槳葉攻角分佈涉及物理機制與空間結構，示意圖可清楚呈現不同半徑處攻角一致導致效率低落的原因。",
+    "image_prompt": "Flat educational diagram on white background showing a propeller blade from side view, illustrating uniform attack angle along entire blade span with arrows at tip, middle, and root all at same angle, labels 槳葉根部、槳葉中段、槳葉尖端 and 攻角相同, annotation 效率變差, Traditional Chinese text, print-ready style."
+  },
+  "335": {
+    "index": 335,
+    "need_image": true,
+    "reason": "臨界攻角後升力與阻力的變化涉及翼型氣流分離的物理機制，升力曲線圖能大幅幫助理解。",
+    "image_prompt": "Flat educational diagram on white background showing airfoil stall: left side normal airflow attached to wing at angle, right side exceeded critical angle of attack with separated airflow and turbulence, arrows showing lift decrease and drag increase, labels 臨界攻角、升力減小、阻力急增、氣流分離, Traditional Chinese annotations, print-ready style."
+  },
+  "336": {
+    "index": 336,
+    "need_image": false,
+    "reason": "升力阻力與速度的數學關係屬於數值規律記憶，文字描述已足夠，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "337": {
+    "index": 337,
+    "need_image": true,
+    "reason": "襟翼放下對翼型形狀與升力的影響涉及構造變化與氣流關係，示意圖可直觀呈現翼型改變效果。",
+    "image_prompt": "Flat educational diagram on white background comparing two airfoil cross-sections side by side: left shows wing with flap retracted labeled 襟翼收起, right shows wing with flap extended downward labeled 襟翼放下, airflow arrows around each wing, labels showing 升力增大 on right side, Traditional Chinese annotations, print-ready style."
+  },
+  "338": {
+    "index": 338,
+    "need_image": true,
+    "reason": "尾翼控制俯仰與偏航涉及三軸飛行姿態的空間關係，示意圖能清楚標示水平尾翼與垂直尾翼各自對應的控制軸。",
+    "image_prompt": "Flat educational diagram on white background showing top and side view of a fixed-wing UAV, horizontal stabilizer and elevator labeled 水平尾翼（控制俯仰）, vertical stabilizer and rudder labeled 垂直尾翼（控制偏航）, curved arrows indicating pitch and yaw axes, Traditional Chinese annotations, print-ready style."
+  },
+  "339": {
+    "index": 339,
+    "need_image": true,
+    "reason": "副翼產生滾轉涉及左右機翼差動的空間動態，示意圖能直觀呈現副翼偏轉方向與滾轉姿態的對應關係。",
+    "image_prompt": "Flat educational diagram on white background showing front view of a fixed-wing UAV, left aileron deflected upward and right aileron deflected downward, curved arrow indicating left roll motion labeled 左滾轉, labels 左副翼上偏 and 右副翼下偏, Traditional Chinese annotations, print-ready style."
+  },
+  "340": {
+    "index": 340,
+    "need_image": true,
+    "reason": "題目涉及三維空間中航空器三軸的空間位置關係，純文字難以建立正確方位概念，圖示能立即釐清X/Y/Z軸方向。",
+    "image_prompt": "Flat educational diagram of an aircraft (fixed-wing) on white background showing three axes: 縱軸（X軸）along nose-to-tail, 橫軸（Y軸）passing left-to-right through wings, 垂直軸（Z軸）passing top-to-bottom. Each axis drawn as a colored arrow with Traditional Chinese label. Clean print style."
+  },
+  "341": {
+    "index": 341,
+    "need_image": true,
+    "reason": "升降舵控制俯仰姿態涉及機體動作方向與舵面關係，圖示能清楚呈現舵面位置與俯仰運動方向。",
+    "image_prompt": "Flat educational side-view diagram of a fixed-wing aircraft on white background. Highlight 升降舵 at the tail deflecting upward, with a curved arrow showing 俯仰 rotation around the 橫軸（Y軸）. Labels in Traditional Chinese. Clean print style."
+  },
+  "342": {
+    "index": 342,
+    "need_image": true,
+    "reason": "方向舵控制偏航涉及舵面位置與機體偏轉方向的空間關係，圖示能有效呈現偏航動作。",
+    "image_prompt": "Flat educational top-view diagram of a fixed-wing aircraft on white background. Highlight 方向舵 at the tail deflecting sideways, with a curved arrow showing 偏航 rotation around the 垂直軸（Z軸）. Labels in Traditional Chinese. Clean print style."
+  },
+  "343": {
+    "index": 343,
+    "need_image": false,
+    "reason": "平衡性定義題，閱讀文字即可直接判斷答案，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "344": {
+    "index": 344,
+    "need_image": false,
+    "reason": "穩定性定義題，文字描述完整清晰，無需視覺輔助即可理解並選出答案。",
+    "image_prompt": ""
+  },
+  "345": {
+    "index": 345,
+    "need_image": true,
+    "reason": "升降舵往上控制對應機體俯仰方向涉及舵面動作與機體反應的空間對應關係，圖示可消除方向混淆。",
+    "image_prompt": "Flat educational side-view diagram of a fixed-wing UAV on white background. Show 升降舵 deflecting upward at tail, with a curved arrow indicating 向上俯仰 (nose pitching up) around the center of gravity 機體中心. Labels in Traditional Chinese. Clean print style."
+  },
+  "346": {
+    "index": 346,
+    "need_image": true,
+    "reason": "升降舵往下控制對應機體向下俯仰，舵面方向與機體動作的空間對應關係需圖示輔助理解。",
+    "image_prompt": "Flat educational side-view diagram of a fixed-wing UAV on white background. Show 升降舵 deflecting downward at tail, with a curved arrow indicating 向下俯仰 (nose pitching down) around the center of gravity 機體中心. Labels in Traditional Chinese. Clean print style."
+  },
+  "347": {
+    "index": 347,
+    "need_image": true,
+    "reason": "直升機主旋翼逆時針旋轉產生扭矩使機身順時針旋轉，涉及物理反作用力方向，圖示能直觀呈現旋轉方向關係。",
+    "image_prompt": "Flat educational top-view diagram of a helicopter on white background. Show main rotor spinning counter-clockwise (逆時針) with label, and a curved arrow on the fuselage showing clockwise (順時針) rotation due to reaction torque 反扭力. Labels in Traditional Chinese. Clean print style."
+  },
+  "348": {
+    "index": 348,
+    "need_image": true,
+    "reason": "尾旋翼產生向右推力以抵銷扭力涉及力的方向與空間位置，圖示能清楚說明尾旋翼推力方向及抵銷扭力機制。",
+    "image_prompt": "Flat educational top-view diagram of a helicopter on white background. Show tail rotor at the rear generating a rightward 推力 arrow, counteracting the main rotor torque shown as a curved arrow on the fuselage. Labels 尾旋翼推力 and 反扭力 in Traditional Chinese. Clean print style."
+  },
+  "349": {
+    "index": 349,
+    "need_image": false,
+    "reason": "懸停定義題，文字描述直接明確，閱讀選項即可判斷，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "350": {
+    "index": 350,
+    "need_image": true,
+    "reason": "從懸停到起飛的飛行動態涉及高度、速度、姿態的空間轉換過程，示意圖能清楚呈現各階段飛行狀態。",
+    "image_prompt": "Educational diagram on white background showing helicopter transition from hover to normal takeoff: three stages labeled 懸停, 轉換爬升, 正常起飛, with arrows indicating altitude gain and forward speed, side-view flat illustration style, Traditional Chinese labels, print-ready."
+  },
+  "351": {
+    "index": 351,
+    "need_image": true,
+    "reason": "從地面到正常起飛涉及升力轉換與爬升的飛行動態過程，圖示能幫助考生理解有效轉換升力的空間概念。",
+    "image_prompt": "Educational diagram on white background showing helicopter ground takeoff sequence: three stages labeled 地面滑行, 有效轉換升力, 正常爬升, with lift and thrust vectors, side-view flat illustration style, Traditional Chinese labels, print-ready."
+  },
+  "352": {
+    "index": 352,
+    "need_image": true,
+    "reason": "多旋翼機正反旋轉與升力姿態調整涉及多個旋翼的空間配置與運作機制，圖示能清楚呈現旋翼方向與升力關係。",
+    "image_prompt": "Educational top-view diagram on white background of a quadcopter showing four rotors with rotation direction arrows (clockwise/counterclockwise) and lift arrows, labeled 升力 and 姿態調整, flat illustration style, Traditional Chinese labels, print-ready."
+  },
+  "353": {
+    "index": 353,
+    "need_image": true,
+    "reason": "旋翼反向旋轉抵消反作用力的力矩平衡機制屬於物理機制，圖示能直觀呈現力矩相消的概念。",
+    "image_prompt": "Educational top-view diagram on white background of a quadcopter showing four rotors with alternating clockwise and counterclockwise arrows, torque vectors labeled 力矩 canceling each other, total moment labeled 總力矩=0, flat illustration style, Traditional Chinese labels, print-ready."
+  },
+  "354": {
+    "index": 354,
+    "need_image": false,
+    "reason": "題目直接考螺旋槳種類定義，閱讀文字即可作答，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "355": {
+    "index": 355,
+    "need_image": true,
+    "reason": "前後旋翼升力不平衡實現俯仰姿態屬於空間動態機制，圖示能清楚呈現升力差異與機身俯仰的關係。",
+    "image_prompt": "Educational side-view diagram on white background of a quadcopter showing front and rear rotors with unequal lift arrows (前旋翼升力↓, 後旋翼升力↑), resulting in 俯仰姿態 pitch rotation arrow on fuselage, flat illustration style, Traditional Chinese labels, print-ready."
+  },
+  "356": {
+    "index": 356,
+    "need_image": true,
+    "reason": "斜對角兩對旋翼轉速改變實現偏航涉及空間配置關係，圖示能幫助考生理解對角旋翼組合與偏航方向的對應。",
+    "image_prompt": "Educational top-view diagram on white background of a quadcopter showing two diagonal rotor pairs highlighted, one pair speed up (轉速增加) and the other down (轉速減少), with yaw rotation arrow labeled 偏航, flat illustration style, Traditional Chinese labels, print-ready."
+  },
+  "357": {
+    "index": 357,
+    "need_image": true,
+    "reason": "橫向兩端旋翼升力不平衡實現滾轉屬於飛行動態空間機制，圖示能直觀呈現左右升力差與機身滾轉的關係。",
+    "image_prompt": "Educational front-view diagram on white background of a quadcopter showing left and right rotors with unequal lift arrows (左旋翼升力↑, 右旋翼升力↓), resulting in 滾轉姿態 roll rotation arrow on fuselage, flat illustration style, Traditional Chinese labels, print-ready."
+  },
+  "358": {
+    "index": 358,
+    "need_image": false,
+    "reason": "負載係數的定義為純數值比值定義題，閱讀文字即可直接判斷，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "359": {
+    "index": 359,
+    "need_image": false,
+    "reason": "題目考負載係數表達的概念屬於定義延伸題，文字描述已足夠，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "360": {
+    "index": 360,
+    "need_image": true,
+    "reason": "協調轉彎時離心力與重力的向量合成關係，需示意圖呈現力的方向與負載係數的空間幾何關係。",
+    "image_prompt": "Educational diagram on white background, showing a drone performing a coordinated turn. Illustrate vectors: 升力 (lift, upward), 重力 (gravity, downward), 離心力 (centrifugal force, outward), and 負載係數合力 (load factor resultant). Use arrows with Traditional Chinese labels, flat instructional style, print-ready."
+  },
+  "361": {
+    "index": 361,
+    "need_image": true,
+    "reason": "轉彎時升力分量需抵抗重力以維持高度的力學分解，圖示能清楚呈現升力傾斜後垂直分量與重力的關係。",
+    "image_prompt": "Educational diagram on white background, showing a drone in banked turn. Illustrate tilted 升力 (lift) vector decomposed into vertical component balancing 重力 (gravity) and horizontal component providing centripetal force. Traditional Chinese labels, flat instructional style, print-ready."
+  },
+  "362": {
+    "index": 362,
+    "need_image": false,
+    "reason": "題目描述重心靠前導致阻力增加、需增推力的因果邏輯，純文字即可理解，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "363": {
+    "index": 363,
+    "need_image": false,
+    "reason": "題目描述重心靠前低速時配平不足的風險，屬概念性敘述，閱讀文字即可判斷答案。",
+    "image_prompt": ""
+  },
+  "364": {
+    "index": 364,
+    "need_image": true,
+    "reason": "重心後移進入螺旋失速難以改正，涉及姿態動態與空間失控機制，示意圖能幫助考生理解螺旋失速的物理情境。",
+    "image_prompt": "Educational diagram on white background, showing a fixed-wing drone with 重心後移 (aft CG) label. Illustrate the aircraft entering 螺旋失速 (spiral stall) with curved flight path arrow spiraling downward. Traditional Chinese labels, flat semi-3D instructional style, print-ready."
+  },
+  "365": {
+    "index": 365,
+    "need_image": true,
+    "reason": "直升機重心偏前抑制後飛與懸停低速的操控極限，需圖示呈現重心位置與旋翼操控裕度的空間關係。",
+    "image_prompt": "Educational diagram on white background, showing a helicopter side-view with 重心太前 (CG too forward) marker. Illustrate how forward CG limits 向後飛行 (rearward flight) and 懸停低速 (low-speed hover) with rotor disc tilt arrows and control limit indicator. Traditional Chinese labels, flat instructional style, print-ready."
+  },
+  "366": {
+    "index": 366,
+    "need_image": false,
+    "reason": "重量增加導致失速速度提高為純物理常識概念，閱讀文字即可直接作答，無需圖示。",
+    "image_prompt": ""
+  },
+  "367": {
+    "index": 367,
+    "need_image": true,
+    "reason": "平飛速度變化時誘導阻力與寄生阻力的消長關係，需阻力曲線圖才能清楚呈現二者隨速度變化的趨勢。",
+    "image_prompt": "Educational diagram on white background, showing a drag vs. airspeed graph for a drone in level flight. Plot 誘導阻力 (induced drag, decreasing curve), 寄生阻力 (parasite drag, increasing curve), and 總阻力 (total drag, U-shaped curve). Traditional Chinese axis labels, flat instructional chart style, print-ready."
+  },
+  "368": {
+    "index": 368,
+    "need_image": true,
+    "reason": "題目涉及航向角度（90度）與機場相對方位的空間推算，羅盤/方位示意圖能大幅降低考生理解難度。",
+    "image_prompt": "Educational diagram on white background, showing a top-view compass rose with North (北) at top. Mark an airport at center and a drone approaching from the West (西) on heading 090 (eastward arrow). Label 航向090、機場、無人機位於西方 in Traditional Chinese. Flat instructional style, print-ready."
+  },
+  "369": {
+    "index": 369,
+    "need_image": false,
+    "reason": "題目要求選用最新日期的重量與平衡資訊，純邏輯判斷題，閱讀文字即可直接作答，無需圖示。",
+    "image_prompt": ""
+  },
+  "370": {
+    "index": 370,
+    "need_image": false,
+    "reason": "純定義題，題目文字已清楚描述各選項情境，閱讀即可判斷答案，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "371": {
+    "index": 371,
+    "need_image": false,
+    "reason": "純概念理解題，選項皆為文字描述的原因，無空間或視覺概念需圖片輔助。",
+    "image_prompt": ""
+  },
+  "372": {
+    "index": 372,
+    "need_image": false,
+    "reason": "慣性導航原理為物理概念，但選項已用文字完整描述各原理，閱讀即可比對答案，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "373": {
+    "index": 373,
+    "need_image": false,
+    "reason": "定義題，詢問各系統功能定義，純文字閱讀即可作答。",
+    "image_prompt": ""
+  },
+  "374": {
+    "index": 374,
+    "need_image": false,
+    "reason": "操作判斷題，選項為文字敘述的方法，無需視覺空間概念輔助。",
+    "image_prompt": ""
+  },
+  "375": {
+    "index": 375,
+    "need_image": false,
+    "reason": "操作認知題，屬安全觀念類，純文字閱讀即可判斷正確答案，無視覺輔助需求。",
+    "image_prompt": ""
+  },
+  "376": {
+    "index": 376,
+    "need_image": true,
+    "reason": "涉及無人機重心計算，需呈現機身結構、前後艙位置與力臂距離的空間關係，圖示能大幅降低理解難度。",
+    "image_prompt": "Educational diagram on white background, side view of a fixed-wing UAV showing nose reference point, front cargo bay (力臂10吋, 20磅) and rear cargo bay (力臂40吋, 30磅), airframe CG (力臂20吋, 50磅), total CG at 24吋, CG range 25~27吋 marked with arrows, flat illustration style with Traditional Chinese labels, print-ready."
+  },
+  "377": {
+    "index": 377,
+    "need_image": true,
+    "reason": "涉及經緯度座標位置與飛行距離計算，地圖示意圖能幫助考生快速建立東西向飛行距離的空間概念。",
+    "image_prompt": "Educational diagram on white background, simple map grid showing UAV starting position E121°10′00″ N22°20′30″ and destination E121°30′00″ N22°20′30″, eastward flight path with arrow, distance label showing 20′ longitude difference, flat illustration style with Traditional Chinese labels, print-ready."
+  },
+  "378": {
+    "index": 378,
+    "need_image": true,
+    "reason": "涉及最佳爬升率空速與攻角的飛行動態概念，爬升角與爬升率的差異需圖示輔助才能正確理解。",
+    "image_prompt": "Educational diagram on white background, side view of fixed-wing UAV showing two climb profiles: best angle of climb (最佳爬升角, steeper path, shorter horizontal distance) vs best rate of climb (最佳爬升率, shallower path, greater altitude gain per time), arrows indicating airspeed and altitude, flat illustration style with Traditional Chinese labels, print-ready."
+  },
+  "379": {
+    "index": 379,
+    "need_image": true,
+    "reason": "涉及跑道方向編號與風向的空間關係，圖示能直觀呈現正南風與南北向跑道的對應選擇邏輯。",
+    "image_prompt": "Educational diagram on white background, top-down view of a north-south runway labeled 18 (south end) and 36 (north end), wind arrow indicating southerly wind (from south blowing north), aircraft icon showing landing direction into the wind toward runway 18, compass rose included, flat illustration style with Traditional Chinese labels, print-ready."
+  },
+  "380": {
+    "index": 380,
+    "need_image": false,
+    "reason": "純概念因果關係題，文字描述即可理解「空氣密度增加→升力增加」的邏輯，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "381": {
+    "index": 381,
+    "need_image": false,
+    "reason": "列舉影響空氣密度因素的知識記憶題，閱讀選項即可判斷，無需圖片。",
+    "image_prompt": ""
+  },
+  "382": {
+    "index": 382,
+    "need_image": false,
+    "reason": "密度高度定義概念題，文字敘述即可理解分子稀薄與密度高度的對應關係，無需圖片。",
+    "image_prompt": ""
+  },
+  "383": {
+    "index": 383,
+    "need_image": false,
+    "reason": "與上題對稱的定義概念題，文字即可直接推理，無需圖片。",
+    "image_prompt": ""
+  },
+  "384": {
+    "index": 384,
+    "need_image": false,
+    "reason": "高密度高度影響因素的判斷題，純文字選項即可比較分析，無需圖片。",
+    "image_prompt": ""
+  },
+  "385": {
+    "index": 385,
+    "need_image": false,
+    "reason": "低密度高度影響因素的判斷題，純文字選項即可比較分析，無需圖片。",
+    "image_prompt": ""
+  },
+  "386": {
+    "index": 386,
+    "need_image": false,
+    "reason": "空氣受外力作功的效果屬常識概念題，文字描述清楚，無需圖片。",
+    "image_prompt": ""
+  },
+  "387": {
+    "index": 387,
+    "need_image": false,
+    "reason": "固定體積下溫度與密度關係的概念推理題，文字敘述即可直接作答，無需圖片。",
+    "image_prompt": ""
+  },
+  "388": {
+    "index": 388,
+    "need_image": true,
+    "reason": "對流層中溫度與壓力隨高度變化的空間分布關係，搭配剖面示意圖能使考生更直觀理解垂直梯度變化。",
+    "image_prompt": "Educational diagram, white background, flat style. Vertical cross-section of the troposphere showing altitude on Y-axis (0–12 km). Two curves: temperature and pressure both decreasing with altitude. Labels in Traditional Chinese: 高度、溫度、壓力、對流層. Arrows indicate decreasing direction. Print-ready, clear and simple."
+  },
+  "389": {
+    "index": 389,
+    "need_image": false,
+    "reason": "大氣壓力量測數值記憶與定義題，各選項均為數字或條文敘述，純文字即可判斷正誤，無需圖片。",
+    "image_prompt": ""
+  },
+  "390": {
+    "index": 390,
+    "need_image": false,
+    "reason": "純數值換算記憶題，閱讀文字即可直接作答，圖片無助益。",
+    "image_prompt": ""
+  },
+  "391": {
+    "index": 391,
+    "need_image": false,
+    "reason": "概念理解題，考地面溫度不均導致氣壓差異，純文字即可判斷，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "392": {
+    "index": 392,
+    "need_image": false,
+    "reason": "應用推理題，考氣壓差對高度讀數之影響，閱讀選項即可作答。",
+    "image_prompt": ""
+  },
+  "393": {
+    "index": 393,
+    "need_image": false,
+    "reason": "氣壓升降與天氣好壞的對應關係，屬文字規則記憶，無需圖片。",
+    "image_prompt": ""
+  },
+  "394": {
+    "index": 394,
+    "need_image": false,
+    "reason": "氣壓降低與天氣轉壞的對應關係，屬文字規則記憶，無需圖片。",
+    "image_prompt": ""
+  },
+  "395": {
+    "index": 395,
+    "need_image": false,
+    "reason": "定義題，「空氣水平運動=風」，文字即可直接判斷。",
+    "image_prompt": ""
+  },
+  "396": {
+    "index": 396,
+    "need_image": false,
+    "reason": "單位辨別題，考哪個選項非風速單位，閱讀選項即可作答。",
+    "image_prompt": ""
+  },
+  "397": {
+    "index": 397,
+    "need_image": true,
+    "reason": "涉及順風／逆風／側風空間方位與無人機起降的相對關係，示意圖能幫助考生建立正確方位概念。",
+    "image_prompt": "White background, flat educational diagram showing a drone (UAV) at runway center. Three arrows indicate wind directions labeled in Traditional Chinese: 逆風（Headwind, arrow pointing toward drone）, 順風（Tailwind, arrow pointing away）, 側風（Crosswind, arrow from side）. Clean, print-ready style."
+  },
+  "398": {
+    "index": 398,
+    "need_image": true,
+    "reason": "逆風起飛對無人飛機飛行特性（穩定性、操縱性、起飛距離）的物理影響，示意圖可直觀呈現逆風氣動效果。",
+    "image_prompt": "White background, flat educational diagram of a fixed-wing UAV taking off into headwind (逆風). Arrows show airflow over wings increasing lift. Labels in Traditional Chinese: 逆風, 升力增加, 起飛距離縮短, 穩定性提升. Clean, physics-accurate, print-ready style."
+  },
+  "399": {
+    "index": 399,
+    "need_image": true,
+    "reason": "深山峽谷地形造成亂流的空間機制，示意圖能清楚呈現地形與氣流擾動的關聯，純文字難以建立畫面。",
+    "image_prompt": "White background, flat educational cross-section diagram showing a mountain canyon (深山峽谷). Turbulent airflow arrows swirl inside and above the canyon. A small UAV icon is caught in turbulence. Labels in Traditional Chinese: 峽谷地形, 亂流, 無人機. Clean, print-ready style."
+  },
+  "400": {
+    "index": 400,
+    "need_image": true,
+    "reason": "背風面亂流與山地風場的空間分布屬於視覺性地形氣象概念，示意圖能清楚呈現迎風/背風面氣流變化。",
+    "image_prompt": "Educational diagram on white background showing cross-section of a mountain range with airflow lines. Left side shows smooth laminar wind arrows hitting the mountain (迎風面), right side (背風面) shows increasingly turbulent chaotic flow lines with labels. Labels in Traditional Chinese: 迎風面, 背風面, 亂流, 風向. Flat technical illustration style suitable for printing."
+  },
+  "401": {
+    "index": 401,
+    "need_image": false,
+    "reason": "題目直接考查哪種風切對無人機影響最大，屬概念記憶題，閱讀文字即可判斷，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "402": {
+    "index": 402,
+    "need_image": false,
+    "reason": "題目考查風速風向改變對無人機的影響種類，屬概念排除題，純文字即可作答。",
+    "image_prompt": ""
+  },
+  "403": {
+    "index": 403,
+    "need_image": false,
+    "reason": "題目考查台灣低空風切的氣象情境知識，屬純文字敘述比較題，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "404": {
+    "index": 404,
+    "need_image": false,
+    "reason": "題目考查天氣因素對無人機的影響項目，選項明確，閱讀文字即可選出答案。",
+    "image_prompt": ""
+  },
+  "405": {
+    "index": 405,
+    "need_image": true,
+    "reason": "大氣垂直運動與各天氣現象的成因關係（尤其平流霧是水平運動）涉及氣象成因機制，示意圖能有效對比垂直與水平大氣運動。",
+    "image_prompt": "Educational diagram on white background comparing atmospheric motion types. Left panel shows vertical air movement causing 雷雨, 冰雹, 下爆氣流 with upward/downward arrows. Right panel shows horizontal airflow over cold surface forming 平流霧 with horizontal arrows. Labels in Traditional Chinese. Flat technical illustration style."
+  },
+  "406": {
+    "index": 406,
+    "need_image": false,
+    "reason": "題目考查大氣穩定度與哪項因子直接相關，屬概念定義記憶題，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "407": {
+    "index": 407,
+    "need_image": false,
+    "reason": "題目考查氣團的定義，屬純定義記憶題，圖片無助於提升理解或作答。",
+    "image_prompt": ""
+  },
+  "408": {
+    "index": 408,
+    "need_image": false,
+    "reason": "題目考查地理位置與午後雷陣雨的關聯，屬知識記憶題，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "409": {
+    "index": 409,
+    "need_image": false,
+    "reason": "題目考查空氣水氣容納量的概念，屬定義性記憶題，文字即可理解，不需圖片。",
+    "image_prompt": ""
+  },
+  "410": {
+    "index": 410,
+    "need_image": false,
+    "reason": "純數值定義題，相對濕度飽和等於1（或100%）是直接記憶的知識點，文字即可判斷。",
+    "image_prompt": ""
+  },
+  "411": {
+    "index": 411,
+    "need_image": false,
+    "reason": "概念定義題，空氣容納水氣量與溫度的關係靠文字即可理解，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "412": {
+    "index": 412,
+    "need_image": false,
+    "reason": "排除題型，四個選項（霧、雲、雨滴、風）均為常識詞彙，閱讀文字即可直接判斷風不是水氣凝結現象。",
+    "image_prompt": ""
+  },
+  "413": {
+    "index": 413,
+    "need_image": false,
+    "reason": "純定義題，相對濕度的定義直接對應選項B，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "414": {
+    "index": 414,
+    "need_image": false,
+    "reason": "概念推理題，濕度與空氣密度關係靠文字邏輯即可推導，無需圖示。",
+    "image_prompt": ""
+  },
+  "415": {
+    "index": 415,
+    "need_image": false,
+    "reason": "純定義題，露點溫度等於氣溫即達水氣飽和點，文字即可直接判斷。",
+    "image_prompt": ""
+  },
+  "416": {
+    "index": 416,
+    "need_image": false,
+    "reason": "排除題型，四個選項均為常識詞彙，雷爆非水汽飽和直接產生的現象，閱讀文字即可判斷。",
+    "image_prompt": ""
+  },
+  "417": {
+    "index": 417,
+    "need_image": false,
+    "reason": "分類記憶題，霧的種類（平流霧、蒸氣霧、鋒面霧）為術語記憶，「高空霧」非正式分類，文字即可判斷。",
+    "image_prompt": ""
+  },
+  "418": {
+    "index": 418,
+    "need_image": false,
+    "reason": "平流霧特性為知識記憶題，選項均為文字描述的特徵，閱讀即可判斷答案。",
+    "image_prompt": ""
+  },
+  "419": {
+    "index": 419,
+    "need_image": false,
+    "reason": "平流霧消散條件為知識記憶題，四個選項均可透過文字邏輯推理判斷，無需圖示輔助。",
+    "image_prompt": ""
+  },
+  "420": {
+    "index": 420,
+    "need_image": false,
+    "reason": "題目考查輻射霧特點的文字描述，閱讀選項即可判斷，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "421": {
+    "index": 421,
+    "need_image": false,
+    "reason": "題目為霧的成因定義題，文字描述已完整，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "422": {
+    "index": 422,
+    "need_image": false,
+    "reason": "純記憶題，考查蒸氣霧出現季節，閱讀文字即可作答。",
+    "image_prompt": ""
+  },
+  "423": {
+    "index": 423,
+    "need_image": true,
+    "reason": "鋒面霧涉及兩股氣團交界面與空氣垂直移動的空間關係，示意圖能幫助考生建立正確立體畫面。",
+    "image_prompt": "White background, flat educational diagram showing frontal fog formation: two air masses (warm above, cold near ground) at a frontal boundary, arrows indicating air descending from upper warm layer condensing into fog above cold surface air. Labels in Traditional Chinese: 暖氣團, 冷氣團, 鋒面, 鋒面霧, 凝結區. Clear and print-ready."
+  },
+  "424": {
+    "index": 424,
+    "need_image": false,
+    "reason": "題目問鋒面霧伴隨的天氣現象，屬純知識記憶題，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "425": {
+    "index": 425,
+    "need_image": false,
+    "reason": "題目為定義/分類題，考查平流輻射霧的名稱，文字選項已足夠。",
+    "image_prompt": ""
+  },
+  "426": {
+    "index": 426,
+    "need_image": false,
+    "reason": "題目為露的定義題，文字描述已清楚，不需圖片輔助。",
+    "image_prompt": ""
+  },
+  "427": {
+    "index": 427,
+    "need_image": false,
+    "reason": "題目考查霜對飛安影響的概念判斷，屬文字敘述題，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "428": {
+    "index": 428,
+    "need_image": true,
+    "reason": "霜附著機翼後擾動氣流、影響升力與阻力，涉及翼面空氣動力學的物理機制，示意圖能有效說明流場變化。",
+    "image_prompt": "White background, flat aerodynamic educational diagram showing two wing cross-sections side by side: left wing clean with smooth airflow arrows indicating lift, right wing covered with frost (rough surface texture) with disturbed turbulent airflow arrows, reduced lift and increased drag indicated. Labels in Traditional Chinese: 乾淨翼面, 積霜翼面, 正常氣流, 擾動氣流, 升力降低, 阻力增加. Print-ready."
+  },
+  "429": {
+    "index": 429,
+    "need_image": false,
+    "reason": "題目考查飛行前除霜程序的行政操作知識，純文字即可判斷，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "430": {
+    "index": 430,
+    "need_image": true,
+    "reason": "雲的三種型態（積狀、層狀、卷狀）具有明顯視覺差異，搭配雲形示意圖能幫助考生快速區分各類型外觀。",
+    "image_prompt": "Flat educational diagram on white background showing three cloud types side by side: 積狀雲 (cumuliform, puffy vertical towers), 層狀雲 (stratiform, flat horizontal layers), 卷狀雲 (cirriform, thin wispy streaks). Each type labeled in Traditional Chinese with clear arrows. Print-ready style."
+  },
+  "431": {
+    "index": 431,
+    "need_image": true,
+    "reason": "雲族依高度分類涉及垂直空間層次，示意圖能清楚呈現高雲族、中雲族、低雲族各自的高度區間。",
+    "image_prompt": "Flat educational vertical cross-section diagram on white background showing atmosphere divided into three altitude zones: 高雲族 (above 6000m), 中雲族 (2000–6000m), 低雲族 (below 2000m). Each zone labeled in Traditional Chinese with altitude markers and representative cloud silhouettes. Print-ready style."
+  },
+  "432": {
+    "index": 432,
+    "need_image": true,
+    "reason": "高雲族三種雲（卷雲、卷層雲、卷積雲）外觀相似且細微差異難以純文字描述，圖示能幫助考生辨別。",
+    "image_prompt": "Flat educational diagram on white background showing three high-altitude cloud types at 6000m+ zone: 卷雲 (thin wispy streaks), 卷層雲 (thin veil covering sky with halo effect), 卷積雲 (small white puffs in rows). Each labeled in Traditional Chinese. Print-ready style."
+  },
+  "433": {
+    "index": 433,
+    "need_image": true,
+    "reason": "中雲族三種雲（高積雲、高層雲、雨層雲）形態各異，圖示能幫助考生在視覺上區分並對應高度範圍。",
+    "image_prompt": "Flat educational diagram on white background showing three mid-altitude cloud types at 2000–6000m zone: 高積雲 (patchy grey-white puffs in layers), 高層雲 (uniform grey sheet), 雨層雲 (dark grey thick layer with rain streaks). Each labeled in Traditional Chinese. Print-ready style."
+  },
+  "434": {
+    "index": 434,
+    "need_image": true,
+    "reason": "低雲族三種雲（積雲、層雲、層積雲）在低空形態各具特色，圖示搭配高度標示可強化記憶與辨識。",
+    "image_prompt": "Flat educational diagram on white background showing three low-altitude cloud types below 2000m: 積雲 (bright white cauliflower-shaped vertical towers), 層雲 (flat uniform grey blanket near ground), 層積雲 (patchy lumpy grey-white rolls). Each labeled in Traditional Chinese with altitude reference. Print-ready style."
+  },
+  "435": {
+    "index": 435,
+    "need_image": false,
+    "reason": "題目考的是氣團分類方式的列舉，純文字選項即可判斷，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "436": {
+    "index": 436,
+    "need_image": false,
+    "reason": "定義題，考生閱讀題目文字即可直接選出冷氣團的定義，無需圖片。",
+    "image_prompt": ""
+  },
+  "437": {
+    "index": 437,
+    "need_image": false,
+    "reason": "題目直接說明氣團穩定度決定某種形態，選項明顯，閱讀即可作答，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "438": {
+    "index": 438,
+    "need_image": true,
+    "reason": "鋒面兩側溫度、濕度、風與天氣的差異是空間與物理概念，示意圖能清楚呈現鋒面兩側的對比現象。",
+    "image_prompt": "Flat educational cross-section diagram on white background showing a weather front (鋒面) dividing two air masses. Left side labeled 冷氣團 with low temperature, low humidity, and wind arrows; right side labeled 暖氣團 with high temperature, high humidity, and different wind arrows. Differences annotated in Traditional Chinese. Print-ready style."
+  },
+  "439": {
+    "index": 439,
+    "need_image": true,
+    "reason": "冷鋒的形成涉及冷暖氣團的動態移動與交替過程，示意圖能直觀呈現冷空氣推進取代暖空氣的空間關係。",
+    "image_prompt": "Flat educational cross-section diagram on white background showing a 冷鋒 (cold front). Cold air mass (冷氣團) on the left advancing rightward with bold arrows, undercutting and pushing up warm air mass (暖氣團) on the right. Front boundary labeled 冷鋒 with standard cold front symbols. All labels in Traditional Chinese. Print-ready style."
+  },
+  "440": {
+    "index": 440,
+    "need_image": false,
+    "reason": "純定義題，「滯留鋒」名稱即已說明其特性，文字描述足以作答。",
+    "image_prompt": ""
+  },
+  "441": {
+    "index": 441,
+    "need_image": false,
+    "reason": "題目問飛越鋒面時的氣象變化項目，閱讀選項即可作答，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "442": {
+    "index": 442,
+    "need_image": true,
+    "reason": "山區迎風面／背風面的氣流分佈涉及空間關係，示意圖能幫助考生理解哪側氣流較平順。",
+    "image_prompt": "Flat educational diagram on white background showing airflow over a mountain. Left side labeled 迎風面 with smooth upward arrows, right side labeled 背風面 with turbulent swirling arrows. Mountain peak labeled 山巔. Traditional Chinese labels. Clean print-ready style."
+  },
+  "443": {
+    "index": 443,
+    "need_image": true,
+    "reason": "山巔背風面亂流的空間位置需視覺化才能清楚呈現氣流擾動區域。",
+    "image_prompt": "Flat educational diagram on white background showing airflow over a mountain. Smooth arrows on 迎風面 (left), turbulent swirling arrows on 背風面 (right) behind the peak labeled 山巔. Red warning zone marks turbulence area on leeward side. Traditional Chinese labels. Print-ready style."
+  },
+  "444": {
+    "index": 444,
+    "need_image": false,
+    "reason": "題目直接詢問積冰可能發生的部位，選項已列出所有部位，文字閱讀即可作答。",
+    "image_prompt": ""
+  },
+  "445": {
+    "index": 445,
+    "need_image": false,
+    "reason": "積冰發生條件為數值與氣象條件的組合，純文字選項即可判斷，不需圖片。",
+    "image_prompt": ""
+  },
+  "446": {
+    "index": 446,
+    "need_image": false,
+    "reason": "題目詢問積冰對飛行性能的影響結果，屬概念判斷題，文字描述足以作答。",
+    "image_prompt": ""
+  },
+  "447": {
+    "index": 447,
+    "need_image": false,
+    "reason": "雷雨發展循環的階段名稱屬記憶題，閱讀選項即可判斷哪項不存在。",
+    "image_prompt": ""
+  },
+  "448": {
+    "index": 448,
+    "need_image": true,
+    "reason": "雷雨各發展期的氣流與降水特徵若以循環圖呈現，能幫助考生區分各期特徵。",
+    "image_prompt": "Flat educational diagram on white background showing the three stages of thunderstorm lifecycle: 發展期 (updrafts), 成熟期 (updrafts + downdrafts, precipitation, lightning symbol), 消散期 (downdrafts only, light rain). Each stage shown as a cumulonimbus cloud cross-section with labeled arrows. Traditional Chinese labels. Print-ready style."
+  },
+  "449": {
+    "index": 449,
+    "need_image": false,
+    "reason": "雷雨消散期特徵為文字描述的記憶題，選項清楚列出各特徵，不需圖片輔助。",
+    "image_prompt": ""
+  },
+  "450": {
+    "index": 450,
+    "need_image": false,
+    "reason": "純行政隸屬關係題，閱讀選項即可判斷，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "451": {
+    "index": 451,
+    "need_image": false,
+    "reason": "純資料來源記憶題，列舉項目閱讀即可作答，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "452": {
+    "index": 452,
+    "need_image": false,
+    "reason": "詢問特定網站提供哪類資料，屬知識記憶題，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "453": {
+    "index": 453,
+    "need_image": false,
+    "reason": "考查操作人應具備的能力項目，純概念選擇題，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "454": {
+    "index": 454,
+    "need_image": false,
+    "reason": "考查 METAR 時間代碼字母定義，屬代碼記憶題，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "455": {
+    "index": 455,
+    "need_image": false,
+    "reason": "考查能見度編報位數與單位，純數值記憶題，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "456": {
+    "index": 456,
+    "need_image": true,
+    "reason": "雲量以 8 等分天空表示，搭配圓形天空分割示意圖能直觀呈現 1/8～2/8 覆蓋比例與「稀雲」對應關係，有助理解。",
+    "image_prompt": "Educational flat diagram on white background. A circle representing the sky divided into 8 equal sectors. 1 to 2 sectors shaded in grey to indicate cloud cover (1/8–2/8). Label the shaded area '稀雲 (FEW)' and the full circle '天空8等份'. Traditional Chinese labels. Clean print style."
+  },
+  "457": {
+    "index": 457,
+    "need_image": true,
+    "reason": "雲量以 8 等分天空表示，搭配圓形天空分割示意圖能直觀呈現 3/8～4/8 覆蓋比例與「疏雲」對應關係，有助理解。",
+    "image_prompt": "Educational flat diagram on white background. A circle representing the sky divided into 8 equal sectors. 3 to 4 sectors shaded in grey to indicate cloud cover (3/8–4/8). Label the shaded area '疏雲 (SCT)' and the full circle '天空8等份'. Traditional Chinese labels. Clean print style."
+  },
+  "458": {
+    "index": 458,
+    "need_image": true,
+    "reason": "雲量以 8 等分天空表示，搭配圓形天空分割示意圖能直觀呈現 5/8～7/8 覆蓋比例與「裂雲」對應關係，有助理解。",
+    "image_prompt": "Educational flat diagram on white background. A circle representing the sky divided into 8 equal sectors. 5 to 7 sectors shaded in grey to indicate cloud cover (5/8–7/8). Label the shaded area '裂雲 (BKN)' and the full circle '天空8等份'. Traditional Chinese labels. Clean print style."
+  },
+  "459": {
+    "index": 459,
+    "need_image": true,
+    "reason": "雲量以 8 等分天空表示，搭配圓形天空分割示意圖能直觀呈現 8/8 全覆蓋與「密雲」對應關係，有助理解。",
+    "image_prompt": "Educational flat diagram on white background. A circle representing the sky divided into 8 equal sectors. All 8 sectors fully shaded in grey to indicate complete cloud cover (8/8). Label '密雲 (OVC)' and the full circle '天空8等份'. Traditional Chinese labels. Clean print style."
+  },
+  "460": {
+    "index": 460,
+    "need_image": false,
+    "reason": "純數值單位記憶題，閱讀文字即可直接作答，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "461": {
+    "index": 461,
+    "need_image": false,
+    "reason": "考核報告內容的定義與項目列舉，屬純文字記憶題，圖片無助益。",
+    "image_prompt": ""
+  },
+  "462": {
+    "index": 462,
+    "need_image": false,
+    "reason": "密度高度的定義題，文字描述即可理解，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "463": {
+    "index": 463,
+    "need_image": false,
+    "reason": "低壓狀態氣體特徵為基礎物理概念，文字即可直接推導，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "464": {
+    "index": 464,
+    "need_image": false,
+    "reason": "壓力與密度正比關係的數值推算題，純概念邏輯，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "465": {
+    "index": 465,
+    "need_image": false,
+    "reason": "溫度與密度關係為基礎物理定義題，文字即可直接判斷，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "466": {
+    "index": 466,
+    "need_image": false,
+    "reason": "國際標準大氣的數值記憶題，屬純數字背誦，圖片無助益。",
+    "image_prompt": ""
+  },
+  "467": {
+    "index": 467,
+    "need_image": false,
+    "reason": "對流層溫度遞減率的數值記憶題，閱讀文字即可直接作答。",
+    "image_prompt": ""
+  },
+  "468": {
+    "index": 468,
+    "need_image": false,
+    "reason": "高度與氣壓變化的數值記憶題，屬純數字背誦，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "469": {
+    "index": 469,
+    "need_image": false,
+    "reason": "風向定義題，文字敘述已清楚說明，閱讀即可直接選出答案。",
+    "image_prompt": ""
+  },
+  "470": {
+    "index": 470,
+    "need_image": true,
+    "reason": "正側風作用下固定翼無人機起飛時翼面傾斜觸地的空間動態，需圖示說明風向與機體姿態的關係。",
+    "image_prompt": "Flat educational diagram on white background. Top view and front view of a fixed-wing drone during takeoff facing a strong crosswind from the right. Show wind arrows hitting the wing, causing the drone to roll and the left wingtip to contact the ground. Label: 正側風, 翼面觸地, 起飛方向. Traditional Chinese labels, clean print style."
+  },
+  "471": {
+    "index": 471,
+    "need_image": true,
+    "reason": "降落時正側風導致偏離跑道的空間動態，需圖示呈現風向、降落軌跡與跑道偏移關係。",
+    "image_prompt": "Flat educational diagram on white background. Top view of a fixed-wing drone landing on a runway. Strong crosswind arrows from the right push the drone sideways off the runway centerline. Show intended path vs. actual drifted path. Label: 正側風, 預定跑道, 實際偏離路徑. Traditional Chinese labels, clean print style."
+  },
+  "472": {
+    "index": 472,
+    "need_image": false,
+    "reason": "題目文字直接描述多旋翼機可垂直起降、風向考量著重滯空穩定度，閱讀選項即可判斷，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "473": {
+    "index": 473,
+    "need_image": false,
+    "reason": "純定義題，問「風切」名詞定義，直接閱讀選項即可作答。",
+    "image_prompt": ""
+  },
+  "474": {
+    "index": 474,
+    "need_image": true,
+    "reason": "風切伴隨垂直氣流的物理機制較抽象，圖示能清楚呈現水平風速差與垂直氣流的空間關係。",
+    "image_prompt": "Flat educational diagram on white background. Side view showing two horizontal air layers with different wind speeds and directions, creating a shear zone. Vertical updraft and downdraft arrows appear at the shear boundary. Label: 風切區, 垂直氣流, 上升氣流, 下沉氣流. Traditional Chinese labels, clean print style."
+  },
+  "475": {
+    "index": 475,
+    "need_image": false,
+    "reason": "純數值記憶題，考低空風切的高度定義（1,600呎以下），閱讀文字即可作答。",
+    "image_prompt": ""
+  },
+  "476": {
+    "index": 476,
+    "need_image": false,
+    "reason": "純數值記憶題，考微爆氣流下沉速度數字，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "477": {
+    "index": 477,
+    "need_image": true,
+    "reason": "微爆氣流頂風與尾風速度差的空間結構抽象，圖示能幫助理解飛機穿越微爆氣流時所經歷的風速變化。",
+    "image_prompt": "Flat educational diagram on white background. Side view of a microburst: central downdraft hitting ground and spreading outward as headwind and tailwind. An aircraft flight path passes through the zone showing increasing headwind then sudden tailwind. Label: 微爆氣流, 下沉氣流, 頂風, 尾風, 速度差30~90節. Traditional Chinese labels, clean print style."
+  },
+  "478": {
+    "index": 478,
+    "need_image": true,
+    "reason": "逆溫層的垂直結構（高度約300公尺）需圖示呈現溫度隨高度變化的反常現象，純文字難以建立正確畫面。",
+    "image_prompt": "Flat educational diagram on white background. Side view of atmosphere layers showing a shallow temperature inversion near ground (~300m). Graph on the right shows temperature increasing with altitude within the inversion layer, reversing the normal lapse rate. Label: 地面, 逆溫層, 約300公尺, 正常溫度遞減率, 逆溫層溫度上升. Traditional Chinese labels, clean print style."
+  },
+  "479": {
+    "index": 479,
+    "need_image": false,
+    "reason": "純概念常識題，問溫度與水氣容量的關係，閱讀文字即可直接判斷，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "480": {
+    "index": 480,
+    "need_image": false,
+    "reason": "定義題，文字描述「露點」的概念即可直接選出答案，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "481": {
+    "index": 481,
+    "need_image": false,
+    "reason": "概念題，說明暖空氣流經冷地表後降溫達飽和，閱讀文字即可理解，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "482": {
+    "index": 482,
+    "need_image": false,
+    "reason": "定義/判斷題，題目文字已清楚描述露點與霧的關係，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "483": {
+    "index": 483,
+    "need_image": true,
+    "reason": "平流霧涉及暖濕空氣流經冷地面的空間流動機制，示意圖可清楚呈現氣流方向與霧形成位置。",
+    "image_prompt": "White background, flat educational diagram showing warm moist air (暖濕空氣) flowing horizontally over a cold surface (冷地面), arrows indicating airflow direction, fog layer (平流霧) forming near the ground as air cools, Traditional Chinese labels, print-ready style."
+  },
+  "484": {
+    "index": 484,
+    "need_image": true,
+    "reason": "輻射霧涉及夜間地面輻射冷卻與近地面水氣凝結的物理機制，示意圖有助於考生理解形成過程。",
+    "image_prompt": "White background, flat educational diagram showing nighttime ground radiation cooling (地面輻射冷卻), clear sky with upward radiation arrows from ground, fog layer (輻射霧) forming near surface in calm wind conditions, moon and stars above, Traditional Chinese labels, print-ready style."
+  },
+  "485": {
+    "index": 485,
+    "need_image": true,
+    "reason": "山坡霧涉及濕空氣沿山坡上升絕熱冷卻的空間動態，示意圖能清楚呈現地形與氣流關係。",
+    "image_prompt": "White background, flat educational diagram showing moist air (濕空氣) rising along a mountain slope (山坡), upward arrows indicating airflow, fog (山坡霧) forming near the slope due to adiabatic cooling (絕熱冷卻), Traditional Chinese labels, print-ready style."
+  },
+  "486": {
+    "index": 486,
+    "need_image": false,
+    "reason": "地區性知識記憶題，純靠文字描述台灣地區與季節即可作答，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "487": {
+    "index": 487,
+    "need_image": false,
+    "reason": "定義/數值記憶題，說明水氣在冰點以下凝結成霜，閱讀文字即可直接選出答案。",
+    "image_prompt": ""
+  },
+  "488": {
+    "index": 488,
+    "need_image": true,
+    "reason": "鋒面涉及冷暖氣團相遇的空間交界概念，示意圖能清楚呈現兩氣團接觸面的立體結構。",
+    "image_prompt": "White background, flat educational diagram showing cold air mass (冷氣團) and warm air mass (暖氣團) meeting, a clear boundary line labeled 鋒面 between them, arrows showing movement direction of each air mass, Traditional Chinese labels, print-ready style."
+  },
+  "489": {
+    "index": 489,
+    "need_image": true,
+    "reason": "無人機結冰導致升力不足涉及螺旋槳翼型改變的物理機制，示意圖能直觀呈現結冰對升力的影響。",
+    "image_prompt": "White background, flat educational diagram showing a drone rotor blade cross-section (螺旋槳剖面) with ice accumulation (結冰) on leading edge, arrows comparing normal airflow (正常氣流) vs disrupted airflow (亂流) causing lift reduction (升力不足), Traditional Chinese labels, print-ready style."
+  },
+  "490": {
+    "index": 490,
+    "need_image": true,
+    "reason": "雷雨發展期的氣流特徵涉及對流雲內部垂直氣流動態，示意圖能清楚呈現上升氣流的空間分布。",
+    "image_prompt": "Educational diagram on white background showing thunderstorm development stage (雷雨發展期). Cross-section of a cumulonimbus cloud with strong upward arrows (上升氣流) inside the cloud. Labels in Traditional Chinese indicating 雷雨發展期, 上升氣流. Flat instructional style, print-ready."
+  },
+  "491": {
+    "index": 491,
+    "need_image": false,
+    "reason": "題目為操作規範判斷題，閱讀選項即可直接作答，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "492": {
+    "index": 492,
+    "need_image": true,
+    "reason": "雷雨成熟期上升與下沉氣流交錯產生垂直風切，空間關係複雜，示意圖能有效呈現氣流交錯的立體結構。",
+    "image_prompt": "Educational diagram on white background showing thunderstorm mature stage (雷雨成熟期) cross-section. Cumulonimbus cloud with interleaved upward arrows (上升氣流) and downward arrows (下沉氣流), highlighting vertical wind shear (垂直風切) zones. Labels in Traditional Chinese. Flat instructional style, print-ready."
+  },
+  "493": {
+    "index": 493,
+    "need_image": false,
+    "reason": "純數值記憶題，考METAR編報時間間隔，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "494": {
+    "index": 494,
+    "need_image": false,
+    "reason": "純數值記憶題，考TAF編報時間間隔，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "495": {
+    "index": 495,
+    "need_image": false,
+    "reason": "純知識記憶題，考我國機場識別碼前兩碼字母，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "496": {
+    "index": 496,
+    "need_image": false,
+    "reason": "純數值記憶題，考風向風速平均觀測時間，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "497": {
+    "index": 497,
+    "need_image": false,
+    "reason": "定義題，雲量的定義可由文字直接理解，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "498": {
+    "index": 498,
+    "need_image": true,
+    "reason": "壓力高度影響空氣密度進而影響爬升率與起降距離，涉及物理機制的空間關係，示意圖能有效說明高度與密度的關聯。",
+    "image_prompt": "Educational diagram on white background showing pressure altitude effect on air density and UAV performance. Two side-by-side scenes: low altitude (低壓力高度, dense air 空氣密度高, short takeoff distance 短滑行距離) vs high altitude (高壓力高度, thin air 空氣密度低, long takeoff distance 長滑行距離). Labels in Traditional Chinese. Flat instructional style, print-ready."
+  },
+  "499": {
+    "index": 499,
+    "need_image": false,
+    "reason": "霧的成因為概念判斷題，文字描述溫度接近露點即可直接理解，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "500": {
+    "index": 500,
+    "need_image": false,
+    "reason": "題目描述風切對升力影響，屬於概念理解題，文字選項已足夠判斷，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "501": {
+    "index": 501,
+    "need_image": true,
+    "reason": "涉及高聳建物附近氣流繞流與亂流的空間分布，示意圖能清楚呈現障礙物對風流動的影響。",
+    "image_prompt": "Educational diagram on white background, semi-3D style. A tall building on the ground with airflow lines showing turbulence and wind direction changes around the building. A small drone flying nearby. Labels in Traditional Chinese: 建物、亂流、風向變化、無人機. Flat instructional illustration, print-ready."
+  },
+  "502": {
+    "index": 502,
+    "need_image": true,
+    "reason": "鋒面概念涉及兩種氣團交界的空間結構，示意圖能幫助考生理解鋒面邊界與不連續現象的視覺關係。",
+    "image_prompt": "Educational diagram on white background, flat style. Two air masses (cold and warm) meeting at a boundary labeled 鋒面. Arrows showing air mass movement, temperature labels on each side. Dashed line indicating the boundary layer. Labels in Traditional Chinese: 冷氣團、暖氣團、鋒面、溫度不連續. Print-ready instructional illustration."
+  },
+  "503": {
+    "index": 503,
+    "need_image": false,
+    "reason": "題目詢問穿越鋒面時應注意的天氣現象變化，屬概念記憶題，文字選項可直接判斷，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "504": {
+    "index": 504,
+    "need_image": true,
+    "reason": "涉及航向、地速與風速風向的向量空間關係，示意圖能清楚呈現速度三角形，幫助考生建立正確空間畫面。",
+    "image_prompt": "Educational vector diagram on white background, flat style. A drone flying east (航向東方) at 40 kts airspeed. Ground speed arrow pointing 116° at 44 kts. Wind vector arrow indicating northerly wind ~20 kts. Vector triangle clearly drawn with labeled arrows. Labels in Traditional Chinese: 空速、地速、風速、風向. Print-ready instructional illustration."
+  },
+  "505": {
+    "index": 505,
+    "need_image": false,
+    "reason": "屬於數值記憶與換算題，考生憑記憶標準大氣壓力表即可作答，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "506": {
+    "index": 506,
+    "need_image": false,
+    "reason": "屬於高度表數值修正的程序記憶題，文字敘述已足夠，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "507": {
+    "index": 507,
+    "need_image": false,
+    "reason": "題目描述強風中飛行的注意事項，屬純概念判斷題，閱讀文字即可直接選出答案，不需圖片。",
+    "image_prompt": ""
+  },
+  "508": {
+    "index": 508,
+    "need_image": true,
+    "reason": "涉及雲量分類（稀雲、疏雲、裂雲、密雲）的視覺對比，示意圖能直觀呈現各類型雲量佔天空比例，幫助考生理解與記憶。",
+    "image_prompt": "Educational diagram on white background, flat style. Four sky panels side by side showing cloud coverage: 稀雲 (few clouds, <1/8), 疏雲 (scattered, 1/8~4/8), 裂雲 (broken, 5/8~7/8), 密雲 (overcast, 8/8). Each panel labeled in Traditional Chinese below. Clear and simple instructional illustration, print-ready."
+  },
+  "509": {
+    "index": 509,
+    "need_image": false,
+    "reason": "純法規與人為因素概念題，閱讀選項即可直接判斷答案，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "510": {
+    "index": 510,
+    "need_image": false,
+    "reason": "純概念選擇題，考生閱讀選項即可判斷抗組織胺等藥物影響操作安全，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "511": {
+    "index": 511,
+    "need_image": false,
+    "reason": "列舉影響操作安全的因素，屬純文字知識記憶題，圖片無助於理解。",
+    "image_prompt": ""
+  },
+  "512": {
+    "index": 512,
+    "need_image": false,
+    "reason": "考過度換氣導致意識不清的後果，為純文字因果知識題，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "513": {
+    "index": 513,
+    "need_image": false,
+    "reason": "列舉過度換氣症狀，屬純文字記憶題，閱讀選項即可作答。",
+    "image_prompt": ""
+  },
+  "514": {
+    "index": 514,
+    "need_image": false,
+    "reason": "過度換氣改善方法為純文字知識題，不涉及需視覺化的空間或機制概念。",
+    "image_prompt": ""
+  },
+  "515": {
+    "index": 515,
+    "need_image": false,
+    "reason": "預防過度換氣的方法為純文字行為描述，閱讀選項即可判斷，不需圖示。",
+    "image_prompt": ""
+  },
+  "516": {
+    "index": 516,
+    "need_image": false,
+    "reason": "定義題，考壓力的定義，純文字即可理解，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "517": {
+    "index": 517,
+    "need_image": false,
+    "reason": "列舉壓力源種類，屬純文字分類記憶題，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "518": {
+    "index": 518,
+    "need_image": false,
+    "reason": "急性壓力發展為慢性壓力的因果關係，為純文字知識題，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "519": {
+    "index": 519,
+    "need_image": false,
+    "reason": "慢性壓力對個人能力影響的結果，屬純文字因果知識題，閱讀即可作答。",
+    "image_prompt": ""
+  },
+  "520": {
+    "index": 520,
+    "need_image": false,
+    "reason": "純行為決策題，閱讀文字即可判斷正確答案，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "521": {
+    "index": 521,
+    "need_image": false,
+    "reason": "定義概念題，詢問「狀況警覺」涵蓋的風險元素，文字說明即已足夠。",
+    "image_prompt": ""
+  },
+  "522": {
+    "index": 522,
+    "need_image": false,
+    "reason": "純概念判斷題，列舉可能影響注意力的因素，無需圖示輔助理解。",
+    "image_prompt": ""
+  },
+  "523": {
+    "index": 523,
+    "need_image": false,
+    "reason": "飛行前準備的行政管理概念，閱讀選項即可作答，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "524": {
+    "index": 524,
+    "need_image": false,
+    "reason": "疲勞分類定義題，純文字記憶即可作答，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "525": {
+    "index": 525,
+    "need_image": false,
+    "reason": "疲勞症狀列舉題，純文字描述即可理解，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "526": {
+    "index": 526,
+    "need_image": false,
+    "reason": "急性疲勞的時間性定義題，文字即可直接作答，無需圖示。",
+    "image_prompt": ""
+  },
+  "527": {
+    "index": 527,
+    "need_image": false,
+    "reason": "急性疲勞惡化為慢性疲勞的概念描述，純文字邏輯判斷即可作答。",
+    "image_prompt": ""
+  },
+  "528": {
+    "index": 528,
+    "need_image": false,
+    "reason": "慢性疲勞症狀列舉題，純文字記憶作答，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "529": {
+    "index": 529,
+    "need_image": false,
+    "reason": "技能疲勞的定義與分類題，文字描述已清楚，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "530": {
+    "index": 530,
+    "need_image": false,
+    "reason": "純定義題，「脫水＝身體組織水分不足」，閱讀文字即可直接判斷，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "531": {
+    "index": 531,
+    "need_image": false,
+    "reason": "列舉造成脫水的情境原因，屬純文字知識記憶題，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "532": {
+    "index": 532,
+    "need_image": false,
+    "reason": "列舉脫水初期症狀，屬純文字概念記憶題，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "533": {
+    "index": 533,
+    "need_image": false,
+    "reason": "詢問避免脫水的行動措施，答案由常識直接判斷，無視覺需求。",
+    "image_prompt": ""
+  },
+  "534": {
+    "index": 534,
+    "need_image": false,
+    "reason": "純定義題，「熱中暑＝身體無法控制體溫」，文字即可直接選答。",
+    "image_prompt": ""
+  },
+  "535": {
+    "index": 535,
+    "need_image": false,
+    "reason": "詢問熱中暑成因，屬純文字知識記憶題，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "536": {
+    "index": 536,
+    "need_image": false,
+    "reason": "詢問避免熱中暑的方法，屬行為準則記憶題，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "537": {
+    "index": 537,
+    "need_image": false,
+    "reason": "列舉可能造成暈眩的藥物種類，屬純文字知識記憶題，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "538": {
+    "index": 538,
+    "need_image": false,
+    "reason": "列舉酒精對操作能力的影響，屬純文字描述題，閱讀即可判斷。",
+    "image_prompt": ""
+  },
+  "539": {
+    "index": 539,
+    "need_image": false,
+    "reason": "詢問起飛前檢查的時機，屬行政程序／操作規範記憶題，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "540": {
+    "index": 540,
+    "need_image": false,
+    "reason": "純程序性判斷題，閱讀文字即可直接選出正確答案，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "541": {
+    "index": 541,
+    "need_image": false,
+    "reason": "定義/分類記憶題，列舉緊急落地類型，文字描述已足夠清楚。",
+    "image_prompt": ""
+  },
+  "542": {
+    "index": 542,
+    "need_image": false,
+    "reason": "概念性情境題，描述未熟悉應變程序的後果，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "543": {
+    "index": 543,
+    "need_image": false,
+    "reason": "程序判斷題，考查緊急事件處置順序，文字選項已能直接理解與作答。",
+    "image_prompt": ""
+  },
+  "544": {
+    "index": 544,
+    "need_image": false,
+    "reason": "抽象概念題，涉及飛行決策定義，圖片對理解幫助有限。",
+    "image_prompt": ""
+  },
+  "545": {
+    "index": 545,
+    "need_image": false,
+    "reason": "風險管理手段的分類記憶題，純文字即可理解，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "546": {
+    "index": 546,
+    "need_image": false,
+    "reason": "飛行決策原則條列題，純法規/程序概念，文字說明已足夠。",
+    "image_prompt": ""
+  },
+  "547": {
+    "index": 547,
+    "need_image": false,
+    "reason": "心態干擾因素記憶題，屬純文字概念辨識，圖片無法有效輔助。",
+    "image_prompt": ""
+  },
+  "548": {
+    "index": 548,
+    "need_image": false,
+    "reason": "降低風險方法的分類記憶題，閱讀選項即可作答，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "549": {
+    "index": 549,
+    "need_image": false,
+    "reason": "人為因素定義題，屬概念記憶，文字描述已足夠清楚。",
+    "image_prompt": ""
+  },
+  "550": {
+    "index": 550,
+    "need_image": false,
+    "reason": "純概念定義題，描述自動決策模式的形成基礎，閱讀文字即可判斷答案，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "551": {
+    "index": 551,
+    "need_image": false,
+    "reason": "純概念應用題，描述自動決策模式的適用情況，文字即可直接判斷，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "552": {
+    "index": 552,
+    "need_image": false,
+    "reason": "定義題，說明過度換氣的成因與名稱，文字描述已足夠清楚，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "553": {
+    "index": 553,
+    "need_image": false,
+    "reason": "分類定義題，壓力分兩類，純文字即可理解與作答，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "554": {
+    "index": 554,
+    "need_image": false,
+    "reason": "定義題，說明急性壓力觸發的反應情境，文字描述清晰，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "555": {
+    "index": 555,
+    "need_image": false,
+    "reason": "定義題，描述疲勞的成因與反應類型，純文字即可判斷答案，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "556": {
+    "index": 556,
+    "need_image": false,
+    "reason": "知識記憶題，考 IMSAFE 檢測方法名稱，屬純文字記憶，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "557": {
+    "index": 557,
+    "need_image": false,
+    "reason": "法規/操作原則題，描述緊急情況首要任務，文字即可直接選出答案，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "558": {
+    "index": 558,
+    "need_image": false,
+    "reason": "行政程序/操作規範題，討論無檢查表時應採取的行動，純文字判斷即可，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "559": {
+    "index": 559,
+    "need_image": false,
+    "reason": "定義題，說明飛行決策的定義，文字敘述已完整，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "560": {
+    "index": 560,
+    "need_image": false,
+    "reason": "純定義題，「危害」的定義可直接從文字判斷，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "561": {
+    "index": 561,
+    "need_image": false,
+    "reason": "純定義題，「風險」的定義可直接從文字判斷，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "562": {
+    "index": 562,
+    "need_image": false,
+    "reason": "概念定義題，描述決策模式，純文字即可理解，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "563": {
+    "index": 563,
+    "need_image": false,
+    "reason": "情境判斷題，涉及天氣變化應對，屬於程序性決策，閱讀文字即可直接作答。",
+    "image_prompt": ""
+  },
+  "564": {
+    "index": 564,
+    "need_image": false,
+    "reason": "飛行規劃決策題，屬於程序優先順序判斷，純文字即可理解，不需圖片。",
+    "image_prompt": ""
+  },
+  "565": {
+    "index": 565,
+    "need_image": false,
+    "reason": "飛行程序規定題，屬於法規/操作規範，閱讀文字即可直接選出答案。",
+    "image_prompt": ""
+  },
+  "566": {
+    "index": 566,
+    "need_image": false,
+    "reason": "飛行決策情境題，涉及氣象判斷與安全規範，純文字描述即可作答。",
+    "image_prompt": ""
+  },
+  "567": {
+    "index": 567,
+    "need_image": false,
+    "reason": "人為因素與飛航安全情境題，屬於操作程序判斷，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "568": {
+    "index": 568,
+    "need_image": true,
+    "reason": "題目涉及太陽方位與操作人朝向的空間關係，下午3點後太陽偏西，面向東方可避免逆光干擾，需示意圖幫助考生建立方位概念。",
+    "image_prompt": "Flat educational diagram on white background showing a top-down compass view. Sun position indicated in the west (afternoon). A UAV operator icon faces east, with the flight operation area ahead (east). Arrows show sunlight direction from west. Labels in Traditional Chinese: 太陽（下午西方）、操作人面向東方、飛行作業範圍、避免逆光干擾."
+  },
+  "569": {
+    "index": 569,
+    "need_image": false,
+    "reason": "飛行決策判斷題，屬於操作程序評估，純文字即可理解，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "570": {
+    "index": 570,
+    "need_image": false,
+    "reason": "純飛行決策情境題，題目文字直接描述情況，閱讀即可判斷正確答案，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "571": {
+    "index": 571,
+    "need_image": false,
+    "reason": "純法規程序題，涉及事故通報義務，文字敘述完整，不需圖片輔助理解。",
+    "image_prompt": ""
+  },
+  "572": {
+    "index": 572,
+    "need_image": false,
+    "reason": "法規與飛安觀念題，考的是酒後操作的判斷標準，文字即可完整表達，無視覺需求。",
+    "image_prompt": ""
+  },
+  "573": {
+    "index": 573,
+    "need_image": false,
+    "reason": "飛行決策情境題，考量任務接受與否的判斷原則，純文字即可理解，無需圖示。",
+    "image_prompt": ""
+  },
+  "574": {
+    "index": 574,
+    "need_image": false,
+    "reason": "飛行前安全檢查概念題，選項列舉檢查項目，文字敘述已完整，不需圖片輔助。",
+    "image_prompt": ""
+  },
+  "575": {
+    "index": 575,
+    "need_image": false,
+    "reason": "飛行決策與氣象判斷題，考的是面對惡劣天氣的風險評估態度，純文字即可理解。",
+    "image_prompt": ""
+  },
+  "576": {
+    "index": 576,
+    "need_image": false,
+    "reason": "人為因素與飛安決策題，考的是情緒不穩定操作人的處置原則，無需視覺輔助。",
+    "image_prompt": ""
+  },
+  "577": {
+    "index": 577,
+    "need_image": false,
+    "reason": "標準作業程序觀念題，強調緊急處置應依手冊程序，文字即可完整表達，不需圖片。",
+    "image_prompt": ""
+  },
+  "578": {
+    "index": 578,
+    "need_image": false,
+    "reason": "飛行前檢查決策題，考風險評估觀念，文字敘述已足夠清楚，無需圖片輔助。",
+    "image_prompt": ""
+  },
+  "579": {
+    "index": 579,
+    "need_image": true,
+    "reason": "題目涉及跑道方向（06跑道即磁方位060°）與進場航線的空間方位關係，考生須在腦中建立方位圖才能判斷應避開哪個方向，一張示意圖可大幅降低理解難度。",
+    "image_prompt": "Educational diagram on white background, top-down airport map. A runway labeled '06/24' oriented at 060°–240° magnetic heading, with '06' threshold at lower-left and '24' at upper-right. An aircraft approach path arrow pointing toward '06' threshold from upper-right (northeast). A drone icon south of the airport. Compass rose (N/S/E/W) in corner. Labels in Traditional Chinese: 跑道06、進場方向、無人機位置、應避開區域（西方與北方）highlighted in red. Flat illustration style, print-ready."
+  },
+  "580": {
+    "index": 580,
+    "need_image": true,
+    "reason": "題目涉及對流氣流造成亂流的垂直空間結構，示意圖可清楚呈現低空熱對流與亂流分布及爬升規避的飛行路徑。",
+    "image_prompt": "Educational diagram on white background showing a drone flying at low altitude encountering thermal convection turbulence. Arrows indicate rising warm air columns causing up-and-down airflow. A second drone is shown climbing to a higher altitude to avoid the turbulence zone. Labels in Traditional Chinese: 熱對流亂流、爬升規避、低空亂流區. Flat illustration style, suitable for printing."
+  },
+  "581": {
+    "index": 581,
+    "need_image": false,
+    "reason": "題目描述動力系統警示紅燈的應對決策，屬於程序判斷題，閱讀文字即可作答，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "582": {
+    "index": 582,
+    "need_image": true,
+    "reason": "題目涉及頂風起飛後引擎失效的飄降路徑選擇（直線前飄 vs 大角度轉彎返場），示意圖能清楚呈現兩種路徑的空間差異與安全性。",
+    "image_prompt": "Educational diagram on white background showing a fixed-wing drone taking off into headwind, then engine failure. Two flight paths illustrated: Path A (straight glide forward, safe) and Path B (sharp U-turn back to runway, dangerous). Labels in Traditional Chinese: 頂風起飛方向、引擎失效點、直線飄降落地、大角度轉彎（危險）、跑道. Flat top-down and side-view style."
+  },
+  "583": {
+    "index": 583,
+    "need_image": false,
+    "reason": "題目為多重緊急狀況下的決策判斷，屬於概念性程序題，不涉及需視覺輔助的空間或物理機制。",
+    "image_prompt": ""
+  },
+  "584": {
+    "index": 584,
+    "need_image": true,
+    "reason": "題目涉及飄降比計算與距離/高度的空間幾何關係，示意圖能直觀呈現飄降比10:1、2公里距離與1000英呎高度的幾何可行性。",
+    "image_prompt": "Educational side-view diagram on white background showing a drone at 1,000 ft altitude, 2 km horizontal distance from airport. Glide ratio 10:1 illustrated as a glide slope line reaching the runway. Labels in Traditional Chinese: 高度1,000英呎、水平距離2公里、飄降比10比1、機場跑道、可達落地點. Clean flat illustration, physically accurate."
+  },
+  "585": {
+    "index": 585,
+    "need_image": false,
+    "reason": "題目為燃油/電量不足的緊急應對決策，屬於程序判斷題，純靠文字即可理解，圖片幫助有限。",
+    "image_prompt": ""
+  },
+  "586": {
+    "index": 586,
+    "need_image": false,
+    "reason": "題目為操作人職責與拒絕不當要求的行政判斷題，屬於純程序/法規概念，不需視覺輔助。",
+    "image_prompt": ""
+  },
+  "587": {
+    "index": 587,
+    "need_image": false,
+    "reason": "題目為操作人最終決定權的法規概念題，屬於純職權定義判斷，閱讀文字即可作答。",
+    "image_prompt": ""
+  }
+}

@@ -17,3 +17,8 @@ public/data/images/
 
 # Firebase 上傳暫存
 webp_urls.json
+webp_urls_chatgpt.json
+
+# Python 編譯快取
+__pycache__/
+*.pyc
