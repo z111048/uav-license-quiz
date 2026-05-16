@@ -74,6 +74,15 @@ body{overflow:hidden;background:#0a0a1a;font-family:'Segoe UI',system-ui,sans-se
   pointer-events:none;line-height:1.95}
 #stat b{color:#4fc3f7}
 
+#stickviz{background:rgba(0,0,0,.72);padding:7px 11px;border-radius:8px;
+  font-size:.64rem;line-height:1.55;min-width:150px;display:none}
+.stick-row{display:grid;grid-template-columns:34px 1fr 34px;align-items:center;gap:6px;margin:4px 0}
+.stick-name{color:#ddd}
+.stick-val{color:#4fc3f7;text-align:right;font-variant-numeric:tabular-nums}
+.stick-bar{height:6px;background:rgba(255,255,255,.16);border-radius:999px;position:relative;overflow:hidden}
+.stick-fill{position:absolute;top:0;bottom:0;left:50%;width:0;background:#4fc3f7;border-radius:999px}
+.stick-fill.neg{left:auto;right:50%;background:#ffb74d}
+
 #opcamctl{background:rgba(0,0,0,.74);
   padding:6px 8px;border-radius:8px;font-size:.64rem;
   line-height:1.45;min-width:136px}
@@ -161,6 +170,14 @@ body{overflow:hidden;background:#0a0a1a;font-family:'Segoe UI',system-ui,sans-se
   border:1px solid rgba(255,255,255,.3);border-radius:4px;
   padding:2px 4px;font-size:.64rem;width:100%;margin-bottom:5px}
 
+#wind-indicator{position:absolute;left:50%;top:54px;transform:translateX(-50%);
+  display:none;align-items:center;gap:8px;z-index:23;background:rgba(0,0,0,.76);
+  border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:5px 11px;
+  font-size:.68rem;pointer-events:none}
+#wind-arrow{display:inline-block;color:#4fc3f7;font-size:1.1rem;line-height:1;
+  transform-origin:50% 50%}
+#wind-text{color:#eee;white-space:nowrap}
+
 /* ── Small landscape (phone ≤ 500 px tall) ── */
 @media screen and (max-height:500px) and (orientation:landscape){
   /* Shift step panel below the toggle */
@@ -184,8 +201,10 @@ body{overflow:hidden;background:#0a0a1a;font-family:'Segoe UI',system-ui,sans-se
 
   /* Right HUD panels: smaller text */
   #stat{font-size:.6rem;padding:5px 8px;line-height:1.65}
+  #stickviz{font-size:.58rem;padding:5px 8px;min-width:128px}
   #opcamctl{font-size:.6rem;padding:5px 7px;min-width:116px}
   #keyhint{font-size:.6rem;padding:5px 10px;line-height:1.85}
+  #wind-indicator{top:44px;font-size:.6rem;padding:4px 9px}
 }
 </style>
 </head>
@@ -223,6 +242,11 @@ body{overflow:hidden;background:#0a0a1a;font-family:'Segoe UI',system-ui,sans-se
     oninput="windTurbulence=+this.value;document.getElementById('turbVal').textContent=windTurbulence>0?windTurbulence.toFixed(1)+'x':'無'">
 </div>
 
+<div id="wind-indicator">
+  <span id="wind-arrow">↑</span>
+  <span id="wind-text">無風</span>
+</div>
+
 <div id="steps">
   <div id="shdr">📋 術科測驗流程</div>
 </div>
@@ -250,6 +274,13 @@ body{overflow:hidden;background:#0a0a1a;font-family:'Segoe UI',system-ui,sans-se
     <b>↑/↓</b> 前進／後退 &nbsp; <b>←/→</b> 左右平移<br>
     <b>R</b> 返航(RTH) &nbsp; <b>F</b> 切換飛行模式
   </div>
+  <div id="stickviz">
+    <b>搖桿輸入</b>
+    <div class="stick-row"><span class="stick-name">偏航</span><div class="stick-bar"><span class="stick-fill" id="barYaw"></span></div><span class="stick-val" id="vYaw">0%</span></div>
+    <div class="stick-row"><span class="stick-name">油門</span><div class="stick-bar"><span class="stick-fill" id="barThr"></span></div><span class="stick-val" id="vThr">0%</span></div>
+    <div class="stick-row"><span class="stick-name">前後</span><div class="stick-bar"><span class="stick-fill" id="barFwd"></span></div><span class="stick-val" id="vFwd">0%</span></div>
+    <div class="stick-row"><span class="stick-name">橫移</span><div class="stick-bar"><span class="stick-fill" id="barSide"></span></div><span class="stick-val" id="vSide">0%</span></div>
+  </div>
   <div id="opcamctl">
     <label>操作者視角高度：<span class="val" id="opEyeVal">1.70</span> m</label>
     <input id="opEye" type="range" min="1.40" max="1.90" step="0.01" value="1.70">
@@ -257,7 +288,11 @@ body{overflow:hidden;background:#0a0a1a;font-family:'Segoe UI',system-ui,sans-se
   <div id="stat">
     高度：<b id="sAlt">0.0</b> m<br>
     速度：<b id="sSpd">0.0</b> m/s<br>
+    水平：<b id="sHSpd">0.0</b> m/s<br>
+    垂直：<b id="sVSpd">0.0</b> m/s<br>
     航向：<b id="sHdg">180</b>°<br>
+    俯仰：<b id="sPitch">0</b>°<br>
+    橫滾：<b id="sRoll">0</b>°<br>
     模式：<b id="sMode">手動</b><br>
     音訊：<b id="sAud">未啟用</b><br>
     CSC：<b id="sCsc">示範模式</b><br>
@@ -1225,6 +1260,7 @@ const MAN = {
 }
 let manVelX = 0, manVelZ = 0, manVelY = 0  // physical velocity in world frame (m/s)
 let curThrInput = 0  // throttle input exposed to audio engine (-1 to +1)
+const manualInput = { yaw:0, throttle:0, forward:0, side:0 }
 let motorState = 'running' // 'stopped' | 'starting' | 'running' | 'stopping'
 let motorStateTimer = 0
 let cscHoldTimer = 0
@@ -1336,6 +1372,10 @@ function handleManualCsc(yawInput, thrInput, fwdCmd, sideCmd, dt) {
 function updateManual(dt) {
   if (powerState !== 'on') {
     curThrInput = 0
+    manualInput.yaw = 0
+    manualInput.throttle = 0
+    manualInput.forward = 0
+    manualInput.side = 0
     manVelX = 0; manVelY = 0; manVelZ = 0
     dronePitch += (0 - dronePitch) * Math.min(1, dt * 8)
     droneRoll  += (0 - droneRoll)  * Math.min(1, dt * 8)
@@ -1365,6 +1405,11 @@ function updateManual(dt) {
   if (keys['ArrowLeft'])  sideCmd -= 1
   fwdCmd  = Math.max(-1, Math.min(1, fwdCmd  - sticks.R.y))
   sideCmd = Math.max(-1, Math.min(1, sideCmd + sticks.R.x))
+
+  manualInput.yaw = yawInput
+  manualInput.throttle = thrInput
+  manualInput.forward = fwdCmd
+  manualInput.side = sideCmd
 
   const handlingCsc = handleManualCsc(yawInput, thrInput, fwdCmd, sideCmd, dt)
   if (motorState !== 'running') {
@@ -1542,7 +1587,9 @@ function toggleFlightMode() {
   if (btn) btn.textContent = flightMode === 'POS' ? '🛰 定位模式' : '🎯 姿態模式'
   const callout = document.getElementById('callout')
   if (callout) {
-    callout.textContent = flightMode === 'POS' ? '🛰 已切換：定位模式（GPS Hold）' : '🎯 已切換：姿態模式（無 GPS 輔助）'
+    callout.textContent = flightMode === 'POS'
+      ? '🛰 已切換：定位模式（GPS Hold），放桿後會嘗試定點懸停'
+      : '🎯 已切換：姿態模式（無 GPS 輔助），放桿後仍可能漂移，需手動修正'
     callout.classList.add('hi')
   }
 }
@@ -1561,6 +1608,64 @@ function setWindPanelVisible(v) {
   if (panel) panel.style.display = v ? 'block' : 'none'
 }
 function toggleWindPanel() { setWindPanelVisible(!windPanelVisible) }
+
+function cardinalLabelFromDeg(deg) {
+  const labels = ['北', '東北', '東', '東南', '南', '西南', '西', '西北']
+  return labels[Math.round((((deg % 360) + 360) % 360) / 45) % 8]
+}
+
+function updateWindIndicator() {
+  const box = document.getElementById('wind-indicator')
+  const arrow = document.getElementById('wind-arrow')
+  const text = document.getElementById('wind-text')
+  if (!box || !arrow || !text) return
+  if (windSpeed <= 0.05) {
+    box.style.display = 'none'
+    text.textContent = '無風'
+    return
+  }
+
+  const fromDeg = Math.round(((windDir * 180 / Math.PI) + 360) % 360)
+  const pushDeg = (fromDeg + 180) % 360
+  box.style.display = 'flex'
+  box.style.opacity = String(0.62 + Math.min(0.32, windSpeed / 18))
+  arrow.style.transform = `rotate(${pushDeg}deg)`
+  text.textContent = `${cardinalLabelFromDeg(fromDeg)}風 ${windSpeed.toFixed(1)} m/s → 推向${cardinalLabelFromDeg(pushDeg)}`
+}
+
+function setStickBar(id, value) {
+  const bar = document.getElementById('bar' + id)
+  const val = document.getElementById('v' + id)
+  if (!bar || !val) return
+  const pct = Math.round(value * 100)
+  bar.classList.toggle('neg', pct < 0)
+  bar.style.width = Math.abs(pct) / 2 + '%'
+  val.textContent = pct + '%'
+}
+
+function updateStickViz() {
+  setStickBar('Yaw', manualInput.yaw)
+  setStickBar('Thr', manualInput.throttle)
+  setStickBar('Fwd', manualInput.forward)
+  setStickBar('Side', manualInput.side)
+}
+
+let landingHintCooldown = 0
+function updateLandingHint(dt, horizontalSpeed) {
+  if (mode !== 'manual' || motorState !== 'running' || rthState !== 'inactive') return
+  landingHintCooldown = Math.max(0, landingHintCooldown - dt)
+  if (landingHintCooldown > 0 || dronePos.y > 0.8 || manVelY >= -0.75) return
+
+  const callout = document.getElementById('callout')
+  if (!callout) return
+  if (horizontalSpeed > 0.55) {
+    callout.textContent = '⚠️ 降落前先修正水平位移，再緩慢下降'
+  } else {
+    callout.textContent = '⚠️ 下降速度偏快，稍微回油門減速'
+  }
+  callout.classList.add('hi')
+  landingHintCooldown = 1.8
+}
 
 
 // ═══════════════════════════════════════════════════════════════
@@ -2273,12 +2378,20 @@ function animate() {
   const velY = (dronePos.y - prevPos.y) / Math.max(dt, 0.001)
   const velZ = (dronePos.z - prevPos.z) / Math.max(dt, 0.001)
   const speed = Math.sqrt(velX*velX + velY*velY + velZ*velZ)
+  const horizontalSpeed = Math.sqrt(velX*velX + velZ*velZ)
   document.getElementById('sAlt').textContent = dronePos.y.toFixed(1)
   document.getElementById('sSpd').textContent = speed.toFixed(1)
+  document.getElementById('sHSpd').textContent = horizontalSpeed.toFixed(1)
+  document.getElementById('sVSpd').textContent = velY.toFixed(1)
   let hdgDeg = Math.round(((droneYaw / PI) * 180 + 360) % 360)
   document.getElementById('sHdg').textContent = hdgDeg
+  document.getElementById('sPitch').textContent = Math.round(dronePitch * 180 / PI)
+  document.getElementById('sRoll').textContent = Math.round(droneRoll * 180 / PI)
   document.getElementById('sFMode').textContent = flightMode
   document.getElementById('sWindSpd').textContent = windSpeed.toFixed(1)
+  updateStickViz()
+  updateWindIndicator()
+  updateLandingHint(dt, horizontalSpeed)
 
   // Update drone audio — frequency tracks motorRpm, speed, and throttle input
   // In demo mode curThrInput stays 0 (smooth flight); manual mode sets it each frame
@@ -2497,6 +2610,7 @@ function setHudVisible(visible) {
     btn.style.borderColor = 'rgba(255,255,255,.6)'
     // Show/hide keyhint depending on current mode
     document.getElementById('keyhint').style.display = mode === 'manual' ? 'block' : 'none'
+    document.getElementById('stickviz').style.display = mode === 'manual' ? 'block' : 'none'
   } else {
     rpEl.style.display = 'none'
     btn.textContent = '📊'

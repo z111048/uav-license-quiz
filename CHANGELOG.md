@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026-05-16
+
+- Improved multirotor practical simulator manual-mode feedback in `public/exam-simulator-mr.html`:
+  - Added stick input visualization for yaw, throttle, forward/backward, and lateral movement.
+  - Expanded HUD telemetry with horizontal speed, vertical speed, pitch, and roll.
+  - Added ATTI/POS teaching callouts that explain drift vs GPS hold behavior.
+  - Added wind direction indicator showing source direction and push direction.
+  - Added landing safety hints for fast descent and excessive horizontal speed near the ground without changing motor stop or landing mechanics.
+- Updated `src/test/exam-simulator-mr.test.ts` to cover the new simulator UI and preserve existing CSC, RTH, and bounded wind model behavior.
+- Updated SEO/AEO metadata for the simulator improvements:
+  - `index.html` descriptions, keywords, WebApplication `featureList`, `dateModified`, FAQPage answer, and `<noscript>` fallback.
+  - `src/components/SetupView.tsx` visible FAQ simulator answer.
+  - `public/sitemap.xml` `<lastmod>` set to `2026-05-16`.
+
 ## 2026-04-28
 
 - ChatGPT image pipeline added alongside existing Gemini pipeline:

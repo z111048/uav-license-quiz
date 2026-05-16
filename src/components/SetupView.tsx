@@ -243,6 +243,10 @@ export default function SetupView({ questions, onStart, onReadingMode, onWhiteli
             <dt className="font-semibold">這個網站免費嗎？需要登入嗎？</dt>
             <dd className="mt-1 text-gray-600">完全免費，無需註冊帳號。四套完整題庫與術科模擬器均可直接使用，題庫跟隨民航局最新公告自動更新。</dd>
           </div>
+          <div>
+            <dt className="font-semibold">無人機術科測驗要考什麼？如何準備？</dt>
+            <dd className="mt-1 text-gray-600">術科測驗重點是實際飛行操控，例如起降、懸停與定點繞行。本站的多旋翼機 3D 模擬器支援 RTH、ATTI/POS、風場、搖桿輸入可視化、姿態 HUD 與降落安全提示，可用來熟悉操作手感。</dd>
+          </div>
         </dl>
       </details>
     </div>

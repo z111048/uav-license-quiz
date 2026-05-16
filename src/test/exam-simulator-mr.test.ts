@@ -409,6 +409,35 @@ describe('exam-simulator-mr.html — manual control', () => {
     expect(HTML).toContain('toggleHud')
     expect(HTML).toContain('hud-toggle')
   })
+
+  it('has manual stick input visualization for yaw, throttle, forward, and side inputs', () => {
+    expect(HTML).toContain('id="stickviz"')
+    expect(HTML).toContain('搖桿輸入')
+    expect(HTML).toContain('id="barYaw"')
+    expect(HTML).toContain('id="barThr"')
+    expect(HTML).toContain('id="barFwd"')
+    expect(HTML).toContain('id="barSide"')
+    expect(HTML).toContain('const manualInput = { yaw:0, throttle:0, forward:0, side:0 }')
+    expect(HTML).toContain('function updateStickViz()')
+  })
+
+  it('shows expanded attitude and speed telemetry in the HUD', () => {
+    expect(HTML).toContain('id="sHSpd"')
+    expect(HTML).toContain('id="sVSpd"')
+    expect(HTML).toContain('id="sPitch"')
+    expect(HTML).toContain('id="sRoll"')
+    expect(HTML).toContain('horizontalSpeed.toFixed(1)')
+    expect(HTML).toContain('Math.round(dronePitch * 180 / PI)')
+    expect(HTML).toContain('Math.round(droneRoll * 180 / PI)')
+  })
+
+  it('adds landing safety hints without changing landing stop mechanics', () => {
+    expect(HTML).toContain('function updateLandingHint(dt, horizontalSpeed)')
+    expect(HTML).toContain('下降速度偏快')
+    expect(HTML).toContain('降落前先修正水平位移')
+    expect(HTML).toContain('landingHintCooldown')
+    expect(HTML).toContain('landedStopTimer > 0.75')
+  })
 })
 
 // ═══════════════════════════════════════════════════════════════
@@ -655,6 +684,11 @@ describe('exam-simulator-mr.html — RTH and flight mode features', () => {
     expect(HTML).toContain("flightMode === 'ATTI' ? 'POS' : 'ATTI'")
   })
 
+  it('teaches the practical difference between ATTI drift and POS hold', () => {
+    expect(HTML).toContain('放桿後會嘗試定點懸停')
+    expect(HTML).toContain('放桿後仍可能漂移，需手動修正')
+  })
+
   it('has RTH and flight-mode buttons in the camera bar', () => {
     expect(HTML).toContain('id="rth-btn"')
     expect(HTML).toContain('id="fmode-btn"')
@@ -684,6 +718,15 @@ describe('exam-simulator-mr.html — RTH and flight mode features', () => {
     expect(HTML).toContain('id="windSpdSlider"')
     expect(HTML).toContain('id="windDirSelect"')
     expect(HTML).toContain('id="turbSlider"')
+  })
+
+  it('has a wind direction indicator that explains source and push direction', () => {
+    expect(HTML).toContain('id="wind-indicator"')
+    expect(HTML).toContain('id="wind-arrow"')
+    expect(HTML).toContain('id="wind-text"')
+    expect(HTML).toContain('function updateWindIndicator()')
+    expect(HTML).toContain('推向')
+    expect(HTML).toContain('arrow.style.transform = `rotate(${pushDeg}deg)`')
   })
 
   it('R key triggers toggleRTH in keydown handler', () => {
