@@ -1274,13 +1274,21 @@ const RTH_YAW_HOME = 0
 const GPS_KP = 0.6, GPS_KD = 0.25
 const RTH_HOR_KP = 1.2, RTH_HOR_KD = 0.5
 const RTH_ALT_KP = 1.5, RTH_ALT_KD = 2.5
+const GROUND_CONTACT_ALT = 0.03
+const GROUND_FRICTION = 40
+const GROUND_STOP_EPS = 0.03
 
 let flightMode = 'ATTI'   // 'ATTI' | 'POS'
 let holdPosX = 0, holdPosZ = 0
 
 let rthState = 'inactive' // 'inactive' | 'climbing' | 'navigating' | 'descending'
+let rthHoldX = 0, rthHoldZ = 0
 
 let windSpeed = 0, windDir = 0, windTurbulence = 0, windNoiseT = 0
+
+function clampUnit(v) {
+  return Math.max(-1, Math.min(1, v))
+}
 
 function computeWindVelocity(speed, dir, turbulence, t) {
   if (speed <= 0) return { x: 0, z: 0 }
@@ -1297,6 +1305,32 @@ function computeWindVelocity(speed, dir, turbulence, t) {
     wx += tx; wz += tz
   }
   return { x: wx, z: wz }
+}
+
+function computeWindHoldFeedForward(sinY, cosY) {
+  if (windSpeed <= 0.05) return { fwd: 0, side: 0 }
+  const steadyWind = computeWindVelocity(windSpeed, windDir, 0, windNoiseT)
+  const desiredAccX = -MAN.drag * steadyWind.x
+  const desiredAccZ = -MAN.drag * steadyWind.z
+  const fwdAcc  = desiredAccX * sinY - desiredAccZ * cosY
+  const sideAcc = desiredAccX * cosY + desiredAccZ * sinY
+  const accScale = MAN.maxTilt * MAN.gravity
+  return { fwd: fwdAcc / accScale, side: sideAcc / accScale }
+}
+
+function computeHorizontalHoldCommand(targetX, targetZ, kp, kd, sinY, cosY) {
+  const errX = targetX - dronePos.x
+  const errZ = targetZ - dronePos.z
+  const fwdVel  = manVelX * sinY - manVelZ * cosY
+  const sideVel = manVelX * cosY + manVelZ * sinY
+  const fwdErr  = errX * sinY - errZ * cosY
+  const sideErr = errX * cosY + errZ * sinY
+  const wind = computeWindHoldFeedForward(sinY, cosY)
+  return {
+    fwd: clampUnit(kp * fwdErr - kd * fwdVel + wind.fwd),
+    side: clampUnit(kp * sideErr - kd * sideVel + wind.side),
+    dist: Math.sqrt(errX * errX + errZ * errZ),
+  }
 }
 
 function startManualMotors() {
@@ -1428,38 +1462,32 @@ function updateManual(dt) {
 
   // ── RTH: override all stick inputs ──────────────────────────────
   if (rthState !== 'inactive') {
-    const errX = 0 - dronePos.x
-    const errZ = 0 - dronePos.z
-    const dist  = Math.sqrt(errX * errX + errZ * errZ)
-
     // RTH altitude PD controller
     let rthTargetAlt = RTH_ALT
     if (rthState === 'descending') rthTargetAlt = 0
     const altErr = rthTargetAlt - dronePos.y
-    thrInput = Math.max(-1, Math.min(1, altErr * RTH_ALT_KP - manVelY * RTH_ALT_KD))
+    thrInput = clampUnit(altErr * RTH_ALT_KP - manVelY * RTH_ALT_KD)
 
     if (rthState === 'climbing') {
-      // Hold XZ while climbing; once at altitude, start navigating
-      fwdCmd = 0; sideCmd = 0; yawInput = 0
+      // Hold the start point while climbing so wind does not carry the aircraft away.
+      const climbHold = computeHorizontalHoldCommand(rthHoldX, rthHoldZ, RTH_HOR_KP, RTH_HOR_KD, sinY, cosY)
+      fwdCmd = climbHold.fwd; sideCmd = climbHold.side; yawInput = 0
       if (dronePos.y >= RTH_ALT - 0.3) {
         rthState = 'navigating'
         updateRthStatus()
       }
     } else if (rthState === 'navigating') {
       // Fly toward home (0,0) using stronger PD gains
-      const fwdVel   = manVelX * sinY - manVelZ * cosY
-      const sideVel  = manVelX * cosY + manVelZ * sinY
-      const fwdErr2  = errX * sinY - errZ * cosY
-      const sideErr2 = errX * cosY + errZ * sinY
-      fwdCmd  = Math.max(-1, Math.min(1, RTH_HOR_KP * fwdErr2  - RTH_HOR_KD * fwdVel))
-      sideCmd = Math.max(-1, Math.min(1, RTH_HOR_KP * sideErr2 - RTH_HOR_KD * sideVel))
+      const navHold = computeHorizontalHoldCommand(0, 0, RTH_HOR_KP, RTH_HOR_KD, sinY, cosY)
+      fwdCmd = navHold.fwd; sideCmd = navHold.side
       yawInput = 0
-      if (dist < RTH_HOME_RADIUS) {
+      if (navHold.dist < RTH_HOME_RADIUS) {
         rthState = 'descending'
         updateRthStatus()
       }
     } else if (rthState === 'descending') {
-      fwdCmd = 0; sideCmd = 0; yawInput = 0
+      const landHold = computeHorizontalHoldCommand(0, 0, RTH_HOR_KP, RTH_HOR_KD, sinY, cosY)
+      fwdCmd = landHold.fwd; sideCmd = landHold.side; yawInput = 0
       if (dronePos.y <= 0.05 && Math.abs(manVelY) < 0.1 &&
           Math.abs(manVelX) < 0.25 && Math.abs(manVelZ) < 0.25) {
         rthState = 'inactive'
@@ -1479,14 +1507,8 @@ function updateManual(dt) {
       holdPosZ = dronePos.z
     } else {
       // Sticks neutral: apply PD correction toward holdPos
-      const errX = holdPosX - dronePos.x
-      const errZ = holdPosZ - dronePos.z
-      const fwdVel  = manVelX * sinY - manVelZ * cosY
-      const sideVel = manVelX * cosY + manVelZ * sinY
-      const fwdErr  = errX * sinY - errZ * cosY
-      const sideErr = errX * cosY + errZ * sinY
-      fwdCmd  = Math.max(-1, Math.min(1, GPS_KP * fwdErr  - GPS_KD * fwdVel))
-      sideCmd = Math.max(-1, Math.min(1, GPS_KP * sideErr - GPS_KD * sideVel))
+      const posHold = computeHorizontalHoldCommand(holdPosX, holdPosZ, GPS_KP, GPS_KD, sinY, cosY)
+      fwdCmd = posHold.fwd; sideCmd = posHold.side
     }
   }
 
@@ -1523,6 +1545,16 @@ function updateManual(dt) {
   manVelX = manVelX * hDrag + wv.x * (1 - hDrag)
   manVelZ = manVelZ * hDrag + wv.z * (1 - hDrag)
 
+  if (dronePos.y <= GROUND_CONTACT_ALT) {
+    const groundGrip = Math.max(0, 1 - GROUND_FRICTION * dt)
+    manVelX *= groundGrip
+    manVelZ *= groundGrip
+    if (Math.sqrt(manVelX * manVelX + manVelZ * manVelZ) < GROUND_STOP_EPS) {
+      manVelX = 0
+      manVelZ = 0
+    }
+  }
+
   dronePos.x += manVelX * dt
   dronePos.z += manVelZ * dt
 
@@ -1556,6 +1588,8 @@ function updateRthStatus() {
 
 function startRTH() {
   if (mode !== 'manual' || motorState !== 'running') return
+  rthHoldX = dronePos.x
+  rthHoldZ = dronePos.z
   rthState = dronePos.y < RTH_ALT - 0.5 ? 'climbing' : 'navigating'
   updateRthStatus()
 }

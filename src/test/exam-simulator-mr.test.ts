@@ -21,6 +21,12 @@ function getConst(name: string): number {
   return parseFloat(m[1])
 }
 
+function getManNumber(name: string): number {
+  const m = HTML.match(new RegExp(`${name}:\\s*(-?[\\d.]+)`))
+  if (!m) throw new Error(`MAN.${name} not found in simulator HTML`)
+  return parseFloat(m[1])
+}
+
 // ═══════════════════════════════════════════════════════════════
 //  1. HTML structure
 // ═══════════════════════════════════════════════════════════════
@@ -588,6 +594,22 @@ function computeWindVelocity(
   return { x: wx, z: wz }
 }
 
+function computeWindHoldFeedForwardForTest(
+  speed: number,
+  dir: number,
+  sinY: number,
+  cosY: number,
+): { fwd: number; side: number } {
+  if (speed <= 0.05) return { fwd: 0, side: 0 }
+  const steadyWind = computeWindVelocity(speed, dir, 0, 0)
+  const desiredAccX = -getManNumber('drag') * steadyWind.x
+  const desiredAccZ = -getManNumber('drag') * steadyWind.z
+  const fwdAcc = desiredAccX * sinY - desiredAccZ * cosY
+  const sideAcc = desiredAccX * cosY + desiredAccZ * sinY
+  const accScale = getManNumber('maxTilt') * getManNumber('gravity')
+  return { fwd: fwdAcc / accScale, side: sideAcc / accScale }
+}
+
 describe('computeWindVelocity — wind physics', () => {
   it('returns zero vector when speed is 0', () => {
     const wv = computeWindVelocity(0, 0, 0, 0)
@@ -650,6 +672,26 @@ describe('computeWindVelocity — wind physics', () => {
 
   it('has computeWindVelocity function in simulator HTML', () => {
     expect(HTML).toContain('function computeWindVelocity(')
+  })
+})
+
+describe('computeWindHoldFeedForward — wind compensation', () => {
+  it('leans forward into a north wind when facing home heading', () => {
+    const comp = computeWindHoldFeedForwardForTest(2, 0, 0, 1)
+    expect(comp.fwd).toBeGreaterThan(0)
+    expect(comp.side).toBeCloseTo(0, 5)
+  })
+
+  it('leans right into an east wind when facing home heading', () => {
+    const comp = computeWindHoldFeedForwardForTest(2, Math.PI / 2, 0, 1)
+    expect(comp.fwd).toBeCloseTo(0, 5)
+    expect(comp.side).toBeGreaterThan(0)
+  })
+
+  it('returns no compensation in calm wind', () => {
+    const comp = computeWindHoldFeedForwardForTest(0, 0, 0, 1)
+    expect(comp.fwd).toBe(0)
+    expect(comp.side).toBe(0)
   })
 })
 
@@ -741,8 +783,16 @@ describe('exam-simulator-mr.html — RTH and flight mode features', () => {
 
   it('POS mode applies PD correction toward holdPos when sticks neutral', () => {
     expect(HTML).toContain("flightMode === 'POS' && rthState === 'inactive'")
-    expect(HTML).toContain('GPS_KP * fwdErr')
-    expect(HTML).toContain('GPS_KD * fwdVel')
+    expect(HTML).toContain('computeHorizontalHoldCommand(holdPosX, holdPosZ, GPS_KP, GPS_KD')
+    expect(HTML).toContain('computeWindHoldFeedForward(sinY, cosY)')
+  })
+
+  it('horizontal hold adds steady wind feed-forward before clamping commands', () => {
+    expect(HTML).toContain('function computeWindHoldFeedForward(sinY, cosY)')
+    expect(HTML).toContain('const desiredAccX = -MAN.drag * steadyWind.x')
+    expect(HTML).toContain('const desiredAccZ = -MAN.drag * steadyWind.z')
+    expect(HTML).toContain('fwd: clampUnit(kp * fwdErr - kd * fwdVel + wind.fwd)')
+    expect(HTML).toContain('side: clampUnit(kp * sideErr - kd * sideVel + wind.side)')
   })
 
   it('RTH has three phases: climbing, navigating, descending', () => {
@@ -756,9 +806,25 @@ describe('exam-simulator-mr.html — RTH and flight mode features', () => {
     expect(HTML).toContain('lerpAngle(droneYaw, RTH_YAW_HOME')
   })
 
+  it('RTH holds horizontally during climb, navigation, and descent', () => {
+    expect(HTML).toContain('let rthHoldX = 0, rthHoldZ = 0')
+    expect(HTML).toContain('rthHoldX = dronePos.x')
+    expect(HTML).toContain('const climbHold = computeHorizontalHoldCommand(rthHoldX, rthHoldZ')
+    expect(HTML).toContain('const navHold = computeHorizontalHoldCommand(0, 0, RTH_HOR_KP, RTH_HOR_KD')
+    expect(HTML).toContain('const landHold = computeHorizontalHoldCommand(0, 0, RTH_HOR_KP, RTH_HOR_KD')
+  })
+
   it('wind drag model uses velocity-relaxation formula (physically bounded)', () => {
     expect(HTML).toContain('manVelX = manVelX * hDrag + wv.x * (1 - hDrag)')
     expect(HTML).toContain('manVelZ = manVelZ * hDrag + wv.z * (1 - hDrag)')
+  })
+
+  it('applies ground friction so landed aircraft do not slide indefinitely in wind', () => {
+    expect(HTML).toContain('const GROUND_CONTACT_ALT = 0.03')
+    expect(HTML).toContain('const GROUND_FRICTION = 40')
+    expect(HTML).toContain('if (dronePos.y <= GROUND_CONTACT_ALT)')
+    expect(HTML).toContain('manVelX *= groundGrip')
+    expect(HTML).toContain('manVelZ *= groundGrip')
   })
 
   it('RTH is cancelled on power off', () => {
