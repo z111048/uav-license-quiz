@@ -71,11 +71,14 @@ export default function QuizView({ queue, allQuestions, settings, imageMap, onFi
   // Scroll next button into view after answering so it's never hidden below fold
   useEffect(() => {
     if (answered && settings.instantFeedback) {
-      // Delay slightly to let the DOM insert the button before scrolling
+      // Use 'instant' (not 'smooth') — smooth scroll keeps iOS WebKit in "scroll-animation"
+      // mode until the animation completes (~400ms), during which taps are absorbed as scroll
+      // gestures rather than recognized as clicks, requiring the user to scroll slightly first.
       const scrollId = setTimeout(() => {
-        nextButtonRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+        nextButtonRef.current?.scrollIntoView({ behavior: 'instant', block: 'nearest' })
       }, 80)
-      // Wait for ghost-click prevention window (~300ms) before accepting taps on the button
+      // Ghost-click prevention: iOS/Android suppress clicks ~300ms at the same coordinates
+      // as the preceding touch lift. Keep button non-interactive until that window clears.
       const readyId = setTimeout(() => setNextReady(true), 350)
       return () => {
         clearTimeout(scrollId)
@@ -265,7 +268,9 @@ export default function QuizView({ queue, allQuestions, settings, imageMap, onFi
           <button
             ref={nextButtonRef}
             onClick={advance}
-            className={`btn-dark btn-lg w-full touch-manipulation ${!nextReady ? 'pointer-events-none' : ''}`}
+            className={`btn-dark btn-lg w-full touch-manipulation transition-opacity duration-300 ${
+              !nextReady ? 'opacity-0 pointer-events-none' : 'opacity-100'
+            }`}
           >
             下一題
           </button>
