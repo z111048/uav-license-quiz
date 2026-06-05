@@ -13,10 +13,10 @@ export default function BankSelector({ banks, currentId, onChange }: Props) {
         <button
           key={bank.id}
           onClick={() => onChange(bank.id)}
-          className={`w-full px-4 py-2 rounded-full text-sm font-medium border-2 transition-colors ${
+          className={`w-full px-4 py-2 rounded-full text-sm font-semibold border-2 transition-all duration-150 active:scale-[0.97] ${
             currentId === bank.id
-              ? 'bg-blue-600 border-blue-600 text-white'
-              : 'bg-white border-gray-300 text-gray-600 hover:border-blue-400 hover:text-blue-600'
+              ? 'bg-brand border-brand text-white shadow-sm'
+              : 'bg-white border-border text-gray-600 hover:border-brand hover:text-brand'
           }`}
         >
           {bank.label}

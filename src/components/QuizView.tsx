@@ -135,55 +135,61 @@ export default function QuizView({ queue, allQuestions, settings, imageMap, onFi
   }
 
   const optionStateClasses: Record<OptionState, string> = {
-    default:
-      'border-gray-200 bg-white hover:border-blue-400 hover:bg-blue-50 cursor-pointer',
-    correct: 'border-green-500 bg-green-100 text-green-800',
-    wrong: 'border-red-500 bg-red-100 text-red-800',
-    faded: 'border-gray-200 bg-white opacity-50',
+    default:  'border-border bg-white hover:border-brand-muted hover:bg-brand-subtle cursor-pointer',
+    correct:  'border-success bg-success-muted text-success-dark',
+    wrong:    'border-danger  bg-danger-muted  text-danger-dark',
+    faded:    'border-border  bg-white opacity-40',
   }
 
   const badgeStateClasses: Record<OptionState, string> = {
-    default: 'bg-gray-200 text-gray-700',
-    correct: 'bg-green-200',
-    wrong: 'bg-red-200',
-    faded: 'bg-gray-200',
+    default: 'bg-surface text-gray-600',
+    correct: 'bg-success-muted text-success-dark',
+    wrong:   'bg-danger-muted  text-danger-dark',
+    faded:   'bg-surface text-gray-400',
   }
 
+  const timerCircumference = 2 * Math.PI * 16
+
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6 md:p-8 relative">
+    <div className="page-card relative">
+      {/* 進度條 */}
+      <div className="h-1 bg-gray-100 rounded-full overflow-hidden mb-5">
+        <div
+          className="h-full bg-blue-500 rounded-full transition-all duration-500 ease-out"
+          style={{ width: `${((index + 1) / queue.length) * 100}%` }}
+        />
+      </div>
+
       {/* 頂部資訊欄 */}
-      <div className="flex justify-between items-center mb-6 text-sm md:text-base border-b pb-4">
-        <div className="font-bold text-gray-600">
-          題號：
-          <span className="text-blue-600 text-xl">{index + 1}</span>
-          {' '}/ {queue.length}
+      <div className="flex justify-between items-center mb-6 border-b border-border pb-4">
+        <div>
+          <p className="text-xs text-gray-400 mb-0.5">題目</p>
+          <p className="font-bold text-gray-800 leading-none">
+            <span className="text-blue-600 text-2xl">{index + 1}</span>
+            <span className="text-gray-400 text-sm"> / {queue.length}</span>
+          </p>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="text-gray-500 bg-gray-100 px-3 py-1 rounded-full text-xs whitespace-nowrap shrink-0">
+        <div className="flex items-center gap-3">
+          <div className="text-gray-500 bg-gray-100 px-3 py-1 rounded-full text-xs whitespace-nowrap shrink-0 hidden sm:block">
             {currentQ.chapter}
           </div>
-          <div
-            aria-label={`剩餘時間 ${timeLeft} 秒`}
-            aria-live="off"
-            className={`flex items-center font-mono font-bold text-xl ${
-              timeLeft <= 5 ? 'text-red-500 animate-pulse' : 'text-red-500'
-            }`}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6 mr-1"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
+          {/* 圓形倒數計時器 */}
+          <div aria-label={`剩餘時間 ${timeLeft} 秒`} aria-live="off" className="relative flex-shrink-0">
+            <svg className="w-12 h-12 -rotate-90" viewBox="0 0 40 40">
+              <circle cx="20" cy="20" r="16" fill="none" stroke="#f3f4f6" strokeWidth="3.5"/>
+              <circle
+                cx="20" cy="20" r="16" fill="none"
+                stroke={timeLeft <= 5 ? '#ef4444' : '#3b82f6'}
+                strokeWidth="3.5"
+                strokeDasharray={timerCircumference}
+                strokeDashoffset={timerCircumference * (1 - timeLeft / timeLimit)}
                 strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                style={{ transition: 'stroke-dashoffset 0.9s linear, stroke 0.3s' }}
               />
             </svg>
-            <span className="inline-block w-8 text-right">{timeLeft}</span>s
+            <span className={`absolute inset-0 flex items-center justify-center text-sm font-bold font-mono ${timeLeft <= 5 ? 'text-red-500 animate-pulse' : 'text-gray-700'}`}>
+              {timeLeft}
+            </span>
           </div>
         </div>
       </div>
@@ -216,13 +222,13 @@ export default function QuizView({ queue, allQuestions, settings, imageMap, onFi
       <div className="mb-4 flex justify-end">
         <button
           onClick={() => setShowHint((h) => !h)}
-          className="text-xs text-blue-500 hover:text-blue-700 underline"
+          className="text-xs text-brand hover:text-brand-dark underline"
         >
           顯示/隱藏答案提示
         </button>
       </div>
       {showHint && (
-        <div className="mb-4 p-3 bg-yellow-50 text-yellow-800 rounded border border-yellow-200 text-sm">
+        <div className="mb-4 p-3 bg-warn-subtle text-warn-dark rounded-lg border border-warn-muted text-sm">
           提示：正確答案是{' '}
           <span className="font-bold">{currentQ.options[currentQ.answer]}</span>
         </div>
@@ -255,11 +261,11 @@ export default function QuizView({ queue, allQuestions, settings, imageMap, onFi
 
       {/* 下一題按鈕 */}
       {answered && settings.instantFeedback && (
-        <div className="mt-6 pt-5 border-t border-gray-200">
+        <div className="mt-6 pt-5 border-t border-border">
           <button
             ref={nextButtonRef}
             onClick={advance}
-            className={`w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-4 rounded-lg transition touch-manipulation ${!nextReady ? 'pointer-events-none' : ''}`}
+            className={`btn-dark btn-lg w-full touch-manipulation ${!nextReady ? 'pointer-events-none' : ''}`}
           >
             下一題
           </button>

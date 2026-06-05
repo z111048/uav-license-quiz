@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-06-06
+
+- **Design system established** — unified typography, colour tokens, icon library, and component utilities applied across the entire frontend.
+  - **Typography**: Inter (Google Fonts, Latin/numerals only) loaded in `index.html`; `--font-sans` set in Tailwind v4 `@theme` with CJK fallback chain `PingFang TC → Noto Sans TC → Microsoft JhengHei`. `antialiased` added to root element.
+  - **Colour tokens** (`src/index.css` `@theme`): 7 semantic groups each with 4 shades (base / dark / muted / subtle): `brand`, `success`, `danger`, `warn`, `teal`, `surface`, `border`. All exposed as Tailwind utility classes; raw colour literals removed from all components.
+  - **Icon library**: `lucide-react` installed; replaced ad-hoc SVGs and emoji icons (`✕ ▶ ⚡ 🎯 🤖 🪁`) with `Play`, `BookOpen`, `Zap`, `Crosshair`, `Sparkles`, `HelpCircle`, `Cpu`, `ChevronRight`, `X`, `Search`, `CheckCircle2`, `AlertTriangle`, `Check`.
+  - **Component utilities** (`@layer components`): `.page-card`, `.section-header`, `.btn-{primary|outline|ghost|success|warn|dark|teal}` + `.btn-{lg|md|sm}`, `.badge-{brand|success|danger|warn|teal|neutral}`, `.input`, `.select`, `.btn-close`, `.action-row`.
+  - All 8 view components updated to consume the new tokens and icon system.
+  - `SetupView`: chapter checkboxes redesigned as full-area labelled card rows; `練習題數`/`每題作答時間` in 2-column grid on md+; secondary links as `.action-row` pill rows.
+  - `QuizView` / `ResultView` / `WhitelistView` / `AllAboveView` / `LicenseAdvisorView`: semantic tokens throughout, lucide icons for structural UI elements.
+
 ## 2026-05-16
 
 - Improved multirotor practical simulator manual-mode feedback in `public/exam-simulator-mr.html`:

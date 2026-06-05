@@ -33,15 +33,15 @@ function OptionGroup<T extends string>({
   onSelect: (v: T) => void
 }) {
   return (
-    <div className="grid grid-cols-1 gap-3">
+    <div className="grid grid-cols-1 gap-2.5">
       {options.map((opt) => (
         <button
           key={opt.value}
           onClick={() => onSelect(opt.value)}
-          className="w-full text-left px-5 py-4 rounded-xl border-2 border-gray-200 bg-white hover:border-blue-500 hover:bg-blue-50 transition-colors group"
+          className="w-full text-left px-5 py-4 rounded-xl border-2 border-border bg-white hover:border-brand hover:bg-brand-subtle transition-colors group active:scale-[0.98]"
         >
-          <div className="font-semibold text-gray-800 group-hover:text-blue-700">{opt.label}</div>
-          {opt.desc && <div className="text-sm text-gray-500 mt-0.5">{opt.desc}</div>}
+          <div className="font-semibold text-gray-800 group-hover:text-brand">{opt.label}</div>
+          {opt.desc && <div className="text-sm text-gray-500 mt-0.5 leading-relaxed">{opt.desc}</div>}
         </button>
       ))}
     </div>
@@ -252,16 +252,13 @@ export default function LicenseAdvisorView({ onSelectBank, onSkip }: Props) {
   const totalSteps = getTotalSteps()
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6 md:p-8">
-      <div className="flex items-center justify-between mb-6 border-b pb-4">
+    <div className="page-card">
+      <div className="flex items-center justify-between mb-6 border-b border-border pb-4">
         <div>
-          <h2 className="text-xl font-bold text-gray-800">🪁 我需要考哪種操作證？</h2>
+          <h2 className="text-xl font-semibold text-gray-900">🪁 我需要考哪種操作證？</h2>
           <p className="text-sm text-gray-500 mt-0.5">回答幾個問題，幫您找到對應的題庫</p>
         </div>
-        <button
-          onClick={onSkip}
-          className="text-sm text-gray-400 hover:text-blue-600 underline shrink-0 ml-4"
-        >
+        <button onClick={onSkip} className="btn-ghost btn-sm ml-4">
           跳過診斷
         </button>
       </div>
@@ -363,30 +360,27 @@ export default function LicenseAdvisorView({ onSelectBank, onSkip }: Props) {
       {step === 99 && result && (
         <div>
           <div
-            className={`rounded-xl p-5 mb-5 ${
+            className={`rounded-xl p-5 mb-5 border-2 ${
               result.needsExam
-                ? 'bg-blue-50 border-2 border-blue-200'
+                ? 'bg-brand-subtle border-brand-muted'
                 : result.recommendedBankId === null && result.licenseLabel !== '免操作證'
-                ? 'bg-red-50 border-2 border-red-200'
-                : 'bg-green-50 border-2 border-green-200'
+                ? 'bg-danger-subtle border-danger-muted'
+                : 'bg-success-subtle border-success-muted'
             }`}
           >
             <div className="text-3xl mb-2">{result.emoji}</div>
-            <div className="text-xl font-bold text-gray-800 mb-1">{result.licenseLabel}</div>
+            <div className="text-xl font-semibold text-gray-900 mb-1">{result.licenseLabel}</div>
             {result.licenseClass && (
-              <div className="text-sm font-medium text-gray-500 mb-3">{result.licenseClass}</div>
+              <div className="text-sm text-gray-500 mb-3">{result.licenseClass}</div>
             )}
             <p className="text-gray-700 text-sm leading-relaxed">{result.description}</p>
             {result.note && (
               <p className="mt-2 text-sm text-gray-500 italic">💡 {result.note}</p>
             )}
-
             {result.needsExam && result.examTypes.length > 0 && (
               <div className="mt-4 flex flex-wrap gap-2">
                 {result.examTypes.map((t) => (
-                  <span key={t} className="bg-blue-100 text-blue-700 text-xs font-medium px-3 py-1 rounded-full">
-                    {t}
-                  </span>
+                  <span key={t} className="badge-brand">{t}</span>
                 ))}
               </div>
             )}
@@ -394,29 +388,23 @@ export default function LicenseAdvisorView({ onSelectBank, onSkip }: Props) {
 
           {result.recommendedBankId ? (
             <div>
-              <p className="text-sm text-gray-600 mb-3 font-medium">
-                📚 建議練習題庫：<span className="text-blue-600">{result.recommendedBankLabel}</span>
+              <p className="text-sm text-gray-600 mb-3">
+                📚 建議練習題庫：<span className="font-semibold text-brand">{result.recommendedBankLabel}</span>
               </p>
               <button
                 onClick={() => onSelectBank(result.recommendedBankId!)}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow transition duration-200 mb-3"
+                className="btn-primary btn-lg w-full mb-3"
               >
                 前往「{result.recommendedBankLabel}」題庫練習 →
               </button>
             </div>
           ) : (
-            <button
-              onClick={onSkip}
-              className="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 rounded-lg shadow transition duration-200 mb-3"
-            >
+            <button onClick={onSkip} className="btn-dark btn-lg w-full mb-3">
               瀏覽所有題庫
             </button>
           )}
 
-          <button
-            onClick={handleRestart}
-            className="w-full text-sm text-gray-400 hover:text-gray-600 py-2"
-          >
+          <button onClick={handleRestart} className="btn-ghost btn-md w-full">
             ↩ 重新診斷
           </button>
         </div>
@@ -430,7 +418,7 @@ export default function LicenseAdvisorView({ onSelectBank, onSkip }: Props) {
             else if (step === 3) { setStep(2); setAgeGroup(null) }
             else if (step === 4) { setStep(3); setWeightCategory(null) }
           }}
-          className="mt-4 text-sm text-gray-400 hover:text-gray-600"
+          className="mt-4 btn-ghost btn-sm"
         >
           ← 上一步
         </button>

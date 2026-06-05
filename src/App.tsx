@@ -168,11 +168,22 @@ export default function App() {
   }
 
   return (
-    <div className="bg-gray-100 text-gray-800 min-h-screen font-sans">
+    <div className="bg-surface text-gray-900 min-h-screen font-sans antialiased">
       <div className="max-w-5xl mx-auto p-4 md:p-6">
         {/* Header */}
-        <header className="text-center mb-6">
-          <h1 className="text-3xl font-bold text-blue-600 mb-2">無人機操作證考照練習題庫</h1>
+        <header className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-14 h-14 bg-blue-600 rounded-2xl mb-3 shadow-md">
+            <svg viewBox="0 0 32 32" className="w-8 h-8 text-white" fill="currentColor" aria-hidden="true">
+              <rect x="14.5" y="3" width="3" height="26" rx="1.5"/>
+              <rect x="3" y="14.5" width="26" height="3" rx="1.5"/>
+              <circle cx="7" cy="7" r="4.5"/>
+              <circle cx="25" cy="7" r="4.5"/>
+              <circle cx="7" cy="25" r="4.5"/>
+              <circle cx="25" cy="25" r="4.5"/>
+              <circle cx="16" cy="16" r="4"/>
+            </svg>
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-1.5">無人機操作證考照練習題庫</h1>
           <p className="text-gray-500 text-sm">民航局最新題庫｜普通／專業操作證、屆期換證｜倒數計時、章節篩選、錯題回顧</p>
         </header>
 
@@ -195,8 +206,9 @@ export default function App() {
 
         {/* Loading / Error state */}
         {view !== 'advisor' && loading && (
-          <div className="bg-white rounded-xl shadow-lg p-8 text-center text-gray-500">
-            載入題庫中...
+          <div className="bg-white rounded-xl shadow-lg p-12 flex flex-col items-center gap-3 text-gray-500">
+            <div className="w-10 h-10 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" />
+            <span className="text-sm">載入題庫中...</span>
           </div>
         )}
 

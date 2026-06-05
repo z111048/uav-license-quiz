@@ -126,7 +126,7 @@ uav-license-quiz/
 │   ├── App.tsx            # Main state management, view routing
 │   ├── types.ts           # TypeScript type definitions + BANK_CONFIGS (includes OptionKey)
 │   ├── utils.ts           # Shared utilities: shuffleArray, normalizeBankData
-│   ├── index.css          # Tailwind v4 import + custom styles
+│   ├── index.css          # Tailwind v4 import + @theme design tokens + @layer components utilities
 │   ├── components/
 │   │   ├── BankSelector.tsx   # Bank version tabs
 │   │   ├── SetupView.tsx      # Chapter selection, settings (fieldset/legend, inline error state)
@@ -179,8 +179,35 @@ uav-license-quiz/
 ### Frontend stack
 - **Vite + React + TypeScript** — build tooling
 - **Tailwind CSS v4** — styling via `@tailwindcss/vite` plugin
+- **lucide-react** — icon library; used throughout for structural UI icons (close, search, nav arrows, feature icons)
 - **Vitest + @testing-library/react** — unit and component tests; `defineConfig` imported from `vitest/config` in `vite.config.ts` so the `test` block is typed; jsdom environment; `Element.prototype.scrollIntoView` and `window.scrollTo` stubbed in `src/test/setup.ts`
 - **Main container**: `max-w-5xl mx-auto` in `App.tsx` — constrains content width to 1024px on desktop
+
+### Design system (`src/index.css`)
+
+**Typography** — Inter font (Google Fonts, Latin/numerals only via `unicode-range`) declared in `index.html`; `--font-sans` in `@theme` sets the full fallback chain:
+```
+'Inter' → 'PingFang TC' → 'Noto Sans TC' → 'Microsoft JhengHei' → system-ui
+```
+
+**Colour tokens** — defined in `@theme`, each becomes a full set of Tailwind utility classes (`bg-*`, `text-*`, `border-*`):
+
+| Token group | Shades | Purpose |
+|---|---|---|
+| `brand` | base / dark / muted / subtle | Primary actions, active states |
+| `success` | base / dark / muted / subtle | Correct answers, green feedback |
+| `danger` | base / dark / muted / subtle | Errors, wrong answers |
+| `warn` | base / dark / muted / subtle | Retry button, warnings |
+| `teal` | base / dark / muted / subtle | Simulator accent |
+| `surface` | — | Page background (`#f3f4f6`) |
+| `border` / `border-strong` | — | All dividers and input borders |
+
+**Component utilities** (`@layer components`) — use these instead of writing Tailwind utility soup in every component:
+- **Cards**: `.page-card` (white rounded-xl shadow + padding), `.section-header` (flex row + bottom border)
+- **Buttons**: `.btn-{primary|outline|ghost|success|warn|dark|teal}` + size modifiers `.btn-{lg|md|sm}`
+- **Badges/Pills**: `.badge-{brand|success|danger|warn|teal|neutral}`
+- **Form controls**: `.input`, `.select`
+- **Misc**: `.btn-close` (icon + label close button), `.action-row` (secondary link-style button with icon)
 
 ### View management
 `App.tsx` manages a `view: ViewType` state and conditionally renders one of eight views/components:

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { X, Search } from 'lucide-react'
 
 interface Props {
   whitelist: string[]
@@ -13,43 +14,45 @@ export default function WhitelistView({ whitelist, onClose }: Props) {
     : whitelist
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6 md:p-8">
-      <div className="flex justify-between items-center mb-6 border-b pb-4">
+    <div className="page-card">
+      <div className="section-header">
         <div>
-          <h2 className="text-2xl font-bold text-gray-800">答案白名單</h2>
-          <p className="text-sm text-gray-500 mt-1">
-            看到這些選項內容，直接選它就對了 (唯一解)
-          </p>
+          <h2 className="text-xl font-semibold text-gray-900">答案白名單</h2>
+          <p className="text-sm text-gray-500 mt-0.5">看到這些選項內容，直接選它就對了（唯一解）</p>
         </div>
-        <button onClick={onClose} className="text-gray-500 hover:text-gray-700 font-medium">
-          ✕ 關閉
+        <button onClick={onClose} className="btn-close">
+          <X size={16} />
+          關閉
         </button>
       </div>
 
-      <div className="mb-4">
+      <div className="relative mb-4">
+        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
         <input
           type="text"
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
           placeholder="搜尋白名單關鍵字..."
-          className="w-full p-2 border rounded bg-gray-50"
+          className="input pl-9"
         />
       </div>
 
-      <div className="h-96 overflow-y-auto space-y-2 pr-2 border rounded p-2 bg-gray-50">
+      <div className="h-96 overflow-y-auto space-y-1.5 pr-1 rounded-lg border border-border p-2 bg-surface">
         {filtered.length === 0 ? (
-          <div className="text-gray-500 text-center py-4">目前沒有資料</div>
+          <div className="text-gray-400 text-sm text-center py-8">沒有符合的項目</div>
         ) : (
           filtered.map((item, i) => (
             <div
               key={i}
-              className="p-2 bg-white border rounded text-gray-700 text-sm hover:bg-indigo-50 transition"
+              className="px-3 py-2 bg-white border border-border rounded-lg text-sm text-gray-700 hover:border-brand hover:bg-brand-subtle transition-colors"
             >
               {item}
             </div>
           ))
         )}
       </div>
+
+      <p className="text-xs text-gray-400 mt-3 text-right">共 {filtered.length} 筆</p>
     </div>
   )
 }

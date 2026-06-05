@@ -1,10 +1,181 @@
 @import "tailwindcss";
 
-/* 自定義樣式 */
-.option-btn {
-  transition: all 0.2s;
+/* ═══════════════════════════════════════════════
+   DESIGN TOKENS  (@theme → Tailwind utility classes)
+   ─────────────────────────────────────────────── */
+@theme {
+  /* ── Typography ── */
+  --font-sans: 'Inter', 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei',
+    system-ui, sans-serif;
+
+  /* ── Brand / Primary ── */
+  --color-brand:        #2563eb;
+  --color-brand-dark:   #1d4ed8;
+  --color-brand-muted:  #dbeafe;
+  --color-brand-subtle: #eff6ff;
+
+  /* ── Success ── */
+  --color-success:        #16a34a;
+  --color-success-dark:   #15803d;
+  --color-success-muted:  #dcfce7;
+  --color-success-subtle: #f0fdf4;
+
+  /* ── Danger ── */
+  --color-danger:         #ef4444;
+  --color-danger-dark:    #dc2626;
+  --color-danger-muted:   #fee2e2;
+  --color-danger-subtle:  #fef2f2;
+
+  /* ── Warning ── */
+  --color-warn:        #d97706;
+  --color-warn-dark:   #b45309;
+  --color-warn-muted:  #fde68a;
+  --color-warn-subtle: #fffbeb;
+
+  /* ── Teal (simulator accent) ── */
+  --color-teal:        #0d9488;
+  --color-teal-dark:   #0f766e;
+  --color-teal-muted:  #99f6e4;
+  --color-teal-subtle: #f0fdfa;
+
+  /* ── Surface / Border ── */
+  --color-surface:       #f3f4f6;
+  --color-border:        #e5e7eb;
+  --color-border-strong: #d1d5db;
 }
 
+/* ═══════════════════════════════════════════════
+   COMPONENT UTILITIES  (@layer components)
+   ─────────────────────────────────────────────── */
+@layer components {
+
+  /* ── Card containers ── */
+  .page-card {
+    @apply bg-white rounded-xl shadow-md p-6 md:p-8;
+  }
+
+  /* ── Section header row + divider ── */
+  .section-header {
+    @apply flex justify-between items-start mb-6 border-b border-border pb-4;
+  }
+
+  /* ── Button base (shared via grouped selector — no @apply chaining) ── */
+  .btn-primary,
+  .btn-outline,
+  .btn-ghost,
+  .btn-success,
+  .btn-warn,
+  .btn-dark,
+  .btn-teal {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    user-select: none;
+    transition-property: color, background-color, border-color, box-shadow, transform;
+    transition-duration: 150ms;
+    transition-timing-function: ease;
+  }
+  .btn-primary:active,
+  .btn-outline:active,
+  .btn-ghost:active,
+  .btn-success:active,
+  .btn-warn:active,
+  .btn-dark:active,
+  .btn-teal:active {
+    transform: scale(0.97);
+  }
+  .btn-primary:disabled,
+  .btn-outline:disabled,
+  .btn-ghost:disabled,
+  .btn-success:disabled,
+  .btn-warn:disabled,
+  .btn-dark:disabled,
+  .btn-teal:disabled {
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  /* Size modifiers */
+  .btn-lg { @apply py-3 px-5 text-base; }
+  .btn-md { @apply py-2.5 px-4 text-sm; }
+  .btn-sm { @apply py-1.5 px-3 text-xs; }
+
+  /* Colour variants */
+  .btn-primary { @apply bg-brand       text-white hover:bg-brand-dark   shadow-sm; }
+  .btn-outline  { @apply border-2 border-brand text-brand hover:bg-brand-subtle; }
+  .btn-ghost    { @apply text-gray-500  hover:text-brand hover:bg-surface; }
+  .btn-success  { @apply bg-success     text-white hover:bg-success-dark shadow-sm; }
+  .btn-warn     { @apply bg-warn        text-white hover:bg-warn-dark    shadow-sm; }
+  .btn-dark     { @apply bg-gray-800    text-white hover:bg-gray-900     shadow-sm; }
+  .btn-teal     { @apply bg-teal        text-white hover:bg-teal-dark    shadow-sm; }
+
+  /* ── Close button ── */
+  .btn-close {
+    @apply inline-flex items-center gap-1 text-sm text-gray-400
+           hover:text-gray-700 px-2 py-1 rounded-lg hover:bg-surface transition-colors;
+  }
+
+  /* ── Secondary action row (icon + label) ── */
+  .action-row {
+    @apply flex items-center gap-2 w-full px-4 py-2.5 rounded-lg text-sm
+           font-medium transition-colors text-left;
+  }
+
+  /* ── Badges / Pills ── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.25rem 0.625rem;
+    border-radius: 9999px;
+  }
+  .badge-brand   { @apply bg-brand-muted   text-brand; }
+  .badge-success { @apply bg-success-muted text-success-dark; }
+  .badge-danger  { @apply bg-danger-muted  text-danger-dark; }
+  .badge-warn    { @apply bg-warn-muted    text-warn-dark; }
+  .badge-teal    { @apply bg-teal-muted    text-teal-dark; }
+  .badge-neutral { @apply bg-surface       text-gray-600; }
+  /* Apply base .badge styles to all badge variants */
+  .badge-brand, .badge-success, .badge-danger,
+  .badge-warn, .badge-teal, .badge-neutral {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.25rem 0.625rem;
+    border-radius: 9999px;
+  }
+
+  /* ── Form controls ── */
+  .input {
+    @apply w-full rounded-lg border border-border bg-surface px-3 py-2
+           text-sm text-gray-800 placeholder:text-gray-400
+           focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent
+           transition-colors;
+  }
+
+  .select {
+    @apply w-full rounded-lg border border-border bg-surface px-3 py-2
+           text-sm text-gray-800
+           focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent
+           transition-colors appearance-none cursor-pointer;
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   CUSTOM STYLES
+   ─────────────────────────────────────────────── */
+
+.option-btn {
+  transition: border-color 0.12s, background-color 0.12s;
+}
 .option-btn:active {
   transform: scale(0.98);
 }
