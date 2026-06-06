@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { BankData, BankConfig, Question, QuizSettings, UserRecord, ViewType, StudyAids, ImageMap, BANK_CONFIGS } from './types'
 import { shuffleArray, normalizeBankData } from './utils'
 import BankSelector from './components/BankSelector'
@@ -15,6 +15,12 @@ export default function App() {
   const [view, setView] = useState<ViewType>('advisor')
   const [bankData, setBankData] = useState<BankData | null>(null)
   const [currentBankId, setCurrentBankId] = useState<string>(BANK_CONFIGS[0].id)
+
+  // Refs for use inside the popstate handler (avoids stale closure)
+  const viewRef = useRef<ViewType>('advisor')
+  const currentBankIdRef = useRef<string>(BANK_CONFIGS[0].id)
+  const quizQueueRef = useRef<Question[]>([])
+  const quizRecordsRef = useRef<UserRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [studyAids, setStudyAids] = useState<StudyAids | null>(null)
@@ -35,6 +41,59 @@ export default function App() {
 
   // Reading state
   const [readingChapters, setReadingChapters] = useState<string[]>([])
+
+  // Keep refs in sync so the popstate handler always has fresh values
+  useEffect(() => { viewRef.current = view }, [view])
+  useEffect(() => { currentBankIdRef.current = currentBankId }, [currentBankId])
+  useEffect(() => { quizQueueRef.current = quizQueue }, [quizQueue])
+  useEffect(() => { quizRecordsRef.current = quizRecords }, [quizRecords])
+
+  // Navigate to a view while maintaining browser history.
+  // Pass targetBankId when the bank is also changing (e.g. handleBankChange).
+  // Use replace=true for redirects (guard fallbacks, initial URL).
+  function navigateTo(newView: ViewType, targetBankId?: string, replace = false) {
+    const bankId = targetBankId ?? currentBankIdRef.current
+    const method = replace ? 'replaceState' : 'pushState'
+    history[method]({ view: newView, bankId }, '', `#${newView}`)
+    setView(newView)
+  }
+
+  // Attach popstate listener once on mount and set the initial URL hash.
+  useEffect(() => {
+    const validViews: ViewType[] = ['advisor', 'setup', 'quiz', 'reading', 'whitelist', 'allabove', 'study', 'result']
+    const initialHash = window.location.hash.slice(1) as ViewType
+    const initialView = validViews.includes(initialHash) ? initialHash : 'advisor'
+    // Don't deep-link directly into stateful views — fall back to setup
+    const safeInitial = (initialView === 'quiz' || initialView === 'result') ? 'setup' : initialView
+    history.replaceState({ view: safeInitial, bankId: BANK_CONFIGS[0].id }, '', `#${safeInitial}`)
+    if (safeInitial !== view) setView(safeInitial)
+
+    function handlePopState(e: PopStateEvent) {
+      let targetView = (e.state?.view as ViewType | undefined) ?? 'advisor'
+      const targetBankId = (e.state?.bankId as string | undefined) ?? BANK_CONFIGS[0].id
+
+      // Guard: stateful views need in-memory state
+      if (targetView === 'quiz' && quizQueueRef.current.length === 0) targetView = 'setup'
+      if (targetView === 'result' && quizRecordsRef.current.length === 0) targetView = 'setup'
+
+      // Restore bank if it changed
+      if (targetBankId !== currentBankIdRef.current) {
+        setCurrentBankId(targetBankId)
+        setStudyAids(null)
+        setStudyAidsError(null)
+        if (targetBankId !== 'professional') setImageMap(null)
+      }
+
+      setView(targetView)
+      // Fix URL if we had to redirect (guard case)
+      if (targetView !== (e.state?.view as ViewType)) {
+        history.replaceState({ view: targetView, bankId: targetBankId }, '', `#${targetView}`)
+      }
+    }
+
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const currentBank: BankConfig = BANK_CONFIGS.find((b) => b.id === currentBankId) ?? BANK_CONFIGS[0]
 
@@ -86,15 +145,15 @@ export default function App() {
 
   const handleBankChange = useCallback((id: string) => {
     setCurrentBankId(id)
-    setView('setup')
     setStudyAids(null)
     setStudyAidsError(null)
     if (id !== 'professional') setImageMap(null)
-  }, [])
+    navigateTo('setup', id)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleAdvisorSelectBank(bankId: string) {
     setCurrentBankId(bankId)
-    setView('setup')
+    navigateTo('setup', bankId)
   }
 
   function handleStart(settings: QuizSettings) {
@@ -110,22 +169,22 @@ export default function App() {
 
     setQuizQueue(queue)
     setQuizSettings(settings)
-    setView('quiz')
+    navigateTo('quiz')
   }
 
   function handleReadingMode(chapters: string[]) {
     setReadingChapters(chapters)
-    setView('reading')
+    navigateTo('reading')
     loadStudyAids(currentBankId)
   }
 
   function handleFinish(records: UserRecord[]) {
     setQuizRecords(records)
-    setView('result')
+    navigateTo('result')
   }
 
   function handleRestart() {
-    setView('setup')
+    navigateTo('setup')
   }
 
   function handleRetryWrong() {
@@ -136,7 +195,7 @@ export default function App() {
       .filter((q): q is Question => q !== undefined)
     if (wrongQuestions.length === 0) return
     setQuizQueue(wrongQuestions)
-    setView('quiz')
+    navigateTo('quiz')
   }
 
   function loadStudyAids(bankId: string) {
@@ -161,7 +220,7 @@ export default function App() {
   }
 
   function handleStudyMode() {
-    setView('study')
+    navigateTo('study')
     loadStudyAids(currentBankId)
   }
 
@@ -198,7 +257,7 @@ export default function App() {
         {view === 'advisor' && (
           <LicenseAdvisorView
             onSelectBank={handleAdvisorSelectBank}
-            onSkip={() => setView('setup')}
+            onSkip={() => navigateTo('setup')}
           />
         )}
 
@@ -232,10 +291,10 @@ export default function App() {
                 currentBankId={currentBankId}
                 onStart={handleStart}
                 onReadingMode={handleReadingMode}
-                onWhitelist={() => setView('whitelist')}
-                onAllAbove={() => setView('allabove')}
+                onWhitelist={() => navigateTo('whitelist')}
+                onAllAbove={() => navigateTo('allabove')}
                 onStudyMode={handleStudyMode}
-                onAdvisor={() => setView('advisor')}
+                onAdvisor={() => navigateTo('advisor')}
                 onSimulator={() => {
                   const BASE_URL = import.meta.env.BASE_URL as string
                   window.open(BASE_URL + 'exam-simulator-mr.html', '_blank', 'noopener,noreferrer')
@@ -259,21 +318,21 @@ export default function App() {
                 selectedChapters={readingChapters}
                 imageMap={imageMap}
                 studyAids={studyAids}
-                onClose={() => setView('setup')}
+                onClose={() => navigateTo('setup')}
               />
             )}
 
             {view === 'whitelist' && (
               <WhitelistView
                 whitelist={bankData.answer_option_whitelist}
-                onClose={() => setView('setup')}
+                onClose={() => navigateTo('setup')}
               />
             )}
 
             {view === 'allabove' && (
               <AllAboveView
                 questions={bankData.questions}
-                onClose={() => setView('setup')}
+                onClose={() => navigateTo('setup')}
               />
             )}
 
@@ -292,7 +351,7 @@ export default function App() {
                 studyAidsLoading={studyAidsLoading}
                 studyAidsError={studyAidsError}
                 imageMap={imageMap}
-                onClose={() => setView('setup')}
+                onClose={() => navigateTo('setup')}
               />
             )}
           </>
