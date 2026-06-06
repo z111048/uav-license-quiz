@@ -87,11 +87,9 @@ export default function App() {
   const handleBankChange = useCallback((id: string) => {
     setCurrentBankId(id)
     setView('setup')
-    if (id !== 'professional') {
-      setStudyAids(null)
-      setStudyAidsError(null)
-      setImageMap(null)
-    }
+    setStudyAids(null)
+    setStudyAidsError(null)
+    if (id !== 'professional') setImageMap(null)
   }, [])
 
   function handleAdvisorSelectBank(bankId: string) {
@@ -118,6 +116,7 @@ export default function App() {
   function handleReadingMode(chapters: string[]) {
     setReadingChapters(chapters)
     setView('reading')
+    loadStudyAids(currentBankId)
   }
 
   function handleFinish(records: UserRecord[]) {
@@ -140,20 +139,14 @@ export default function App() {
     setView('quiz')
   }
 
-  function handleStudyMode() {
-    setView('study')
-    if (currentBankId !== 'professional') return
+  function loadStudyAids(bankId: string) {
     if (studyAids !== null || studyAidsLoading) return
-
     setStudyAidsLoading(true)
     setStudyAidsError(null)
     const BASE_URL = import.meta.env.BASE_URL as string
-    fetch(BASE_URL + 'data/professional_study_aids.json')
+    fetch(BASE_URL + `data/${bankId}_study_aids.json`)
       .then((res) => {
-        if (res.status === 404) {
-          setStudyAids(null)
-          return null
-        }
+        if (res.status === 404) return null
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         return res.json()
       })
@@ -165,6 +158,11 @@ export default function App() {
         setStudyAidsError(`載入失敗：${err.message}`)
         setStudyAidsLoading(false)
       })
+  }
+
+  function handleStudyMode() {
+    setView('study')
+    loadStudyAids(currentBankId)
   }
 
   return (
@@ -260,6 +258,7 @@ export default function App() {
                 questions={bankData.questions}
                 selectedChapters={readingChapters}
                 imageMap={imageMap}
+                studyAids={studyAids}
                 onClose={() => setView('setup')}
               />
             )}

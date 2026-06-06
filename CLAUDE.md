@@ -28,6 +28,18 @@ export ANTHROPIC_API_KEY=sk-ant-...
 uv run generate_study_aids.py
 ```
 
+**Generate AI study aids for any bank via Codex CLI** (requires Codex CLI login; skips law chapter by default):
+```bash
+uv run scripts/generate_aids_codex.py                     # general bank，非法規章節
+uv run scripts/generate_aids_codex.py --bank professional  # 專業操作證
+uv run scripts/generate_aids_codex.py --include-law        # 含法規章節
+uv run scripts/generate_aids_codex.py --resume             # 斷點續傳
+uv run scripts/generate_aids_codex.py --batch-size 15      # 調整批次大小（預設 25）
+```
+Output: `public/data/{bank}_study_aids.json` — same format as `professional_study_aids.json`.
+Displayed in **ReadingView** as collapsible 「題目解析」 under each question.
+Uses `npx codex exec` (non-interactive) per batch; Codex writes results to a temp file which the script reads and accumulates.
+
 **Legacy single-bank processing** (after manually editing `question_bank.json`):
 ```bash
 python process_question_bank.py

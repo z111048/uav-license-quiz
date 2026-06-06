@@ -1,14 +1,16 @@
 import { useState } from 'react'
-import { Question, ImageMap } from '../types'
+import { X } from 'lucide-react'
+import { Question, ImageMap, StudyAids } from '../types'
 
 interface Props {
   questions: Question[]
   selectedChapters: string[]
   imageMap?: ImageMap | null
+  studyAids?: StudyAids | null
   onClose: () => void
 }
 
-export default function ReadingView({ questions, selectedChapters, imageMap, onClose }: Props) {
+export default function ReadingView({ questions, selectedChapters, imageMap, studyAids, onClose }: Props) {
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null)
   const filtered = questions.filter((q) => selectedChapters.includes(q.chapter))
 
@@ -35,18 +37,22 @@ export default function ReadingView({ questions, selectedChapters, imageMap, onC
             onClick={(e) => e.stopPropagation()}
           />
           <button
-            className="absolute top-4 right-4 text-white text-3xl font-light leading-none"
+            className="absolute top-4 right-4 text-white/80 hover:text-white"
             onClick={() => setLightboxSrc(null)}
             aria-label="關閉"
           >
-            ✕
+            <X size={28} />
           </button>
         </div>
       )}
-      <div className="flex justify-between items-center mb-6 border-b pb-4">
-        <h2 className="text-2xl font-bold text-gray-800">題庫閱讀模式</h2>
-        <button onClick={onClose} className="text-gray-500 hover:text-gray-700 font-medium">
-          ✕ 關閉
+      <div className="section-header">
+        <div>
+          <h2 className="text-xl font-semibold text-gray-900">題庫閱讀模式</h2>
+          <p className="text-sm text-gray-500 mt-0.5">含答案解析，適合複習理解</p>
+        </div>
+        <button onClick={onClose} className="btn-close">
+          <X size={16} />
+          關閉
         </button>
       </div>
 
@@ -57,40 +63,36 @@ export default function ReadingView({ questions, selectedChapters, imageMap, onC
 
           return (
             <div key={chapter} className="mb-8">
-              <h3 className="text-xl font-bold text-blue-800 bg-blue-50 p-3 rounded-lg mb-4 border-l-4 border-blue-600">
-                {chapter} (共 {chapterQuestions.length} 題)
+              <h3 className="text-base font-semibold text-brand bg-brand-subtle px-4 py-2.5 rounded-lg mb-4 border-l-4 border-brand">
+                {chapter} <span className="text-brand-dark font-normal text-sm">（共 {chapterQuestions.length} 題）</span>
               </h3>
 
-              <div className="space-y-6">
+              <div className="space-y-5">
                 {chapterQuestions.map((q) => {
                   const globalIdx = questions.indexOf(q)
                   const imgUrl = globalIdx >= 0 ? imageMap?.[String(globalIdx)] : undefined
+                  const aid = globalIdx >= 0 ? studyAids?.[String(globalIdx)] : undefined
                   return (
-                  <div key={q.id} className="border-b border-gray-200 pb-4 last:border-0">
-                    <div className="flex gap-2">
-                      <span className="font-bold text-gray-500 text-sm min-w-[2rem] pt-1">
+                  <div key={q.id} className="border border-border rounded-xl p-4 bg-white">
+                    <div className="flex gap-3">
+                      <span className="font-bold text-gray-400 text-xs min-w-[2rem] pt-1 shrink-0">
                         #{q.id}
                       </span>
-                      <div className="flex-1">
-                        <div className="flex items-start justify-between">
-                          <p className="font-bold text-gray-800 text-lg mb-2">{q.question}</p>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2 mb-3">
+                          <p className="font-semibold text-gray-800 leading-relaxed">{q.question}</p>
                           {q.can_memorize_directly && (
-                            <span className="inline-block bg-indigo-100 text-indigo-700 text-xs px-2 py-1 rounded-full font-bold ml-2 whitespace-nowrap shrink-0">
-                              ⚡ 可無腦背
-                            </span>
+                            <span className="badge-brand shrink-0 whitespace-nowrap">⚡ 可直背</span>
                           )}
                         </div>
 
                         {imgUrl && (
                           <div className="mb-3">
-                            <div
-                              className="cursor-zoom-in"
-                              onClick={() => setLightboxSrc(imgUrl)}
-                            >
+                            <div className="cursor-zoom-in" onClick={() => setLightboxSrc(imgUrl)}>
                               <img
                                 src={imgUrl}
                                 alt="題目示意圖"
-                                className="w-full rounded-lg border border-gray-200 object-contain bg-gray-50"
+                                className="w-full rounded-lg border border-border object-contain bg-surface"
                                 loading="lazy"
                               />
                             </div>
@@ -98,29 +100,35 @@ export default function ReadingView({ questions, selectedChapters, imageMap, onC
                           </div>
                         )}
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 mb-3">
                           {(Object.entries(q.options) as [string, string][]).map(([key, val]) => {
                             const isAnswer = key === q.answer
                             return (
                               <div
                                 key={key}
-                                className={`p-2 rounded border border-transparent ${
+                                className={`px-3 py-2 rounded-lg text-sm ${
                                   isAnswer
-                                    ? 'text-green-700 font-bold bg-green-50 border-green-200'
-                                    : 'text-gray-600'
+                                    ? 'bg-success-muted text-success-dark font-semibold border border-success'
+                                    : 'text-gray-600 bg-surface'
                                 }`}
                               >
-                                {isAnswer && '✓ '}
-                                <span className="font-semibold">{key}.</span> {val}
+                                <span className="font-bold mr-1">{key}.</span>{val}
                               </div>
                             )
                           })}
                         </div>
 
-                        <div className="mt-2 text-sm text-gray-500">
-                          正確答案：
-                          <span className="font-bold text-green-600 text-lg">{q.answer}</span>
-                        </div>
+                        {aid?.explanation && (
+                          <details className="group mt-2">
+                            <summary className="cursor-pointer text-xs font-medium text-brand hover:text-brand-dark flex items-center gap-1 select-none list-none">
+                              <span className="transition-transform group-open:rotate-90 inline-block">▶</span>
+                              題目解析
+                            </summary>
+                            <div className="mt-2 px-3 py-2.5 bg-brand-subtle border border-brand-muted rounded-lg text-sm text-gray-700 leading-relaxed">
+                              {aid.explanation}
+                            </div>
+                          </details>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -133,10 +141,7 @@ export default function ReadingView({ questions, selectedChapters, imageMap, onC
       </div>
 
       <div className="mt-8 text-center">
-        <button
-          onClick={onClose}
-          className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-8 rounded-lg shadow transition duration-200"
-        >
+        <button onClick={onClose} className="btn-dark btn-md">
           返回設定頁
         </button>
       </div>
