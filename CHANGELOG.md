@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-06-06 (3)
+
+- **Codex CLI study aids for all non-law banks** — generated `explanation`, `keywords`, `mnemonic`, `wrong_options` for general, renewal, and renewal_basic banks via `scripts/generate_aids_codex.py` (non-interactive `npx codex exec` with gpt-5.5).
+  - `public/data/general_study_aids.json`: 297 entries (chapters 2–4, skipping law chapter)
+  - `public/data/renewal_study_aids.json`: 145 entries (non-law chapters)
+  - `public/data/renewal_basic_study_aids.json`: 36 entries (non-law chapters)
+- **Generic study aids loading** — `App.tsx` now loads `{bankId}_study_aids.json` for any bank (not just professional); `handleReadingMode` also triggers study aids load so ReadingView shows 「題目解析」 for all banks.
+- **ReadingView collapsible explanation** — each question card shows a 「▶ 題目解析」 `<details>` toggle beneath the answer options when a study aid exists; uses design token colours (`bg-brand-subtle`, `border-brand-muted`).
+
 ## 2026-06-06 (2)
 
 - **Parser bug fix** — `update_question_bank.py` was silently dropping 35 questions from the professional bank (553 instead of 588).
