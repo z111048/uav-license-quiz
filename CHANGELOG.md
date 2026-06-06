@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-06-06 (2)
+
+- **Parser bug fix** — `update_question_bank.py` was silently dropping 35 questions from the professional bank (553 instead of 588).
+  - Root cause: page footer digits appear on standalone lines at page boundaries. The operation order was wrong — double-newline normalisation (`\n(\d+.)` → `\n\n\1`) ran before page-number removal (`^\s*\d+\s*$`). The `\s*` in the page-number regex consumed the preceding `\n`, collapsing `\n2\n\n12.` → `\n12.`. The question-boundary lookahead `(?=\n\n\d+.)` then failed, causing Q12 to be absorbed into Q11's option-D text.
+  - Fix: swap execution order — remove standalone page-number lines first, then insert double newlines before question numbers.
+  - `public/data/professional.json` regenerated with correct 588 questions and updated whitelist (354 items).
+
 ## 2026-06-06
 
 - **Design system established** — unified typography, colour tokens, icon library, and component utilities applied across the entire frontend.

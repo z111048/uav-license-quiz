@@ -114,9 +114,9 @@ CAA website PDF  →  update_question_bank.py  →  public/data/*.json       →
 **PDF page number artifact:**
 - pdfplumber extracts page footer numbers as plain text lines; these can end up captured inside option D or question text (e.g. `'800 呎。5'` where `5` is a page number)
 - Two-layer defence in the parser:
-  1. Standalone digit-only lines are stripped before regex matching (`re.sub(r"(?m)^\s*\d+\s*$\n?", "", ...)`)
+  1. Standalone digit-only lines are stripped **first** (`re.sub(r"(?m)^\s*\d+\s*$\n?", "", seg_text)`), then double newlines are inserted before question numbers (`re.sub(r"\n(\d+\.)", r"\n\n\1", ...)`). **Order matters**: if double-newline normalisation ran first, the `\s*` in the page-number pattern would consume the preceding `\n`, collapsing `\n2\n\n12.` → `\n12.` and making Q12 invisible to the lookahead `(?=\n\n\d+\.)`.
   2. `_clean_text()` helper strips any remaining trailing digits after Chinese sentence-ending punctuation (`re.sub(r"(?<=[。？！])\d+$", "", ...)`) applied to every option and question text at extraction time
-- History: `professional.json` had 97 tail-embedded and 4 mid-text occurrences manually corrected in February 2026; the stale whitelist (generated before cleanup) had 25 ghost entries — both were fixed and the whitelist recomputed from clean data (February 2026)
+- History: `professional.json` had 97 tail-embedded and 4 mid-text occurrences manually corrected in February 2026; the stale whitelist (generated before cleanup) had 25 ghost entries — both were fixed and the whitelist recomputed from clean data (February 2026). Parser operation order bug discovered June 2026 — caused 35 questions to be silently dropped (553 instead of 588); fixed by swapping the order of page-number removal and double-newline normalisation.
 
 ### Project structure
 ```

@@ -275,9 +275,11 @@ def parse_pdf_to_questions(pdf_path: str) -> list[dict]:
             seg_text = re.sub(r"(?m)^(\d+)\n(?=[^\n])", r"\1 ", seg_text)
             # 正規化行首題號：e.g. "1 題目" → "1. 題目"
             seg_text = re.sub(r"(?m)^(\d+) ", r"\1. ", seg_text)
-        clean_seg_text = re.sub(r"\n(\d+\.)", r"\n\n\1", seg_text)
-        # 移除純數字行（PDF 頁首/頁尾頁碼），避免夾入題目或選項文字
-        clean_seg_text = re.sub(r"(?m)^\s*\d+\s*$\n?", "", clean_seg_text)
+        # 先移除純數字行（PDF 頁首/頁尾頁碼）；需在雙換行正規化之前執行，
+        # 否則 \s*\d+\s*$\n? 的前置 \s* 會吃掉題目邊界所需的換行
+        clean_seg_text = re.sub(r"(?m)^\s*\d+\s*$\n?", "", seg_text)
+        # 在題號前補雙換行，供 lookahead (?=\n\n\d+\.) 識別題目邊界
+        clean_seg_text = re.sub(r"\n(\d+\.)", r"\n\n\1", clean_seg_text)
         matches = q_pattern.findall(clean_seg_text)
 
         def _clean_text(s: str) -> str:
