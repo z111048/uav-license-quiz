@@ -1,5 +1,36 @@
 # Changelog
 
+## 2026-07-03 (2)
+
+- **`public/exam-simulator-mr.html` 3D 渲染真實度提升**（景物 / 人物 / 飛機，全程序化、無外部資源）：
+  - **渲染管線** — `outputEncoding = sRGBEncoding` + `ACESFilmicToneMapping`（曝光 1.0）；`AmbientLight` 改為 `HemisphereLight`（天光/地面反射雙色），太陽光改暖色 `0xfff3dd`、強度 1.25；`shadow.bias = -0.0004`。
+  - **陰影效能** — `renderer.shadowMap.autoUpdate = false`，改在 `renderAll()` 開頭 `needsUpdate = true`：PiP/三分割每幀最多 3 次 render，陰影 pass 從每幀 3 次降為 1 次。
+  - **天空** — ShaderMaterial 漸層天穹（頂部深藍→地平線亮白）；6 朵程序化雲（canvas radial-gradient sprite，`fog:false`，全部放在 |x|,|z| ≥ 60 避免進入上視圖正交視錐）；5 座遠山（壓扁球體，霧化成地平線剪影）；霧色調和為 `0x9fc3e2`。
+  - **地面** — `makeSpeckleTexture()`：canvas 雜訊貼圖（草地 4 色斑點 / 鋪面 4 色顆粒），`RepeatWrapping` + anisotropy 4（軟渲染效能考量上限 4）。
+  - **環境反射** — 程序化等距柱狀環境圖（漸層天空+太陽+地面）經 `PMREMGenerator` 生成 `droneEnvMap`，只指派給無人機的金屬/玻璃件（`mMotor`/`mBell`/`mLens`/`mGlass`）——曾試過 `scene.environment` 全場 IBL，會把整個場景洗白並讓機身染上天空色，故限縮範圍。玻璃罩改 `MeshPhysicalMaterial`（clearcoat 1.0）。
+  - **樹木** — 場地外圍 14 棵低多邊形樹（樹幹+4 顆壓扁球葉冠、3 色系、決定性旋轉變化），用兩個 `InstancedMesh`（樹幹/葉冠）合併為 2 個 draw call（原始 Group 寫法為 70 個）。
+  - **檢查員（inspMesh）重做** — 原本為 0.4m 金色小球人，改為約 1.5m 全尺寸評鑑員：深色長褲+骨盆、白襯衫、螢光黃背心+反光條、白帽（帽簷朝前）、手持寫字板+紙；繞機半徑 1.15→1.45m，加步行起伏；全部件 `castShadow`。
+  - **操作員升級** — 加脖子、雙手（握遙控器）、背心反光條；修正帽簷方向（原本朝後）；補 `castShadow`（原本人物不投影）。交通錐也補投影。
+  - **效能量測**（SwiftShader 軟渲染，實體 GPU 影響遠小）：基準 12.4 FPS → 初版 6.6 → 優化後 8.9（陰影單次更新 + InstancedMesh + anisotropy 4 + 陰影維持 1024²）。消融：陰影 pass ~3 FPS、地面貼圖 ~1.5、天穹 ~0.7。
+  - 驗證：175 Vitest 全過；headless Chrome 25 項互動檢查全過（低幀率環境下 `dt` 鉗制會讓模擬時間慢於牆鐘，驗證腳本等待時間需相應放大）；操作者/FPV/上視/三分割視角截圖逐一目視確認。
+
+## 2026-07-03
+
+- **`public/exam-simulator-mr.html` UI/UX 優化與 bug 修正**：
+  - **視窗縮放破版修正** — `W`/`H`/`PIP_SZ` 原為 `const` 只在載入時取值，resize 後主視口與 PiP 子畫面位置全部錯位；改為 `let` 並在 resize handler 內更新。
+  - **手動模式點流程步驟會瞬移** — `jumpToStep()` 未檢查模式，手動飛行中點步驟面板會直接改寫 `dronePos`；現在手動模式下顯示提示並拒絕跳轉，且 `prepareManualLayout()` 會自動收合流程面板（切回示範自動展開）。
+  - **斷電後懸空凍結/瞬移修正** — 示範模式飛行中切手動，機體會凍結在半空；關機會瞬移回原點。改為未供電且離地時以重力自由落體（含水平阻力）落地；`startManualPowerOff` 不再重設位置、`startManualPowerOn` 就地開機（僅重設姿態與垂直位置）。
+  - **示範模式提示閃一幀就消失** — `updateCallout()` 每幀覆寫 callout，示範模式按電源鍵的提示不可見；新增 `showCalloutHint(text, seconds)` 暫留提示機制（預設 2.5 秒）。
+  - **示範播完後可重新播放** — 原本流程跑完畫面停住、播放鍵失效；現在結束時顯示完成訊息，播放鍵變「🔁 重新播放」，◀/▶ 步驟鍵也能從結束狀態跳轉。
+  - **失焦按鍵卡住修正** — `keyup` 在視窗失焦時不觸發導致無人機持續移動；新增 `window blur` 時清除所有按鍵狀態。
+  - **RTH 降落改為定速下降剖面** — 原 PD 收斂到 0 在近地面呈指數減速（最後 1 公尺要 7 秒以上）；改為目標下降率 `-min(1.2, 0.3+0.5y)` m/s，並在 RTH 期間放大垂直推力權限（`MAN.throttleSpd × 2.4`，約 2 m/s 爬升 / 1 m/s 下降，接近 DJI RTH 節奏）；落地判定 `|manVelY|` 門檻 0.1 → 0.35。
+  - **飛行模式/返航按鈕僅手動模式顯示** — 兩顆按鈕在示範模式完全無作用，現在示範模式隱藏、手動模式顯示；POS 模式與 RTH 啟動時按鈕加 `on` 高亮；`setMainCam` 改為只清除 `cam-*` 按鈕的 `on` class 以免誤清。
+  - **馬達未啟動按返航顯示提示**（原本靜默無反應）。
+  - **Space 鍵在示範模式切換播放/暫停**（原本只 preventDefault）。
+  - **風場面板** — 手動模式移到左側（跟隨其切換鈕），示範模式維持右側；面板加註「⚠️ 風場僅影響手動模式飛行」。
+  - **鍵盤提示補上桌面 CSC 組合鍵**（`S+D+↓+←` 內八啟動/停止馬達）。
+  - 驗證：175 個 Vitest 全過；另以 headless Chrome（playwright-core）實測 25 項互動流程（模式切換、DJI 開關機、CSC 啟動、爬升、POS/RTH、全自動返航落地、resize、失焦、示範重播）全數通過。
+
 ## 2026-06-06 (3)
 
 - **Codex CLI study aids for all non-law banks** — generated `explanation`, `keywords`, `mnemonic`, `wrong_options` for general, renewal, and renewal_basic banks via `scripts/generate_aids_codex.py` (non-interactive `npx codex exec` with gpt-5.5).

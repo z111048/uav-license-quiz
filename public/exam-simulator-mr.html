@@ -240,6 +240,7 @@ body{overflow:hidden;background:#0a0a1a;font-family:'Segoe UI',system-ui,sans-se
   <label>亂流：<span class="val" id="turbVal">無</span></label>
   <input id="turbSlider" type="range" min="0" max="1" step="0.1" value="0"
     oninput="windTurbulence=+this.value;document.getElementById('turbVal').textContent=windTurbulence>0?windTurbulence.toFixed(1)+'x':'無'">
+  <div style="color:#999;font-size:.58rem;line-height:1.4">⚠️ 風場僅影響手動模式飛行</div>
 </div>
 
 <div id="wind-indicator">
@@ -264,14 +265,15 @@ body{overflow:hidden;background:#0a0a1a;font-family:'Segoe UI',system-ui,sans-se
   <button class="cb"     id="cam-fpv" onclick="setMainCam('fpv')">🎥 無人機</button>
   <button class="cb"     id="cam-top" onclick="setMainCam('top')">🗺 上視圖</button>
   <button class="cb"     id="cam-all" onclick="setMainCam('all')">⊞ 三視圖</button>
-  <button class="cb"     id="fmode-btn" onclick="toggleFlightMode()">🎯 姿態模式</button>
-  <button class="cb"     id="rth-btn" onclick="toggleRTH()">🏠 返航</button>
+  <button class="cb"     id="fmode-btn" style="display:none" onclick="toggleFlightMode()">🎯 姿態模式</button>
+  <button class="cb"     id="rth-btn" style="display:none" onclick="toggleRTH()">🏠 返航</button>
 </div>
 
 <div id="right-panels">
   <div id="keyhint">
     <b>W/S</b> 上升／下降 &nbsp; <b>A/D</b> 偏航旋轉<br>
     <b>↑/↓</b> 前進／後退 &nbsp; <b>←/→</b> 左右平移<br>
+    <b>S+D+↓+←</b> CSC 內八（啟動／停止馬達）<br>
     <b>R</b> 返航(RTH) &nbsp; <b>F</b> 切換飛行模式
   </div>
   <div id="stickviz">
@@ -357,18 +359,123 @@ renderer.setSize(innerWidth, innerHeight)
 renderer.shadowMap.enabled = true
 renderer.shadowMap.type    = THREE.PCFSoftShadowMap
 renderer.autoClear         = false
+// Filmic tone mapping + sRGB output for photographic colour response
+renderer.outputEncoding      = THREE.sRGBEncoding
+renderer.toneMapping         = THREE.ACESFilmicToneMapping
+renderer.toneMappingExposure = 1.0
 
 const scene = new THREE.Scene()
 scene.background = new THREE.Color(0x87ceeb)
-scene.fog        = new THREE.Fog(0x87ceeb, 70, 220)
+scene.fog        = new THREE.Fog(0x9fc3e2, 70, 230)
 
-scene.add(new THREE.AmbientLight(0xffffff, 0.5))
-const sun = new THREE.DirectionalLight(0xffffff, 0.95)
+// Sky-bounce + ground-bounce ambient (replaces flat AmbientLight)
+scene.add(new THREE.HemisphereLight(0xbdd7f2, 0x5a7444, 0.55))
+const sun = new THREE.DirectionalLight(0xfff3dd, 1.25)
 sun.position.set(18, 40, 12)
 sun.castShadow = true
 Object.assign(sun.shadow.camera, { near:0.5, far:150, left:-28, right:28, top:22, bottom:-22 })
 sun.shadow.mapSize.set(1024, 1024)
+sun.shadow.bias   = -0.0004
+sun.shadow.radius = 3
 scene.add(sun)
+// Render the shadow map once per frame (renderAll issues up to 3 renders/frame
+// for PiP / split views — autoUpdate would redraw the shadow pass each time)
+renderer.shadowMap.autoUpdate = false
+
+// ── Gradient sky dome ────────────────────────────────────────────
+const skyDome = new THREE.Mesh(
+  new THREE.SphereGeometry(170, 24, 15),
+  new THREE.ShaderMaterial({
+    side: THREE.BackSide, fog: false, depthWrite: false,
+    uniforms: {
+      cTop: { value: new THREE.Color(0x2f6fc4) },
+      cMid: { value: new THREE.Color(0x8ec4e8) },
+      cBot: { value: new THREE.Color(0xe8f2f7) },
+    },
+    vertexShader: 'varying vec3 vP;void main(){vP=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',
+    fragmentShader: [
+      'uniform vec3 cTop,cMid,cBot;varying vec3 vP;',
+      'void main(){float h=normalize(vP).y;',
+      'vec3 c=h>0.0?mix(cMid,cTop,pow(h,0.65)):mix(cMid,cBot,clamp(-h*4.0,0.0,1.0));',
+      'gl_FragColor=vec4(c,1.0);}',
+    ].join('\n'),
+  })
+)
+skyDome.renderOrder = -10
+scene.add(skyDome)
+
+// ── Procedural clouds (soft billboard sprites, far outside top-view frustum) ──
+function makeCloudTexture() {
+  const c = document.createElement('canvas')
+  c.width = 256; c.height = 128
+  const x = c.getContext('2d')
+  // Overlapping soft blobs make a puffy cumulus silhouette
+  ;[[70, 78, 44], [120, 62, 52], [175, 76, 40], [105, 88, 46], [148, 90, 38]].forEach(([bx, by, r]) => {
+    const g = x.createRadialGradient(bx, by, 1, bx, by, r)
+    g.addColorStop(0, 'rgba(255,255,255,0.95)')
+    g.addColorStop(0.55, 'rgba(252,253,255,0.55)')
+    g.addColorStop(1, 'rgba(250,252,255,0)')
+    x.fillStyle = g
+    x.fillRect(0, 0, 256, 128)
+  })
+  return new THREE.CanvasTexture(c)
+}
+const cloudTex = makeCloudTexture()
+;[
+  [-95, 52, -120, 46], [70, 60, -140, 58], [130, 44, -60, 40],
+  [-140, 56, 30, 52], [110, 50, 90, 44], [-70, 46, 110, 38],
+].forEach(([cx, cy, cz, cs]) => {
+  const spr = new THREE.Sprite(new THREE.SpriteMaterial({
+    map: cloudTex, transparent: true, opacity: 0.9, fog: false, depthWrite: false,
+  }))
+  spr.position.set(cx, cy, cz)
+  spr.scale.set(cs, cs * 0.5, 1)
+  scene.add(spr)
+})
+
+// ── Distant hills (fog-hazed horizon silhouettes) ────────────────
+;[
+  [-120, -140, 55, 16, 0x4a6b3c], [30, -160, 70, 20, 0x54764a],
+  [140, -120, 50, 14, 0x47673a], [-160, 20, 60, 15, 0x50724a],
+  [150, 60, 55, 13, 0x4a6b40],
+].forEach(([hx, hz, r, h, col]) => {
+  const hill = new THREE.Mesh(
+    new THREE.SphereGeometry(r, 16, 10),
+    new THREE.MeshStandardMaterial({ color: col, roughness: 1 })
+  )
+  hill.scale.y = h / r
+  hill.position.set(hx, 0, hz)
+  scene.add(hill)
+})
+
+// ── Environment map (procedural equirect → PMREM) for drone reflections ──
+// Assigned per-material on the drone only — scene.environment would add an
+// extra IBL ambient term to every surface and wash the whole scene out.
+let droneEnvMap = null
+;(function initEnvMap() {
+  const c = document.createElement('canvas')
+  c.width = 512; c.height = 256
+  const x = c.getContext('2d')
+  const g = x.createLinearGradient(0, 0, 0, 256)
+  g.addColorStop(0.00, '#2f6fc4')
+  g.addColorStop(0.48, '#8ec4e8')
+  g.addColorStop(0.52, '#9db97e')
+  g.addColorStop(1.00, '#3c5228')
+  x.fillStyle = g
+  x.fillRect(0, 0, 512, 256)
+  const sg = x.createRadialGradient(150, 58, 2, 150, 58, 46)
+  sg.addColorStop(0, 'rgba(255,255,244,1)')
+  sg.addColorStop(0.3, 'rgba(255,250,225,0.75)')
+  sg.addColorStop(1, 'rgba(255,250,225,0)')
+  x.fillStyle = sg
+  x.fillRect(0, 0, 512, 256)
+  const tex = new THREE.CanvasTexture(c)
+  tex.mapping = THREE.EquirectangularReflectionMapping
+  const pmrem = new THREE.PMREMGenerator(renderer)
+  droneEnvMap = pmrem.fromEquirectangular(tex).texture
+  tex.dispose()
+  pmrem.dispose()
+})()
 
 const clock = new THREE.Clock()
 
@@ -376,10 +483,38 @@ const clock = new THREE.Clock()
 //  ENVIRONMENT
 // ═══════════════════════════════════════════════════════════════
 
-// Ground (grass)
+// Procedural speckle texture (grass blades / asphalt grain) — no external assets
+function makeSpeckleTexture(base, specks, repeat) {
+  const c = document.createElement('canvas')
+  c.width = c.height = 256
+  const x = c.getContext('2d')
+  x.fillStyle = base
+  x.fillRect(0, 0, 256, 256)
+  specks.forEach(([col, n, s]) => {
+    x.fillStyle = col
+    for (let i = 0; i < n; i++) {
+      x.globalAlpha = 0.25 + Math.random() * 0.5
+      x.fillRect(Math.random() * 256, Math.random() * 256, s, s + Math.random() * s)
+    }
+  })
+  x.globalAlpha = 1
+  const tex = new THREE.CanvasTexture(c)
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping
+  tex.repeat.set(repeat, repeat)
+  tex.encoding = THREE.sRGBEncoding
+  tex.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy())
+  return tex
+}
+
+// Ground (grass) — tinted blade speckles break up the flat colour
 const ground = new THREE.Mesh(
   new THREE.PlaneGeometry(300, 300),
-  new THREE.MeshStandardMaterial({ color: 0x4d7c32, roughness: 1 })
+  new THREE.MeshStandardMaterial({
+    map: makeSpeckleTexture('#55803a', [
+      ['#476f2e', 2600, 1.6], ['#649447', 2200, 1.4], ['#3e6428', 1500, 1.8], ['#71a352', 900, 1.2],
+    ], 80),
+    roughness: 1,
+  })
 )
 ground.rotation.x = -PI / 2
 ground.receiveShadow = true
@@ -388,7 +523,12 @@ scene.add(ground)
 // Exam mat – covers both basic (15m×15m) and advanced (30m×23m) fields
 const mat = new THREE.Mesh(
   new THREE.PlaneGeometry(32, 26),
-  new THREE.MeshStandardMaterial({ color: 0x8a8a8a, roughness: 0.85 })
+  new THREE.MeshStandardMaterial({
+    map: makeSpeckleTexture('#8d8d8d', [
+      ['#7c7c7e', 2400, 1.5], ['#9a9a9c', 2000, 1.3], ['#6f6f72', 1000, 1.8], ['#a6a6a8', 500, 1.1],
+    ], 14),
+    roughness: 0.92,
+  })
 )
 mat.rotation.x = -PI / 2
 mat.position.set(0, 0.005, -4.5)
@@ -572,6 +712,7 @@ function cone(x, z) {
   base.position.y = 0.015
   g.add(body, band1, band2, base)
   g.position.set(x, 0, z)
+  g.traverse(o => { if (o.isMesh) o.castShadow = true })
   scene.add(g)
 }
 
@@ -614,6 +755,51 @@ groundRingAt(-6, -6, 4, 0xff2222, 0.013)
 groundRingAt( 6, -6, 4, 0xff2222, 0.013)
 
 
+
+// ── Trees around the field perimeter (low-poly, instanced: 2 draw calls) ─
+{
+  const TREES = [
+    [-22, -24, 1.35, 0], [-13, -27, 1.05, 1], [-3, -30, 1.5, 2], [7, -28, 1.15, 0],
+    [16, -25, 1.4, 1], [24, -18, 1.0, 2], [-25, -10, 1.15, 1], [26, -6, 1.3, 0],
+    [-27, 2, 1.05, 2], [27, 6, 1.1, 1], [-19, 12, 1.25, 0], [20, 13, 0.95, 2],
+    [8, 16, 1.2, 1], [-8, 15, 1.0, 0],
+  ]
+  const BLOBS = [
+    [0, 2.0, 0, 1.00], [0.55, 1.55, 0.25, 0.68], [-0.5, 1.65, -0.2, 0.72], [0.1, 1.5, -0.5, 0.6],
+  ]
+  const foliageCols = [new THREE.Color(0x3f6d2e), new THREE.Color(0x4a7c36), new THREE.Color(0x578a41)]
+
+  const trunkGeo = new THREE.CylinderGeometry(0.09, 0.16, 1.5, 7)
+  trunkGeo.translate(0, 0.75, 0)
+  const trunks = new THREE.InstancedMesh(
+    trunkGeo, new THREE.MeshStandardMaterial({ color: 0x5d4531, roughness: 0.95 }), TREES.length)
+
+  const foliage = new THREE.InstancedMesh(
+    new THREE.SphereGeometry(1, 8, 6),
+    new THREE.MeshStandardMaterial({ roughness: 0.9, flatShading: true }),
+    TREES.length * BLOBS.length)
+
+  const m4 = new THREE.Matrix4()
+  const pos = new THREE.Vector3(), scl = new THREE.Vector3()
+  const quat = new THREE.Quaternion(), qNone = new THREE.Quaternion()
+  TREES.forEach(([tx, tz, ts, hue], i) => {
+    const rotY = (tx * 7 + tz * 3) % PI   // deterministic per-tree variety
+    quat.setFromEuler(new THREE.Euler(0, rotY, 0))
+    m4.compose(pos.set(tx, 0, tz), quat, scl.set(ts, ts, ts))
+    trunks.setMatrixAt(i, m4)
+    const cosR = Math.cos(rotY), sinR = Math.sin(rotY)
+    BLOBS.forEach(([fx, fy, fz, fr], j) => {
+      const k = i * BLOBS.length + j
+      pos.set(tx + (fx * cosR + fz * sinR) * ts, fy * ts, tz + (-fx * sinR + fz * cosR) * ts)
+      m4.compose(pos, qNone, scl.set(fr * ts, fr * ts * 0.82, fr * ts))
+      foliage.setMatrixAt(k, m4)
+      foliage.setColorAt(k, foliageCols[hue % foliageCols.length])
+    })
+  })
+  trunks.castShadow = true
+  foliage.castShadow = true
+  scene.add(trunks, foliage)
+}
 
 // Operator standing mat
 const opMat = new THREE.Mesh(
@@ -671,6 +857,15 @@ function makeOperator() {
   vest.position.set(0, 1.03, 0.05)
   g.add(vest)
 
+  // Hi-vis reflective stripes on the vest
+  const stripeMat = new THREE.MeshStandardMaterial({ color: 0xd8d8d8, roughness: 0.3, metalness: 0.15 })
+  ;[[-0.06, 0, 0.02, 0.34, 0.006], [0.06, 0, 0.02, 0.34, 0.006], [0, -0.09, 0.2, 0.03, 0.006]].forEach(
+    ([sx, sy, w, h, d]) => {
+      const stripe = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), stripeMat)
+      stripe.position.set(sx, 1.03 + sy, 0.145)
+      g.add(stripe)
+    })
+
   // arms holding controller
   ;[[-0.22, 0.48], [0.22, -0.48]].forEach(([x, rz]) => {
     const arm = new THREE.Mesh(
@@ -683,7 +878,18 @@ function makeOperator() {
     g.add(arm)
   })
 
-  // head
+  // hands on the transmitter
+  ;[[-0.09], [0.09]].forEach(([x]) => {
+    const hand = new THREE.Mesh(new THREE.SphereGeometry(0.032, 8, 8), headMat)
+    hand.position.set(x, 0.875, 0.22)
+    g.add(hand)
+  })
+
+  // neck + head
+  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.09, 8), headMat)
+  neck.position.y = 1.32
+  g.add(neck)
+
   const head = new THREE.Mesh(new THREE.SphereGeometry(0.12, 12, 12), headMat)
   head.position.y = 1.5
   g.add(head)
@@ -695,11 +901,12 @@ function makeOperator() {
   cap.position.y = 1.6
   g.add(cap)
 
+  // brim faces forward (+Z local; model is flipped 180° so it faces the field)
   const brim = new THREE.Mesh(
     new THREE.BoxGeometry(0.14, 0.015, 0.09),
     capMat
   )
-  brim.position.set(0, 1.57, -0.1)
+  brim.position.set(0, 1.57, 0.13)
   g.add(brim)
 
   // RC transmitter box
@@ -717,44 +924,99 @@ function makeOperator() {
 
   g.rotation.y = PI
   g.position.set(0, 0, OP_Z)
+  g.traverse(o => { if (o.isMesh) o.castShadow = true })
   scene.add(g)
   operatorGroup = g
 }
 makeOperator()
 
-// Inspector sphere (gold, orbits drone during pre/post flight checks)
+// Inspector figure (full-size evaluator with hi-vis vest and clipboard,
+// orbits the aircraft during pre/post flight checks). Base model faces +Z;
+// updateDemo sets rotation.y = inspAngle + PI so it always faces the drone.
 const inspMesh = new THREE.Group()
-const inspMat = new THREE.MeshStandardMaterial({ color: 0xffd700, emissive: 0xaa8800, emissiveIntensity: 0.25, roughness: 0.8 })
-const inspHead = new THREE.Mesh(
-  new THREE.SphereGeometry(0.08, 12, 12),
-  inspMat
-)
-inspHead.position.y = 0.34
-inspMesh.add(inspHead)
-const inspBody = new THREE.Mesh(
-  new THREE.CylinderGeometry(0.05, 0.06, 0.18, 8),
-  inspMat
-)
-inspBody.position.y = 0.18
-inspMesh.add(inspBody)
-;[[-0.07, 0.32], [0.07, -0.32]].forEach(([x, rz]) => {
-  const arm = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.018, 0.018, 0.13, 8),
-    inspMat
+{
+  const slackMat = new THREE.MeshStandardMaterial({ color: 0x3a3f45, roughness: 0.9 })
+  const shirtMat = new THREE.MeshStandardMaterial({ color: 0xcfd8e3, roughness: 0.85 })
+  const hivisMat = new THREE.MeshStandardMaterial({ color: 0xf7d40a, roughness: 0.65 })
+  const skinMat  = new THREE.MeshStandardMaterial({ color: 0xeab98f })
+  const boardMat = new THREE.MeshStandardMaterial({ color: 0x8a5a2b, roughness: 0.8 })
+
+  // legs + shoes
+  ;[[-0.075, -0.06], [0.075, 0.06]].forEach(([x, rz]) => {
+    const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.042, 0.048, 0.68, 8), slackMat)
+    leg.position.set(x, 0.34, 0)
+    leg.rotation.z = rz
+    inspMesh.add(leg)
+  })
+  ;[[-0.085], [0.085]].forEach(([x]) => {
+    const shoe = new THREE.Mesh(
+      new THREE.BoxGeometry(0.11, 0.05, 0.2),
+      new THREE.MeshStandardMaterial({ color: 0x23201d, roughness: 0.9 })
+    )
+    shoe.position.set(x, 0.04, 0.05)
+    inspMesh.add(shoe)
+  })
+
+  // pelvis bridges the leg tops so there is no gap under the torso
+  const pelvis = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.115, 0.18, 10), slackMat)
+  pelvis.position.y = 0.7
+  inspMesh.add(pelvis)
+
+  // torso + hi-vis vest
+  const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.15, 0.44, 10), shirtMat)
+  torso.position.y = 0.97
+  inspMesh.add(torso)
+  const vest = new THREE.Mesh(new THREE.BoxGeometry(0.23, 0.32, 0.17), hivisMat)
+  vest.position.set(0, 0.98, 0.045)
+  inspMesh.add(vest)
+  const vStripeMat = new THREE.MeshStandardMaterial({ color: 0xbfc6cc, roughness: 0.3, metalness: 0.15 })
+  ;[[-0.055], [0.055]].forEach(([sx]) => {
+    const stripe = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.32, 0.006), vStripeMat)
+    stripe.position.set(sx, 0.98, 0.135)
+    inspMesh.add(stripe)
+  })
+
+  // arms: right holds clipboard in front, left hangs
+  const armL = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.032, 0.4, 8), shirtMat)
+  armL.position.set(-0.2, 0.92, 0.02)
+  armL.rotation.z = 0.22
+  inspMesh.add(armL)
+  const armR = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.032, 0.38, 8), shirtMat)
+  armR.position.set(0.17, 0.94, 0.12)
+  armR.rotation.z = -0.5
+  armR.rotation.x = PI / 2.6
+  inspMesh.add(armR)
+
+  // clipboard + paper
+  const board = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.27, 0.012), boardMat)
+  board.position.set(0.05, 0.95, 0.24)
+  board.rotation.x = -0.5
+  inspMesh.add(board)
+  const paper = new THREE.Mesh(
+    new THREE.BoxGeometry(0.17, 0.23, 0.004),
+    new THREE.MeshStandardMaterial({ color: 0xf5f5f0, roughness: 0.9 })
   )
-  arm.position.set(x, 0.2, 0)
-  arm.rotation.z = rz
-  inspMesh.add(arm)
-})
-;[[-0.04, -0.16], [0.04, 0.16]].forEach(([x, rz]) => {
-  const leg = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.02, 0.02, 0.14, 8),
-    inspMat
-  )
-  leg.position.set(x, 0.02, 0)
-  leg.rotation.z = rz
-  inspMesh.add(leg)
-})
+  paper.position.set(0.05, 0.955, 0.251)
+  paper.rotation.x = -0.5
+  inspMesh.add(paper)
+
+  // neck + head + white cap (brim forward +Z)
+  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.038, 0.046, 0.08, 8), skinMat)
+  neck.position.y = 1.25
+  inspMesh.add(neck)
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.11, 12, 12), skinMat)
+  head.position.y = 1.42
+  inspMesh.add(head)
+  const capMat2 = new THREE.MeshStandardMaterial({ color: 0xf2f2f2, roughness: 0.8 })
+  const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.115, 0.115, 0.075, 12), capMat2)
+  cap.position.y = 1.51
+  inspMesh.add(cap)
+  const brim = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.014, 0.085), capMat2)
+  brim.position.set(0, 1.485, 0.12)
+  inspMesh.add(brim)
+
+  inspMesh.traverse(o => { if (o.isMesh) o.castShadow = true })
+}
 inspMesh.visible = false
 scene.add(inspMesh)
 
@@ -769,13 +1031,18 @@ scene.add(droneGroup)
 const mBody    = new THREE.MeshStandardMaterial({ color: 0x2c2c2e, roughness: 0.45, metalness: 0.30 })
 const mShell   = new THREE.MeshStandardMaterial({ color: 0x3a3a3c, roughness: 0.50, metalness: 0.20 })
 const mAccent  = new THREE.MeshStandardMaterial({ color: 0x636366, roughness: 0.35, metalness: 0.55 })
-const mMotor   = new THREE.MeshStandardMaterial({ color: 0x1c1c1e, metalness: 0.80, roughness: 0.25 })
-const mBell    = new THREE.MeshStandardMaterial({ color: 0x8e8e93, metalness: 0.90, roughness: 0.18 })
+const mMotor   = new THREE.MeshStandardMaterial({ color: 0x1c1c1e, metalness: 0.80, roughness: 0.25, envMapIntensity: 1.3 })
+const mBell    = new THREE.MeshStandardMaterial({ color: 0x8e8e93, metalness: 0.90, roughness: 0.18, envMapIntensity: 1.5 })
 const mPropDk  = new THREE.MeshStandardMaterial({ color: 0x1a1a1c, roughness: 0.38, side: THREE.DoubleSide })
 const mPropLt  = new THREE.MeshStandardMaterial({ color: 0x3a3a3c, roughness: 0.38, side: THREE.DoubleSide })
 const mNose    = new THREE.MeshStandardMaterial({ color: 0xf0f0f0, roughness: 0.30 })
-const mLens    = new THREE.MeshStandardMaterial({ color: 0x070707, metalness: 0.50, roughness: 0.10 })
-const mGlass   = new THREE.MeshStandardMaterial({ color: 0x101014, metalness: 0.30, roughness: 0.08, transparent: true, opacity: 0.88 })
+const mLens    = new THREE.MeshStandardMaterial({ color: 0x070707, metalness: 0.50, roughness: 0.10, envMapIntensity: 1.4 })
+// Tinted glass sensor dome — clearcoat gives a realistic glossy reflection layer
+const mGlass   = new THREE.MeshPhysicalMaterial({ color: 0x101014, metalness: 0.30, roughness: 0.08,
+  transparent: true, opacity: 0.88, clearcoat: 1.0, clearcoatRoughness: 0.06, envMapIntensity: 1.6 })
+// Environment reflections on glossy metal/glass parts only — matte plastics
+// (body/shell/props) pick up a washed-out sky tint if given the env map
+;[mMotor, mBell, mLens, mGlass].forEach(m => { m.envMap = droneEnvMap })
 const mLeg     = new THREE.MeshStandardMaterial({ color: 0x2c2c2e, roughness: 0.65 })
 const mLedR    = new THREE.MeshStandardMaterial({ color: 0xff3b30, emissive: 0xff3b30, emissiveIntensity: 0.9 })
 const mLedG    = new THREE.MeshStandardMaterial({ color: 0x30d158, emissive: 0x30d158, emissiveIntensity: 0.9 })
@@ -983,7 +1250,7 @@ const GEAR_H = 0.162
 // ═══════════════════════════════════════════════════════════════
 //  CAMERAS
 // ═══════════════════════════════════════════════════════════════
-const W = innerWidth, H = innerHeight
+let W = innerWidth, H = innerHeight
 
 // Operator camera
 const opCam = new THREE.PerspectiveCamera(58, W / H, 0.1, 500)
@@ -1091,6 +1358,17 @@ const STEP_DEFS = [
 let mode      = 'demo'      // 'demo' | 'manual'
 let mainCam   = 'op'        // 'op' | 'fpv' | 'top' | 'all'
 let playing   = true
+let demoFinished = false    // true once the demo sequence has played to the end
+let calloutHintTimer = 0    // seconds a transient hint stays before demo callout resumes
+
+// Demo mode overwrites the callout every frame — use this for hints that must
+// stay readable for a moment (no-ops harmlessly in manual mode).
+function showCalloutHint(text, seconds = 2.5) {
+  const el = document.getElementById('callout')
+  el.textContent = text
+  el.classList.add('hi')
+  calloutHintTimer = seconds
+}
 let wpIdx     = 0           // current SEQ index
 let wpProg    = 0           // 0..1 progress along current transit
 let waitAccum = 0           // seconds waited at current hover entry
@@ -1109,11 +1387,16 @@ let inspAngle = 0           // inspector orbit angle (radians)
 const keys = {}
 window.addEventListener('keydown', e => {
   keys[e.code] = true
-  if (e.code === 'Space') e.preventDefault()
+  if (e.code === 'Space') {
+    e.preventDefault()
+    if (mode === 'demo' && !e.repeat) togglePlay()
+  }
   if (e.code === 'KeyR' && mode === 'manual') toggleRTH()
   if (e.code === 'KeyF' && mode === 'manual') toggleFlightMode()
 })
 window.addEventListener('keyup', e => { keys[e.code] = false })
+// keyup never fires if the window loses focus mid-press — clear all held keys
+window.addEventListener('blur', () => { for (const k in keys) keys[k] = false })
 
 // ═══════════════════════════════════════════════════════════════
 //  VIRTUAL JOYSTICKS (manual mode touch — powered by nipplejs)
@@ -1180,7 +1463,19 @@ function yawFromDir(dx, dz) {
 //  DEMO AUTOPILOT
 // ═══════════════════════════════════════════════════════════════
 function updateDemo(dt) {
-  if (!playing || wpIdx >= SEQ.length) return
+  if (wpIdx >= SEQ.length) {
+    if (!demoFinished) {
+      demoFinished = true
+      playing = false
+      inspMesh.visible = false
+      document.getElementById('bPlay').textContent = '🔁 重新播放'
+      const callout = document.getElementById('callout')
+      callout.textContent = '✅ 示範流程已全部完成！\n按「🔁 重新播放」再看一次，或切換手動模式練習'
+      callout.classList.add('hi')
+    }
+    return
+  }
+  if (!playing) return
 
   const wp  = SEQ[wpIdx]
   const nxt = SEQ[wpIdx + 1]
@@ -1200,9 +1495,9 @@ function updateDemo(dt) {
       const orbitTurns = Math.min(waitAccum / Math.max(wp.d || 1, 1), 1)
       inspAngle = orbitTurns * PI * 2
       inspMesh.position.set(
-        dronePos.x + Math.sin(inspAngle) * 1.15,
-        0,
-        dronePos.z + Math.cos(inspAngle) * 1.15
+        dronePos.x + Math.sin(inspAngle) * 1.45,
+        Math.abs(Math.sin(inspAngle * 9)) * 0.035,   // subtle walking bob
+        dronePos.z + Math.cos(inspAngle) * 1.45
       )
       inspMesh.rotation.y = inspAngle + PI
     } else {
@@ -1410,7 +1705,18 @@ function updateManual(dt) {
     manualInput.throttle = 0
     manualInput.forward = 0
     manualInput.side = 0
-    manVelX = 0; manVelY = 0; manVelZ = 0
+    if (dronePos.y > 0) {
+      // Unpowered while airborne: free-fall with air drag until ground contact
+      manVelY = Math.max(manVelY - MAN.gravity * dt, -6)
+      const fallDrag = Math.max(0, 1 - MAN.drag * dt)
+      manVelX *= fallDrag; manVelZ *= fallDrag
+      dronePos.x += manVelX * dt
+      dronePos.z += manVelZ * dt
+      dronePos.y = Math.max(0, dronePos.y + manVelY * dt)
+      if (dronePos.y === 0) { manVelX = 0; manVelY = 0; manVelZ = 0 }
+    } else {
+      manVelX = 0; manVelY = 0; manVelZ = 0
+    }
     dronePitch += (0 - dronePitch) * Math.min(1, dt * 8)
     droneRoll  += (0 - droneRoll)  * Math.min(1, dt * 8)
     return
@@ -1462,11 +1768,15 @@ function updateManual(dt) {
 
   // ── RTH: override all stick inputs ──────────────────────────────
   if (rthState !== 'inactive') {
-    // RTH altitude PD controller
-    let rthTargetAlt = RTH_ALT
-    if (rthState === 'descending') rthTargetAlt = 0
-    const altErr = rthTargetAlt - dronePos.y
-    thrInput = clampUnit(altErr * RTH_ALT_KP - manVelY * RTH_ALT_KD)
+    // RTH altitude controller
+    if (rthState === 'descending') {
+      // Constant-rate descent profile — PD-to-zero stalls exponentially near ground
+      const vDes = -Math.min(1.2, 0.3 + dronePos.y * 0.5)
+      thrInput = clampUnit((vDes - manVelY) * 1.5)
+    } else {
+      const altErr = RTH_ALT - dronePos.y
+      thrInput = clampUnit(altErr * RTH_ALT_KP - manVelY * RTH_ALT_KD)
+    }
 
     if (rthState === 'climbing') {
       // Hold the start point while climbing so wind does not carry the aircraft away.
@@ -1488,7 +1798,7 @@ function updateManual(dt) {
     } else if (rthState === 'descending') {
       const landHold = computeHorizontalHoldCommand(0, 0, RTH_HOR_KP, RTH_HOR_KD, sinY, cosY)
       fwdCmd = landHold.fwd; sideCmd = landHold.side; yawInput = 0
-      if (dronePos.y <= 0.05 && Math.abs(manVelY) < 0.1 &&
+      if (dronePos.y <= 0.05 && Math.abs(manVelY) < 0.35 &&
           Math.abs(manVelX) < 0.25 && Math.abs(manVelZ) < 0.25) {
         rthState = 'inactive'
         updateRthStatus()
@@ -1518,7 +1828,9 @@ function updateManual(dt) {
   } else {
     droneYaw = lerpAngle(droneYaw, droneYaw + yawInput * MAN.yawSpd * dt, 1)
   }
-  manVelY += thrInput * MAN.throttleSpd * dt
+  // RTH gets extra vertical authority (≈2 m/s climb / 1 m/s descent, like DJI RTH)
+  const vertAuthority = rthState !== 'inactive' ? MAN.throttleSpd * 2.4 : MAN.throttleSpd
+  manVelY += thrInput * vertAuthority * dt
   manVelY *= Math.max(0, 1 - 3.5 * dt)   // vertical drag / hover damping
   dronePos.y += manVelY * dt
   dronePos.y  = Math.max(0, Math.min(25, dronePos.y))
@@ -1578,7 +1890,10 @@ function updateRthStatus() {
   if (!el) return
   const labels = { inactive: '—', climbing: '爬升中', navigating: '導航中', descending: '降落中' }
   el.textContent = labels[rthState] || '—'
-  if (btn) btn.textContent = rthState !== 'inactive' ? '🏠 取消返航' : '🏠 返航'
+  if (btn) {
+    btn.textContent = rthState !== 'inactive' ? '🏠 取消返航' : '🏠 返航'
+    btn.classList.toggle('on', rthState !== 'inactive')
+  }
   if (rthState !== 'inactive' && callout) {
     const msgs = { climbing: '🏠 RTH：爬升至安全高度…', navigating: '🏠 RTH：導航返回 H 點…', descending: '🏠 RTH：降落中…' }
     callout.textContent = msgs[rthState] || ''
@@ -1606,7 +1921,13 @@ function cancelRTH(reason) {
 }
 
 function toggleRTH() {
-  if (mode !== 'manual' || motorState !== 'running') return
+  if (mode !== 'manual') return
+  if (motorState !== 'running') {
+    const callout = document.getElementById('callout')
+    callout.textContent = '🏠 返航需先啟動葉槳（雙搖桿下內八 / 下外八）'
+    callout.classList.add('hi')
+    return
+  }
   if (rthState !== 'inactive') cancelRTH('🏠 RTH 已取消')
   else startRTH()
 }
@@ -1618,7 +1939,10 @@ function toggleFlightMode() {
     holdPosX = dronePos.x; holdPosZ = dronePos.z
   }
   const btn = document.getElementById('fmode-btn')
-  if (btn) btn.textContent = flightMode === 'POS' ? '🛰 定位模式' : '🎯 姿態模式'
+  if (btn) {
+    btn.textContent = flightMode === 'POS' ? '🛰 定位模式' : '🎯 姿態模式'
+    btn.classList.toggle('on', flightMode === 'POS')
+  }
   const callout = document.getElementById('callout')
   if (callout) {
     callout.textContent = flightMode === 'POS'
@@ -1703,7 +2027,7 @@ function updateLandingHint(dt, horizontalSpeed) {
 
 
 // ═══════════════════════════════════════════════════════════════
-const PIP_SZ = Math.round(Math.min(W, H) * 0.24)
+let PIP_SZ = Math.round(Math.min(W, H) * 0.24)
 const MARGIN  = 10
 
 function setViewport(x, y, w, h, cam) {
@@ -1732,6 +2056,7 @@ function setViewport(x, y, w, h, cam) {
 }
 
 function renderAll() {
+  renderer.shadowMap.needsUpdate = true   // refresh shadows once per frame
   renderer.clear()
 
   if (mainCam === 'all') {
@@ -2160,6 +2485,10 @@ function prepareManualLayout() {
   initJoysticks()
   inspMesh.visible = false
 
+  // Flight mode / RTH only work in manual mode
+  document.getElementById('fmode-btn').style.display = ''
+  document.getElementById('rth-btn').style.display = ''
+
   const hudBtn = document.getElementById('hud-toggle')
   hudBtn.style.right = 'auto'
   hudBtn.style.left  = '8px'
@@ -2176,7 +2505,14 @@ function prepareManualLayout() {
   windBtn.style.top   = '134px'
   setWindPanelVisible(false)
 
+  // Wind panel opens beside its toggle button (left side in manual mode)
+  const windPanel = document.getElementById('wind-panel')
+  windPanel.style.right = 'auto'
+  windPanel.style.left  = '8px'
+  windPanel.style.top   = '176px'
+
   setHudVisible(false)
+  setStepsPanelVisible(false)
 }
 
 function prepareDemoLayout() {
@@ -2185,6 +2521,9 @@ function prepareDemoLayout() {
   updateCscStatus('示範模式')
   document.getElementById('zoneL').style.display = 'none'
   document.getElementById('zoneR').style.display = 'none'
+
+  document.getElementById('fmode-btn').style.display = 'none'
+  document.getElementById('rth-btn').style.display = 'none'
 
   const hudBtn = document.getElementById('hud-toggle')
   hudBtn.style.left  = 'auto'
@@ -2202,6 +2541,11 @@ function prepareDemoLayout() {
   windBtn.style.top   = '8px'
   setWindPanelVisible(false)
 
+  const windPanel = document.getElementById('wind-panel')
+  windPanel.style.left  = 'auto'
+  windPanel.style.right = '8px'
+  windPanel.style.top   = '90px'
+
   setHudVisible(false)
   setStepsPanelVisible(true)
 }
@@ -2216,8 +2560,8 @@ function startManualPowerOn() {
   resetModeButtonPrompt()
   setPowerButton('🔴 啟動中…', { manual: true })
 
-  dronePos.set(0, 0, 0)
-  droneYaw = 0
+  // Power on where the aircraft sits (no teleport); attitude resets, heading kept
+  dronePos.y = 0
   dronePitch = 0
   droneRoll = 0
   manVelX = 0; manVelY = 0; manVelZ = 0
@@ -2269,10 +2613,7 @@ function startManualPowerOff(nextMode = null) {
   powerState = 'stopping'
   powerTimer = 0
   curThrInput = 0
-  manVelX = 0; manVelY = 0; manVelZ = 0
-  dronePos.set(0, 0, 0)
-  dronePitch = 0
-  droneRoll = 0
+  // Keep position/velocity — if airborne, updateManual free-falls the aircraft
   motorTarget = 0
   motorState = 'stopping'
   motorStateTimer = 0
@@ -2444,7 +2785,8 @@ function animate() {
 
   // Blob shadow removed — real sun shadow now handles this
 
-  if (mode === 'demo' && wpIdx < SEQ.length) updateCallout()
+  calloutHintTimer = Math.max(0, calloutHintTimer - dt)
+  if (mode === 'demo' && wpIdx < SEQ.length && calloutHintTimer <= 0) updateCallout()
 
   renderAll()
 }
@@ -2502,9 +2844,17 @@ function updateStepPanel() {
 }
 
 function jumpToStep(stepId) {
+  if (mode !== 'demo') {
+    const callout = document.getElementById('callout')
+    callout.textContent = '📋 流程跳轉僅限示範模式，請先切回示範模式'
+    callout.classList.add('hi')
+    return
+  }
   const idx = SEQ.findIndex(w => w.s === stepId)
   if (idx < 0) return
   wpIdx = idx
+  demoFinished = false
+  document.getElementById('bPlay').textContent = playing ? '⏸ 暫停' : '▶ 繼續'
   wpProg = 0
   waitAccum = 0
   dronePos.copy(v3(SEQ[idx].p))
@@ -2514,13 +2864,24 @@ function jumpToStep(stepId) {
 }
 
 function togglePlay() {
+  if (wpIdx >= SEQ.length) {
+    // Demo finished — restart from the beginning
+    jumpToStep('A')
+    playing = true
+    document.getElementById('bPlay').textContent = '⏸ 暫停'
+    return
+  }
   playing = !playing
   document.getElementById('bPlay').textContent = playing ? '⏸ 暫停' : '▶ 繼續'
 }
 
 function stepNav(dir) {
-  // Find index in STEP_DEFS
-  const cur = wpIdx < SEQ.length ? SEQ[wpIdx].s : STEP_DEFS[0].id
+  // After the demo finishes, ◀ replays the last step and ▶ restarts from A
+  if (wpIdx >= SEQ.length) {
+    jumpToStep(dir < 0 ? STEP_DEFS[STEP_DEFS.length - 1].id : STEP_DEFS[0].id)
+    return
+  }
+  const cur = SEQ[wpIdx].s
   const si  = STEP_DEFS.findIndex(d => d.id === cur)
   const ni  = Math.max(0, Math.min(STEP_DEFS.length - 1, si + dir))
   jumpToStep(STEP_DEFS[ni].id)
@@ -2528,7 +2889,8 @@ function stepNav(dir) {
 
 function setMainCam(cam) {
   mainCam = cam
-  document.querySelectorAll('.cb').forEach(b => b.classList.remove('on'))
+  // Only clear camera buttons — fmode/rth buttons manage their own 'on' state
+  document.querySelectorAll('#cams [id^="cam-"]').forEach(b => b.classList.remove('on'))
   const btn = document.getElementById('cam-' + cam)
   if (btn) btn.classList.add('on')
   layoutPip()
@@ -2574,9 +2936,7 @@ function toggleMode() {
 
 function togglePower() {
   if (mode !== 'manual') {
-    const callout = document.getElementById('callout')
-    callout.textContent = '🔋 請先切換到手動模式，再操作電源鍵'
-    callout.classList.add('hi')
+    showCalloutHint('🔋 請先切換到手動模式，再操作電源鍵')
     return
   }
   if (suppressPowerButtonClick) {
@@ -2599,11 +2959,12 @@ function togglePower() {
 //  WINDOW RESIZE
 // ═══════════════════════════════════════════════════════════════
 window.addEventListener('resize', () => {
-  const nw = innerWidth, nh = innerHeight
-  renderer.setSize(nw, nh)
-  opCam.aspect = nw / nh
+  W = innerWidth; H = innerHeight
+  PIP_SZ = Math.round(Math.min(W, H) * 0.24)
+  renderer.setSize(W, H)
+  opCam.aspect = W / H
   opCam.updateProjectionMatrix()
-  fpvCam.aspect = nw / nh
+  fpvCam.aspect = W / H
   fpvCam.updateProjectionMatrix()
   layoutPip()
 })
